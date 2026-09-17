@@ -4,7 +4,6 @@ import { BarChart3, Download, Printer, FileSpreadsheet, FileText, PieChart } fro
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
-import { Trans } from "@/components/shared/trans";
 
 export default async function BeneficiaryReportsPage({ searchParams }: { searchParams: Promise<{ beneficiaryId?: string }> }) {
   const resolvedParams = await searchParams
@@ -64,21 +63,21 @@ export default async function BeneficiaryReportsPage({ searchParams }: { searchP
                 <CardDescription>Qard Hasan disbursement vs recovery</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Loans:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Repaid:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Outstanding:</span> <span><Trans tKey="app.0_00" /></span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Qard Hasan:</span> <span>{"\u09f30.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Repaid:</span> <span>{"\u09f30.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Outstanding:</span> <span>{"\u09f30.00"}</span></div>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg">Sadakah Summary</CardTitle>
+                <CardTitle className="text-lg">Sadaqah Summary</CardTitle>
                 <CardDescription>Assistance overview</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Grants:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Utilized:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Remaining:</span> <span><Trans tKey="app.0_00" /></span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Sadaqah:</span> <span>{"\u09f30.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Utilized:</span> <span>{"\u09f30.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Remaining:</span> <span>{"\u09f30.00"}</span></div>
               </CardContent>
             </Card>
           </div>

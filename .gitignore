@@ -32,6 +32,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -45,3 +46,12 @@ next-env.d.ts
 prisma/dev.db
 replace.js
 test-auth.ts
+
+# python / backend
+backend/.venv/
+.venv/
+__pycache__/
+*.py[cod]
+backend/.env*
+!backend/.env.example
+

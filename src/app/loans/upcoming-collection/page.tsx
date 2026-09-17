@@ -2,7 +2,6 @@ import { getNow } from "@/lib/date";
 import { getLoans } from "@/features/loans/actions"
 import { DueListTable } from "@/features/loans/components/due-list-table"
 import { Card, CardContent } from "@/components/ui/card"
-import { Trans } from "@/components/shared/trans";
 
 import { Metadata } from "next";
 
@@ -56,9 +55,9 @@ export default async function UpcomingCollectionPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="app.upcoming_collection" /></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Upcoming Collection</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            <Trans tKey="loans.upcomingCollection.title" /></p>
+            Upcoming Collections</p>
         </div>
       </div>
 

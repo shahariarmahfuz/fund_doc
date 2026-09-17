@@ -37,9 +37,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { memberSchema, baseMemberSchema, type MemberFormValues, type BaseMemberFormValues } from "../schema";
 import { GroupCombobox } from "@/components/group-combobox";
 import { createMember, updateMember, deleteMemberDocument } from "../actions";
-import type { Member } from "@prisma/client";
+import type { Member } from "@/types/models";
 import { formatDate } from "@/lib/format";
-import { useLanguage } from "@/i18n/LanguageProvider";
 import Link from "next/link";
 
 const SectionCard = ({
@@ -53,8 +52,7 @@ const SectionCard = ({
   onToggle: () => void;
   children: React.ReactNode;
 }) => {
-      const { t } = useLanguage();
-      return ((
+            return ((
       <Collapsible open={isOpen} onOpenChange={onToggle}>
         <Card className="mb-6 shadow-sm border-muted">
           <CardHeader className="py-4 border-b bg-muted/10">
@@ -63,7 +61,7 @@ const SectionCard = ({
               <CollapsibleTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="w-9 p-0 hover:bg-transparent">
                   {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  <span className="sr-only">{t("members.common.toggle")}</span>
+                  <span className="sr-only">{"Toggle"}</span>
                 </Button>
               </CollapsibleTrigger>
             </div>
@@ -91,8 +89,7 @@ export function MemberForm({
   member?: any,
   onSubmitAction?: (data: any) => Promise<{success: boolean, error?: string, applicationNumber?: string, id?: string}>
 }) {
-    const { t } = useLanguage();
-  const router = useRouter();
+      const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successData, setSuccessData] = useState<{ id: string; applicationNumber: string } | null>(null);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
@@ -123,46 +120,51 @@ export function MemberForm({
 
   const schema = mode === "request" ? baseMemberSchema : memberSchema;
 
+  const baseDefaults = {
+    groupId: member?.groupId || "",
+    memberId: member?.memberId || "",
+    joinDate: member?.joinDate ? new Date(member.joinDate).toISOString().split('T')[0] : "",
+    fullName: member?.fullName || "",
+    fatherName: member?.fatherName || "",
+    motherName: member?.motherName || "",
+    gender: member?.gender?.toLowerCase() || "",
+    dob: member?.dob ? new Date(member.dob).toISOString().split('T')[0] : "",
+    nationalId: member?.nationalId || "",
+    occupation: member?.occupation || "",
+    education: member?.education || "",
+    maritalStatus: member?.maritalStatus?.toLowerCase() || "",
+    presentAddress: member?.presentAddress || "",
+    permanentAddress: member?.permanentAddress || "",
+    mobile: member?.mobile || "",
+    altMobile: member?.altMobile || "",
+    phone: member?.phone || "",
+    email: member?.email || "",
+    bloodGroup: member?.bloodGroup || "",
+    position: member?.position || "GENERAL_MEMBER",
+    
+    emergencyContactName: member?.emergencyContactName || "",
+    emergencyContactMobile: member?.emergencyContactMobile || "",
+    emergencyContactRelation: member?.emergencyContactRelation || "",
+    
+    referenceName: parsedReference.name || "",
+    referenceMobile: parsedReference.mobile || "",
+    referenceRelation: parsedReference.relation || "",
+    
+    reasonForJoining: member?.reasonForJoining || "",
+
+    idDocumentType: member?.idDocumentType || "NID",
+    photoBase64: "",
+    signatureBase64: "",
+    nidFrontBase64: "",
+    nidBackBase64: "",
+    birthCertificateBase64: "",
+  };
+
   const form = useForm<any>({
     resolver: zodResolver(schema),
-    defaultValues: initialData || {
-      groupId: member?.groupId || "",
-      memberId: "",
-      joinDate: "",
-      fullName: member?.fullName || "",
-      fatherName: member?.fatherName || "",
-      motherName: member?.motherName || "",
-      gender: member?.gender?.toLowerCase() || "",
-      dob: member?.dob ? new Date(member.dob).toISOString().split('T')[0] : "",
-      nationalId: member?.nationalId || "",
-      occupation: member?.occupation || "",
-      education: member?.education || "",
-      maritalStatus: member?.maritalStatus?.toLowerCase() || "",
-      presentAddress: member?.presentAddress || "",
-      permanentAddress: member?.permanentAddress || "",
-      mobile: member?.mobile || "",
-      altMobile: member?.altMobile || "",
-      phone: member?.phone || "",
-      email: member?.email || "",
-      bloodGroup: member?.bloodGroup || "",
-      position: member?.position || "GENERAL_MEMBER",
-      
-      emergencyContactName: member?.emergencyContactName || "",
-      emergencyContactMobile: member?.emergencyContactMobile || "",
-      emergencyContactRelation: member?.emergencyContactRelation || "",
-      
-      referenceName: parsedReference.name || "",
-      referenceMobile: parsedReference.mobile || "",
-      referenceRelation: parsedReference.relation || "",
-      
-      reasonForJoining: member?.reasonForJoining || "",
-
-      idDocumentType: member?.idDocumentType || "NID",
-      photoBase64: "",
-      signatureBase64: "",
-      nidFrontBase64: "",
-      nidBackBase64: "",
-      birthCertificateBase64: "",
+    defaultValues: {
+      ...baseDefaults,
+      ...(initialData || {}),
     },
   });
 
@@ -180,22 +182,22 @@ export function MemberForm({
       if (mode === "request" && onSubmitAction) {
         const res = await onSubmitAction(data);
         if (res.success && res.applicationNumber) {
-          toast.success(t("member-requests.public.form.successMessage") || "Submitted!");
+          toast.success("Submitted!");
           setSuccessData({ id: res.id!, applicationNumber: res.applicationNumber });
         } else {
-          toast.error(res.error || t("member-requests.public.form.errorMessage"));
+          toast.error(res.error || "Failed to submit application");
         }
       } else {
         const res = mode === "edit" ? await updateMember(memberId!, data) : await createMember(data);
         if (res.success) {
-          toast.success(mode === "edit" ? t("members.messages.update_success") : t("members.messages.add_success"));
+          toast.success(mode === "edit" ? "Member updated successfully" : "Member added successfully");
           router.push("/members/manage");
         } else {
-          toast.error(res.error ? t(res.error) : t("members.messages.save_error"));
+          toast.error(res.error || "Failed to save member");
         }
       }
     } catch (error) {
-      toast.error(t("members.messages.unexpected_error"));
+      toast.error("An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
@@ -216,7 +218,7 @@ export function MemberForm({
   };
 
   const handleDeleteDocument = async (title: string, fieldName: string) => {
-    if (!window.confirm(t("members.messages.delete_confirm"))) return;
+    if (!window.confirm("Are you sure you want to delete this document?")) return;
     
     // Clear local form state
     form.setValue(fieldName, "");
@@ -226,13 +228,13 @@ export function MemberForm({
       try {
         const res = await deleteMemberDocument(memberId, title);
         if (res.success) {
-          toast.success(t("members.messages.delete_success"));
+          toast.success("Member deleted successfully");
           router.refresh(); // Refresh page to get updated DB state
         } else {
-          toast.error(res.error ? t(res.error) : t("members.messages.delete_error"));
+          toast.error(res.error || "Failed to delete document");
         }
       } catch (e) {
-        toast.error(t("members.messages.unexpected_error"));
+        toast.error("An unexpected error occurred");
       }
     }
   };
@@ -272,7 +274,7 @@ export function MemberForm({
             className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/50 transition-colors"
           >
             <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
-            <p className="text-sm font-medium">{t("members.documents.upload_helper")}</p>
+            <p className="text-sm font-medium">{"Upload Photo"}</p>
             <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
           </div>
         ) : (
@@ -280,7 +282,7 @@ export function MemberForm({
             <div className="relative border rounded-lg overflow-hidden h-48 w-full group bg-muted/10">
               <Image 
                 src={watchVal || existingUrl!} 
-                alt={t("members.documents.preview")} 
+                alt={"Preview"} 
                 fill 
                 className="object-contain" 
               />
@@ -291,7 +293,7 @@ export function MemberForm({
                   size="sm"
                   onClick={() => inputRef.current?.click()}
                 >
-                  {t("members.documents.replace")}</Button>
+                  {"Replace"}</Button>
                 <Button
                   type="button"
                   variant="destructive"
@@ -300,12 +302,12 @@ export function MemberForm({
                     return (handleDeleteDocument(dbTitle, field));
                   }}
                 >
-                  {t("members.documents.delete")}</Button>
+                  {"Delete"}</Button>
               </div>
             </div>
             {!watchVal && existingUrl && docObj && (
               <div className="text-center text-xs text-muted-foreground">
-                {t("members.documents.uploaded_on")}{formatDate(docObj.createdAt)}
+                {"Uploaded on: "}{formatDate(docObj.createdAt)}
               </div>
             )}
           </div>
@@ -320,23 +322,23 @@ export function MemberForm({
           <Card className="w-full max-w-2xl mx-auto mt-8 mb-16 shadow-lg border-green-200">
             <CardHeader className="bg-green-50/50 border-b border-green-100">
               <CardTitle className="text-2xl text-center text-green-700">
-                {t("member-requests.public.form.applicationSubmitted") || "Application Submitted Successfully!"}
+                {"Application Submitted Successfully!"}
               </CardTitle>
             </CardHeader>
             <CardContent className="flex flex-col items-center gap-6 pt-8 pb-10">
               <div className="text-center space-y-3">
-                <p className="text-muted-foreground text-lg">{t("member-requests.public.form.applicationNumberIs") || "Your application number is:"}</p>
+                <p className="text-muted-foreground text-lg">{"Your application number is:"}</p>
                 <div className="bg-muted px-8 py-4 rounded-xl border">
                   <p className="text-5xl font-mono font-bold tracking-wider text-primary">{successData.applicationNumber}</p>
                 </div>
                 <p className="text-sm text-muted-foreground mt-4 max-w-sm mx-auto">
-                  {t("member-requests.public.form.saveApplicationNumberInfo") || "Please save this number to check your application status later."}
+                  {"Please save this number to check your application status later."}
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-4 w-full justify-center mt-6">
                 <Button asChild variant="default" size="lg">
                   <Link href="/member-request/status">
-                    {t("member-requests.public.form.checkStatus") || "Check Status"}
+                    {"Check Application Status"}
                   </Link>
                 </Button>
                 <Button variant="outline" size="lg" onClick={() => {
@@ -344,7 +346,7 @@ export function MemberForm({
                   setSuccessData(null);
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}>
-                  {t("member-requests.public.form.submitAnother") || "Submit Another Request"}
+                  {"Submit Another Application"}
                 </Button>
               </div>
             </CardContent>
@@ -359,7 +361,7 @@ export function MemberForm({
               name="memberId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">{t("members.edit_header.member_id") || "Member ID"}</FormLabel>
+                  <FormLabel className="text-lg">{"Member ID"}</FormLabel>
                   <FormControl>
                     <Input placeholder="e.g. M-0001" {...field} />
                   </FormControl>
@@ -373,7 +375,7 @@ export function MemberForm({
               name="joinDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-lg">{t("members.edit_header.join_date") || "Joining Date"}</FormLabel>
+                  <FormLabel className="text-lg">{"Join Date"}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -387,7 +389,7 @@ export function MemberForm({
               name="groupId"
               render={({ field }) => (
                 <FormItem className="flex flex-col justify-end">
-                  <FormLabel className="text-lg mb-2">{t("members.group_selector.label")}</FormLabel>
+                  <FormLabel className="text-lg mb-2">{"Group *"}</FormLabel>
                   <FormControl>
                     <GroupCombobox
                       groups={groups.map((g) => ({
@@ -399,7 +401,7 @@ export function MemberForm({
                       }))}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder={t("members.group_selector.placeholder")}
+                      placeholder={"Select a group"}
                     />
                   </FormControl>
                   <FormMessage />
@@ -413,7 +415,7 @@ export function MemberForm({
                 name="position"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-lg">{t("members.position") || "Member Position"}</FormLabel>
+                    <FormLabel className="text-lg">{"Position"}</FormLabel>
                     <Select onValueChange={field.onChange} defaultValue={field.value || "GENERAL_MEMBER"}>
                       <FormControl>
                         <SelectTrigger className="w-full">
@@ -423,7 +425,7 @@ export function MemberForm({
                       <SelectContent>
                         {["PRESIDENT", "VICE_PRESIDENT", "GENERAL_SECRETARY", "JOINT_SECRETARY", "ORGANIZING_SECRETARY", "TREASURER", "ADVISOR", "EXECUTIVE_MEMBER", "GENERAL_MEMBER"].map((pos) => (
                           <SelectItem key={pos} value={pos}>
-                            {t(`members.positions.${pos}`) || pos.replace("_", " ")}
+                            {(({ PRESIDENT: "President", VICE_PRESIDENT: "Vice President", GENERAL_SECRETARY: "General Secretary", JOINT_SECRETARY: "Joint Secretary", ORGANIZING_SECRETARY: "Organizing Secretary", TREASURER: "Treasurer", ADVISOR: "Advisor", EXECUTIVE_MEMBER: "Executive Member", GENERAL_MEMBER: "General Member" } as Record<string, string>)[pos] || pos.replace("_", " "))}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -435,13 +437,13 @@ export function MemberForm({
             )}
           </div>
         ) : (
-          <SectionCard title={t("member-requests.public.form.groupSelection") || "Group Selection"} isOpen={true} onToggle={() => {}}>
+          <SectionCard title={"Group Selection"} isOpen={true} onToggle={() => {}}>
             <FormField
               control={form.control}
               name="groupId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("member-requests.public.form.group") || "Group"} *</FormLabel>
+                  <FormLabel>{"Group"} *</FormLabel>
                   <FormControl>
                     <GroupCombobox
                       groups={groups.map((g) => ({
@@ -453,7 +455,7 @@ export function MemberForm({
                       }))}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder={t("member-requests.public.form.selectGroup") || "Select Group"}
+                      placeholder={"Select Group"}
                     />
                   </FormControl>
                   <FormMessage />
@@ -463,8 +465,8 @@ export function MemberForm({
           </SectionCard>
         )}
 
-        {/* SECTION 1: ব্যক্তিগত তথ্য */}
-        <SectionCard title={t("members.personal_info.section_title")} isOpen={openSections.section1} onToggle={() => toggleSection("section1")}>
+        {/* SECTION 1: Personal Information */}
+        <SectionCard title={"1. Personal Information"} isOpen={openSections.section1} onToggle={() => toggleSection("section1")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -472,9 +474,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.full_name")}</FormLabel>
+                                <FormLabel>{"Full Name *"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.full_name_placeholder")} {...field} />
+                                  <Input placeholder={"Member's full name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -487,9 +489,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.father_name")}</FormLabel>
+                                <FormLabel>{"Father's Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.father_name")} {...field} />
+                                  <Input placeholder={"Father's Name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -502,9 +504,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.mother_name")}</FormLabel>
+                                <FormLabel>{"Mother's Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.mother_name")} {...field} />
+                                  <Input placeholder={"Mother's Name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -517,7 +519,7 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.dob")}</FormLabel>
+                                <FormLabel>{"Date of Birth"}</FormLabel>
                                 <FormControl>
                                   <Input type="date" {...field} />
                                 </FormControl>
@@ -531,13 +533,13 @@ export function MemberForm({
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("member-requests.public.form.gender") || "Gender"}</FormLabel>
+                  <FormLabel>{"Gender"}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
-                    <FormControl><SelectTrigger><SelectValue placeholder={t("member-requests.public.form.selectGender") || "Select Gender"} /></SelectTrigger></FormControl>
+                    <FormControl><SelectTrigger><SelectValue placeholder={"Select Gender"} /></SelectTrigger></FormControl>
                     <SelectContent>
-                      <SelectItem value="male">{t("member-requests.public.form.male") || "Male"}</SelectItem>
-                      <SelectItem value="female">{t("member-requests.public.form.female") || "Female"}</SelectItem>
-                      <SelectItem value="other">{t("member-requests.public.form.other") || "Other"}</SelectItem>
+                      <SelectItem value="male">{"Male"}</SelectItem>
+                      <SelectItem value="female">{"Female"}</SelectItem>
+                      <SelectItem value="other">{"Other"}</SelectItem>
                     </SelectContent>
                   </Select><FormMessage />
                 </FormItem>
@@ -549,9 +551,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.national_id_bc")}</FormLabel>
+                                <FormLabel>{"National ID / Birth Certificate Number"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.national_id_bc_placeholder")} {...field} />
+                                  <Input placeholder={"NID or BC Number"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -564,9 +566,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.occupation")}</FormLabel>
+                                <FormLabel>{"Occupation / Workplace"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.occupation_placeholder")} {...field} />
+                                  <Input placeholder={"Occupation or Workplace"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -579,9 +581,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.education")}</FormLabel>
+                                <FormLabel>{"Education"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.education")} {...field} />
+                                  <Input placeholder={"Education"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -594,11 +596,11 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.blood_group")}</FormLabel>
+                                <FormLabel>{"Blood Group"}</FormLabel>
                                 <Select onValueChange={field.onChange} defaultValue={field.value}>
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder={t("members.personal_info.blood_group_placeholder")} />
+                                      <SelectValue placeholder={"Select Blood Group"} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -622,14 +624,14 @@ export function MemberForm({
               name="maritalStatus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("member-requests.public.form.maritalStatus") || "Marital Status"}</FormLabel>
+                  <FormLabel>{"Marital Status"}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value || undefined}>
-                    <FormControl><SelectTrigger><SelectValue placeholder={t("member-requests.public.form.selectMaritalStatus") || "Select Status"} /></SelectTrigger></FormControl>
+                    <FormControl><SelectTrigger><SelectValue placeholder={"Select Marital Status"} /></SelectTrigger></FormControl>
                     <SelectContent>
-                      <SelectItem value="single">{t("member-requests.public.form.single") || "Single"}</SelectItem>
-                      <SelectItem value="married">{t("member-requests.public.form.married") || "Married"}</SelectItem>
-                      <SelectItem value="divorced">{t("member-requests.public.form.divorced") || "Divorced"}</SelectItem>
-                      <SelectItem value="widowed">{t("member-requests.public.form.widowed") || "Widowed"}</SelectItem>
+                      <SelectItem value="single">{"Single"}</SelectItem>
+                      <SelectItem value="married">{"Married"}</SelectItem>
+                      <SelectItem value="divorced">{"Divorced"}</SelectItem>
+                      <SelectItem value="widowed">{"Widowed"}</SelectItem>
                     </SelectContent>
                   </Select><FormMessage />
                 </FormItem>
@@ -641,9 +643,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.mobile")}</FormLabel>
+                                <FormLabel>{"Mobile Number"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("members.personal_info.mobile")} {...field} />
+                                  <Input placeholder={"Mobile Number"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -651,10 +653,10 @@ export function MemberForm({
               }}
             />
             <FormField control={form.control} name="altMobile" render={({ field }) => (
-              <FormItem><FormLabel>{t("member-requests.public.form.altMobile") || "Alternative Mobile"}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>{"Alternative Mobile"}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField control={form.control} name="phone" render={({ field }) => (
-              <FormItem><FormLabel>{t("member-requests.public.form.phone") || "Phone"}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
+              <FormItem><FormLabel>{"Phone"}</FormLabel><FormControl><Input {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
             )} />
             <FormField
               control={form.control}
@@ -662,9 +664,9 @@ export function MemberForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("members.personal_info.email")}</FormLabel>
+                                <FormLabel>{"Email (Optional)"}</FormLabel>
                                 <FormControl>
-                                  <Input type="email" placeholder={t("members.personal_info.email_placeholder")} {...field} />
+                                  <Input type="email" placeholder={"example@email.com"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -678,9 +680,9 @@ export function MemberForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("members.personal_info.present_address")}</FormLabel>
+                                    <FormLabel>{"Present Address"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("members.personal_info.present_address_placeholder")} {...field} />
+                                      <Textarea placeholder={"Enter present address"} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -695,9 +697,9 @@ export function MemberForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("members.personal_info.permanent_address")}</FormLabel>
+                                    <FormLabel>{"Permanent Address"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("members.personal_info.permanent_address_placeholder")} {...field} />
+                                      <Textarea placeholder={"Enter permanent address"} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -708,120 +710,112 @@ export function MemberForm({
           </div>
         </SectionCard>
 
-        {/* SECTION 2: জরুরি যোগাযোগ */}
-        <SectionCard title={t("members.emergency_contact.section_title")} isOpen={openSections.section2} onToggle={() => toggleSection("section2")}>
+        {/* SECTION 2: Emergency Contact */}
+        <SectionCard title={"2. Emergency Contact"} isOpen={openSections.section2} onToggle={() => toggleSection("section2")}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField
               control={form.control}
               name="emergencyContactName"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.emergency_contact.name")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.emergency_contact.name")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Emergency Contact Name"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Contact person name" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+
             <FormField
               control={form.control}
               name="emergencyContactRelation"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.emergency_contact.relation")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.emergency_contact.relation")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Relationship"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Father / Brother" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
+
             <FormField
               control={form.control}
               name="emergencyContactMobile"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.emergency_contact.mobile")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.emergency_contact.mobile")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Emergency Mobile Number"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="017XXXXXXXX" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
         </SectionCard>
 
-        {/* SECTION 3: রেফারেন্সদাতা */}
-        <SectionCard title={t("members.reference.section_title")} isOpen={openSections.section3} onToggle={() => toggleSection("section3")}>
+        {/* SECTION 3: Reference */}
+        <SectionCard title={"3. Reference"} isOpen={openSections.section3} onToggle={() => toggleSection("section3")}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField
               control={form.control}
               name="referenceName"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.emergency_contact.name")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.emergency_contact.name")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Reference Name"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Reference person name" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            <FormField
-              control={form.control}
-              name="referenceRelation"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.emergency_contact.relation")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.emergency_contact.relation")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
-            />
+
             <FormField
               control={form.control}
               name="referenceMobile"
-              render={({ field }) => {
-                return ((
-                              <FormItem>
-                                <FormLabel>{t("members.personal_info.mobile")}</FormLabel>
-                                <FormControl>
-                                  <Input placeholder={t("members.personal_info.mobile")} {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            ));
-              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Reference Mobile Number"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="017XXXXXXXX" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="referenceRelation"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{"Relationship"}</FormLabel>
+                  <FormControl>
+                    <Input placeholder="e.g. Friend / Colleague" {...field} value={field.value || ""} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
           </div>
         </SectionCard>
 
-        {/* SECTION 4: অঙ্গীকার */}
-        <SectionCard title={t("members.commitment.section_title")} isOpen={openSections.section4} onToggle={() => toggleSection("section4")}>
+        {/* SECTION 4: Commitment */}
+        <SectionCard title={"4. Commitment"} isOpen={openSections.section4} onToggle={() => toggleSection("section4")}>
           <div className="p-6 bg-muted/20 rounded-md border text-base text-foreground leading-relaxed">
-            {t("members.commitment.description")}</div>
+            {"I declare that I will try to work as a responsible member while respecting the foundation's purpose, ideals, and policies. I will cooperate in the humanitarian activities of the foundation according to my ability and will maintain the organization's discipline, mutual respect, and values of brotherhood, Insha'Allah."}</div>
         </SectionCard>
 
-        {/* SECTION 5: ডকুমেন্টস */}
-        <SectionCard title={t("members.documents.section_title")} isOpen={openSections.section5} onToggle={() => toggleSection("section5")}>
+        {/* SECTION 5: Documents */}
+        <SectionCard title={"5. Documents"} isOpen={openSections.section5} onToggle={() => toggleSection("section5")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <UploadBox 
-              title={t("members.documents.member_photo")} 
-              subtext={t("members.documents.format_helper")} 
+              title={"Member Photo"} 
+              subtext={"JPEG, PNG, or JPG"} 
               inputRef={photoInputRef} 
               field="photoBase64" 
               dbTitle="Member Photo"
@@ -829,8 +823,8 @@ export function MemberForm({
             />
             
             <UploadBox 
-              title={t("members.documents.signature")} 
-              subtext={t("members.documents.format_helper")} 
+              title={"Signature (Optional)"} 
+              subtext={"JPEG, PNG, or JPG"} 
               inputRef={signatureInputRef} 
               field="signatureBase64" 
               dbTitle="Signature"
@@ -844,11 +838,11 @@ export function MemberForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem className="mb-6">
-                                    <FormLabel className="text-base font-semibold">{t("members.documents.document_type")}</FormLabel>
+                                    <FormLabel className="text-base font-semibold">{"Document Type"}</FormLabel>
                                     <FormControl>
                                       <RadioGroup
                                         onValueChange={(val) => field.onChange(val)}
-                                        value={field.value}
+                                        value={field.value || "NID"}
                                         className="flex space-x-6 mt-2"
                                       >
                                         <FormItem className="flex items-center space-x-2 space-y-0">
@@ -856,14 +850,14 @@ export function MemberForm({
                                             <RadioGroupItem value="NID" />
                                           </FormControl>
                                           <FormLabel className="font-normal cursor-pointer">
-                                            {t("members.documents.nid")}</FormLabel>
+                                            {"National ID (NID)"}</FormLabel>
                                         </FormItem>
                                         <FormItem className="flex items-center space-x-2 space-y-0">
                                           <FormControl>
                                             <RadioGroupItem value="BIRTH_CERTIFICATE" />
                                           </FormControl>
                                           <FormLabel className="font-normal cursor-pointer">
-                                            {t("members.documents.birth_certificate")}</FormLabel>
+                                            {"Birth Certificate"}</FormLabel>
                                         </FormItem>
                                       </RadioGroup>
                                     </FormControl>
@@ -876,16 +870,16 @@ export function MemberForm({
             {form.watch("idDocumentType") === "NID" ? (
               <>
                 <UploadBox 
-                  title={t("members.documents.nid_front")} 
-                  subtext={t("members.documents.format_helper")} 
+                  title={"National ID (Front)"} 
+                  subtext={"JPEG, PNG, or JPG"} 
                   inputRef={nidFrontInputRef} 
                   field="nidFrontBase64" 
                   dbTitle="NID Front"
                   existingUrl={existingNidFront} 
                 />
                 <UploadBox 
-                  title={t("members.documents.nid_back")} 
-                  subtext={t("members.documents.format_helper")} 
+                  title={"National ID (Back)"} 
+                  subtext={"JPEG, PNG, or JPG"} 
                   inputRef={nidBackInputRef} 
                   field="nidBackBase64" 
                   dbTitle="NID Back"
@@ -894,8 +888,8 @@ export function MemberForm({
               </>
             ) : (
               <UploadBox 
-                title={t("members.documents.birth_certificate")} 
-                subtext={t("members.documents.format_helper")} 
+                title={"Birth Certificate"} 
+                subtext={"JPEG, PNG, or JPG"} 
                 inputRef={bcInputRef} 
                 field="birthCertificateBase64" 
                 dbTitle="Birth Certificate"
@@ -907,9 +901,9 @@ export function MemberForm({
         </SectionCard>
 
         {/* SECTION 6: Additional Information */}
-        <SectionCard title={t("member-requests.public.form.additional") || "Additional Information"} isOpen={openSections.section6} onToggle={() => toggleSection("section6")}>
+        <SectionCard title={"Additional Information"} isOpen={openSections.section6} onToggle={() => toggleSection("section6")}>
           <FormField control={form.control} name="reasonForJoining" render={({ field }) => (
-            <FormItem><FormLabel>{t("member-requests.public.form.reasonForJoining") || "Reason for Joining"}</FormLabel><FormControl><Textarea {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
+            <FormItem><FormLabel>{"Reason for Joining"}</FormLabel><FormControl><Textarea {...field} value={field.value || ""} /></FormControl><FormMessage /></FormItem>
           )} />
         </SectionCard>
 
@@ -917,13 +911,13 @@ export function MemberForm({
         <div className="flex justify-end space-x-4 pt-6 border-t">
           {mode !== "request" && (
             <Button variant="outline" type="button" onClick={() => router.push("/members/manage")}>
-              {t("members.actions.cancel")}
+              {"Cancel"}
             </Button>
           )}
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
-              ? (mode === "request" ? t("member-requests.public.form.submitting") : t("members.actions.saving"))
-              : (mode === "request" ? t("member-requests.public.form.submit") : t("members.actions.save"))}
+              ? (mode === "request" ? "Submitting..." : "Saving...")
+              : (mode === "request" ? "Submit Application" : "Save")}
           </Button>
         </div>
       </form>

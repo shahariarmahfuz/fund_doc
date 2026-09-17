@@ -7,7 +7,6 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 import { authorizePage } from "@/lib/rbac"
-import { Trans } from "@/components/shared/trans";
 
 export default async function EditBeneficiaryPage({ params }: { params: Promise<{ id: string }> }) {
   await authorizePage("Beneficiaries", "Edit")
@@ -46,7 +45,7 @@ export default async function EditBeneficiaryPage({ params }: { params: Promise<
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="beneficiaries.edit_page.title" /></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Beneficiary</h1>
           <p className="text-muted-foreground">{beneficiary.fullName || beneficiary.beneficiaryId}</p>
         </div>
       </div>

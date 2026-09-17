@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Member, Group } from "@prisma/client"
+import type { Member, Group } from "@/types/models"
 import { toggleMemberStatus, deleteMember, restoreMember } from "../actions"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -59,15 +59,13 @@ import {
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 type MemberWithGroup = Member & {
   group: { name: string; code: string } | null
 }
 
 export function MembersTable({ data, groups, isManage = false }: { data: MemberWithGroup[], groups: Group[], isManage?: boolean }) {
-    const { t } = useLanguage();
-  const [tableData, setTableData] = useState<MemberWithGroup[]>(data)
+      const [tableData, setTableData] = useState<MemberWithGroup[]>(data)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
@@ -118,15 +116,15 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
     if (res.success) {
       toast.success(
         targetStatus === "ACTIVE"
-          ? t("members.messages.activated_success")
-          : t("members.messages.deactivated_success")
+          ? "Member activated successfully"
+          : "Member deactivated successfully"
       )
     } else {
       // Revert state if failed
       setTableData(prev =>
         prev.map(m => (m.id === memberId ? { ...m, status: currentStatus } : m))
       )
-      toast.error(res.error ? t(res.error) : t("members.messages.status_change_error"))
+      toast.error(res.error || "Failed to change member status")
     }
   }
 
@@ -145,11 +143,11 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
     setDeleteConfirmMember(null)
 
     if (res.success) {
-      toast.success(t("members.messages.delete_success"))
+      toast.success("Member deleted successfully")
     } else {
       // Revert if error
       setTableData(prev => [backupMember, ...prev])
-      toast.error(res.error ? t(res.error) : t("members.messages.delete_error"))
+      toast.error(res.error || "Failed to delete member")
     }
   }
 
@@ -169,48 +167,48 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
     setCustomNote("")
 
     if (res.success) {
-      toast.success(t("members.messages.restore_success"))
+      toast.success("Member restored successfully")
     } else {
-      toast.error(res.error ? t(res.error) : t("members.messages.restore_error"))
+      toast.error(res.error || "Failed to restore member")
     }
   }
 
   const columns: ColumnDef<MemberWithGroup>[] = [
     {
       accessorKey: "memberId",
-      header: t("members.table.member_id"),
+      header: "Member ID",
     },
     {
       accessorKey: "fullName",
-      header: t("members.table.name"),
+      header: "Name",
       cell: ({ row }) => `${row.original.fullName || ''}`
     },
     {
       accessorKey: "groupId",
-      header: t("members.table.group"),
+      header: "Group",
       cell: ({ row }) => row.original.group ? `${row.original.group.name} (${row.original.group.code})` : "None",
     },
     {
       accessorKey: "mobile",
-      header: t("members.table.mobile"),
+      header: "Mobile",
     },
     {
       accessorKey: "status",
-      header: t("members.table.status"),
+      header: "Status",
       cell: ({ row }) => {
         const status = row.original.status
         if (status === "ACTIVE") {
           return (
             <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1 font-normal">
               <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
-              {t("members.status.active_caps")}</Badge>
+              {"ACTIVE"}</Badge>
           )
         }
         if (status === "INACTIVE") {
           return (
-            <Badge variant="outline" className="bg-rose-50 text-rose-700 dark:bg-rose-950/50 dark:text-rose-300 border-rose-200 gap-1 font-normal">
+            <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200 gap-1 font-normal">
               <span className="h-1.5 w-1.5 rounded-full bg-rose-500"></span>
-              {t("members.status.inactive_caps")}</Badge>
+              {"INACTIVE"}</Badge>
           )
         }
         return <Badge variant="destructive">{status}</Badge>
@@ -218,13 +216,13 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
     },
     {
       accessorKey: "joinDate",
-      header: t("members.table.join_date"),
+      header: "Join Date",
       cell: ({ row }) => row.original.joinDate ? formatDate(row.original.joinDate) : 'N/A',
     },
     {
       id: "actions",
       header: () => {
-        return (<div className="text-right">{t("members.table.actions")}</div>);
+        return (<div className="text-right">{"Actions"}</div>);
       },
       cell: ({ row }) => {
         const member = row.original
@@ -245,13 +243,13 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
-                  <span className="sr-only">{t("members.actions.open_menu")}</span>
+                  <span className="sr-only">{"Open menu"}</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-52">
                 <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
-                  {t("members.table.actions_label")}</DropdownMenuLabel>
+                  {"Actions"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
                 {/* 1. View Details */}
@@ -260,13 +258,13 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                     <DropdownMenuItem asChild>
                       <Link href={`/members/${member.id}`} className="cursor-pointer flex items-center">
                         <Eye className="mr-2 h-4 w-4 text-blue-500" />
-                        <span>{t("members.actions.view_profile")}</span>
+                        <span>{"View Profile"}</span>
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link href={`/api/members/${member.id}/registration-form`} target="_blank" className="cursor-pointer flex items-center">
                         <Download className="mr-2 h-4 w-4 text-purple-500" />
-                        <span>{t("members.actions.download_registration_form")}</span>
+                        <span>{"Download Registration Form"}</span>
                       </Link>
                     </DropdownMenuItem>
                   </>
@@ -277,7 +275,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                   <DropdownMenuItem asChild>
                     <Link href={`/members/${member.id}/edit`} className="cursor-pointer flex items-center">
                       <Edit className="mr-2 h-4 w-4 text-amber-500" />
-                      <span>{t("members.actions.edit_member")}</span>
+                      <span>{"Edit Member"}</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -287,7 +285,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                   <DropdownMenuItem asChild>
                     <Link href={`/members/ledger?memberId=${member.id}`} className="cursor-pointer flex items-center">
                       <BookOpen className="mr-2 h-4 w-4 text-emerald-500" />
-                      <span>{t("members.actions.ledger")}</span>
+                      <span>{"Ledger"}</span>
                     </Link>
                   </DropdownMenuItem>
                 )}
@@ -298,25 +296,25 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                     <DropdownMenuSeparator />
                     {member.status === "ACTIVE" ? (
                       <DropdownMenuItem
-                        className="cursor-pointer text-amber-600 dark:text-amber-400 focus:text-amber-600"
+                        className="cursor-pointer text-amber-600 focus:text-amber-600"
                         onClick={() => {
                           setSelectedReason("Temporary inactive")
                           setStatusConfirmMember(member)
                         }}
                       >
                         <PowerOff className="mr-2 h-4 w-4 text-amber-500" />
-                        <span>{t("members.actions.deactivate_menu")}</span>
+                        <span>{"Deactivate"}</span>
                       </DropdownMenuItem>
                     ) : (
                       <DropdownMenuItem
-                        className="cursor-pointer text-emerald-600 dark:text-emerald-400 focus:text-emerald-600"
+                        className="cursor-pointer text-emerald-600 focus:text-emerald-600"
                         onClick={() => {
                           setSelectedReason("")
                           setStatusConfirmMember(member)
                         }}
                       >
                         <Power className="mr-2 h-4 w-4 text-emerald-500" />
-                        <span>{t("members.actions.activate_menu")}</span>
+                        <span>{"Activate"}</span>
                       </DropdownMenuItem>
                     )}
                   </>
@@ -329,7 +327,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                     onClick={() => setRestoreConfirmMember(member)}
                   >
                     <RotateCcw className="mr-2 h-4 w-4 text-emerald-500" />
-                    <span>{t("members.actions.restore_menu")}</span>
+                    <span>{"Restore"}</span>
                   </DropdownMenuItem>
                 )}
 
@@ -342,7 +340,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
                       onClick={() => setDeleteConfirmMember(member)}
                     >
                       <Trash2 className="mr-2 h-4 w-4 text-destructive" />
-                      <span>{t("members.actions.delete_menu")}</span>
+                      <span>{"Delete"}</span>
                     </DropdownMenuItem>
                   </>
                 )}
@@ -373,7 +371,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
     <div>
       <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 space-x-0 sm:space-x-2 py-2">
         <Input
-          placeholder={t("members.table.search_placeholder")}
+          placeholder={"Search by name..."}
           value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("fullName")?.setFilterValue(event.target.value)
@@ -390,13 +388,13 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           }}
         >
           <SelectTrigger className="w-[160px]">
-            <SelectValue placeholder={t("members.table.status_placeholder")} />
+            <SelectValue placeholder={"Status"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">{t("members.table.all_status")}</SelectItem>
-            <SelectItem value="ACTIVE">{t("members.status.active")}</SelectItem>
-            <SelectItem value="INACTIVE">{t("members.status.inactive")}</SelectItem>
-            {isSuperAdmin && <SelectItem value="DELETED">{t("members.status.deleted")}</SelectItem>}
+            <SelectItem value="ALL">{"All Status"}</SelectItem>
+            <SelectItem value="ACTIVE">{"Active"}</SelectItem>
+            <SelectItem value="INACTIVE">{"Inactive"}</SelectItem>
+            {isSuperAdmin && <SelectItem value="DELETED">{"Deleted"}</SelectItem>}
           </SelectContent>
         </Select>
 
@@ -409,10 +407,10 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           }}
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t("members.table.group_placeholder")} />
+            <SelectValue placeholder={"Group"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">{t("members.table.all_groups")}</SelectItem>
+            <SelectItem value="ALL">{"All Groups"}</SelectItem>
             {groups.map(g => (
               <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
             ))}
@@ -461,7 +459,7 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("members.table.no_results")}</TableCell>
+                  {"No results found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -475,14 +473,14 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("members.table.previous")}</Button>
+          {"Previous"}</Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {t("members.table.next")}</Button>
+          {"Next"}</Button>
       </div>
 
       {/* Confirmation Dialog: Status Toggle (Deactivate / Activate) */}
@@ -493,24 +491,24 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
               {statusConfirmMember?.status === "ACTIVE" ? (
                 <>
                   <PowerOff className="h-5 w-5 text-amber-500" />
-                  <span>{t("members.dialog.deactivate_title")}</span>
+                  <span>{"Deactivate Member"}</span>
                 </>
               ) : (
                 <>
                   <Power className="h-5 w-5 text-emerald-500" />
-                  <span>{t("members.dialog.activate_title")}</span>
+                  <span>{"Activate Member"}</span>
                 </>
               )}
             </DialogTitle>
             <DialogDescription className="py-2 text-sm text-muted-foreground leading-relaxed">
               {statusConfirmMember?.status === "ACTIVE" ? (
                 <>
-                  {t("members.dialog.status_confirm_prefix")}<strong>{statusConfirmMember?.fullName}</strong> ({statusConfirmMember?.memberId}{t("members.dialog.status_confirm_mid1")}<strong>{t("members.dialog.inactive_strong")}</strong> {t("members.dialog.status_confirm_suffix")}<br className="my-1" />
-                  {t("members.dialog.deactivate_warning")}</>
+                  {"Are you sure you want to change the status of "}<strong>{statusConfirmMember?.fullName}</strong> ({statusConfirmMember?.memberId}{") to "}<strong>{"Inactive"}</strong> {"?"}<br className="my-1" />
+                  {"They will no longer be able to log in or receive notifications."}</>
               ) : (
                 <>
-                  {t("members.dialog.status_confirm_prefix")}<strong>{statusConfirmMember?.fullName}</strong> ({statusConfirmMember?.memberId}{t("members.dialog.status_confirm_mid2")}<strong>{t("members.dialog.active_strong")}</strong> {t("members.dialog.status_confirm_suffix")}<br className="my-1" />
-                  {t("members.dialog.activate_warning")}</>
+                  {"Are you sure you want to change the status of "}<strong>{statusConfirmMember?.fullName}</strong> ({statusConfirmMember?.memberId}{") to "}<strong>{"Active"}</strong> {"?"}<br className="my-1" />
+                  {"They will regain access to the platform."}</>
               )}
             </DialogDescription>
           </DialogHeader>
@@ -518,17 +516,17 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           <div className="space-y-3 py-2">
             {statusConfirmMember?.status === "ACTIVE" ? (
               <div className="space-y-1.5">
-                <Label htmlFor="deactivate-reason">{t("members.dialog.reason_label")}</Label>
+                <Label htmlFor="deactivate-reason">{"Reason for deactivation"}</Label>
                 <Select value={selectedReason} onValueChange={setSelectedReason}>
                   <SelectTrigger id="deactivate-reason">
-                    <SelectValue placeholder={t("members.dialog.select_reason")} />
+                    <SelectValue placeholder={"Select reason"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Left the foundation">{t("members.reasons.left")}</SelectItem>
-                    <SelectItem value="Transferred">{t("members.reasons.transferred")}</SelectItem>
-                    <SelectItem value="Deceased">{t("members.reasons.deceased")}</SelectItem>
-                    <SelectItem value="Temporary inactive">{t("members.reasons.temp_inactive")}</SelectItem>
-                    <SelectItem value="Other">{t("members.reasons.other")}</SelectItem>
+                    <SelectItem value="Left the foundation">{"Left the foundation"}</SelectItem>
+                    <SelectItem value="Transferred">{"Transferred"}</SelectItem>
+                    <SelectItem value="Deceased">{"Deceased"}</SelectItem>
+                    <SelectItem value="Temporary inactive">{"Temporary inactive"}</SelectItem>
+                    <SelectItem value="Other">{"Other"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -536,10 +534,10 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
 
             {(selectedReason === "Other" || statusConfirmMember?.status !== "ACTIVE") && (
               <div className="space-y-1.5">
-                <Label htmlFor="custom-reason">{t("members.dialog.custom_note_label")}</Label>
+                <Label htmlFor="custom-reason">{"Custom Note (Optional)"}</Label>
                 <Input
                   id="custom-reason"
-                  placeholder={t("members.dialog.custom_note_placeholder")}
+                  placeholder={"Enter details..."}
                   value={customNote}
                   onChange={(e) => setCustomNote(e.target.value)}
                 />
@@ -549,13 +547,13 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
 
           <DialogFooter className="flex gap-2 sm:justify-end mt-2">
             <Button variant="outline" onClick={() => setStatusConfirmMember(null)} disabled={isSubmitting}>
-              {t("members.actions.cancel")}</Button>
+              {"Cancel"}</Button>
             <Button
               variant={statusConfirmMember?.status === "ACTIVE" ? "destructive" : "default"}
               onClick={handleConfirmStatusToggle}
               disabled={isSubmitting}
             >
-              {isSubmitting ? t("members.actions.processing") : statusConfirmMember?.status === "ACTIVE" ? t("members.actions.deactivate") : t("members.actions.activate")}
+              {isSubmitting ? "Processing..." : statusConfirmMember?.status === "ACTIVE" ? "Deactivate" : "Activate"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -567,24 +565,24 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-destructive">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              <span>{t("members.dialog.delete_title")}</span>
+              <span>{"Delete Member"}</span>
             </DialogTitle>
             <DialogDescription className="space-y-3 py-2 text-sm text-muted-foreground leading-relaxed">
               <p>
-                {t("members.dialog.delete_confirm_prefix")}<strong>{deleteConfirmMember?.fullName}</strong> ({deleteConfirmMember?.memberId}{t("members.dialog.delete_confirm_suffix")}</p>
-              <div className="rounded-md bg-amber-500/10 p-3 text-amber-800 dark:text-amber-300 text-xs border border-amber-500/20">
-                ⚠️ <strong>{t("members.messages.warning")}</strong> {t("members.messages.soft_delete_warning")}</div>
+                {"Are you sure you want to delete "}<strong>{deleteConfirmMember?.fullName}</strong> ({deleteConfirmMember?.memberId}{"?"}</p>
+              <div className="rounded-md bg-amber-500/10 p-3 text-amber-800 text-xs border border-amber-500/20">
+                ⚠️ <strong>{"Warning:"}</strong> {"This action will soft-delete the member. They will no longer appear in normal views."}</div>
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:justify-end mt-2">
             <Button variant="outline" onClick={() => setDeleteConfirmMember(null)} disabled={isSubmitting}>
-              {t("members.actions.cancel")}</Button>
+              {"Cancel"}</Button>
             <Button
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={isSubmitting}
             >
-              {isSubmitting ? t("members.actions.processing") : t("members.actions.soft_delete_confirm")}
+              {isSubmitting ? "Processing..." : "Yes, Soft Delete"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -596,20 +594,20 @@ export function MembersTable({ data, groups, isManage = false }: { data: MemberW
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-emerald-600">
               <RotateCcw className="h-5 w-5" />
-              <span>{t("members.dialog.restore_title")}</span>
+              <span>{"Restore Member"}</span>
             </DialogTitle>
             <DialogDescription className="py-2 text-sm text-muted-foreground leading-relaxed">
-              {t("members.dialog.restore_confirm_prefix")}<strong>{restoreConfirmMember?.fullName}</strong>{t("members.dialog.restore_confirm_suffix")}</DialogDescription>
+              {"Are you sure you want to restore "}<strong>{restoreConfirmMember?.fullName}</strong>{"?"}</DialogDescription>
           </DialogHeader>
           <DialogFooter className="flex gap-2 sm:justify-end mt-2">
             <Button variant="outline" onClick={() => setRestoreConfirmMember(null)} disabled={isSubmitting}>
-              {t("members.actions.cancel")}</Button>
+              {"Cancel"}</Button>
             <Button
               className="bg-emerald-600 hover:bg-emerald-700 text-white"
               onClick={handleConfirmRestore}
               disabled={isSubmitting}
             >
-              {isSubmitting ? t("members.actions.processing") : t("members.actions.restore")}
+              {isSubmitting ? "Processing..." : "Restore"}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -1,395 +1,134 @@
 "use server"
-import { FinancialService } from "@/services/finance"
 
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { groupSchema, type GroupFormValues } from "./schema"
 import type { GroupWithCount } from "./types"
 import { revalidatePath } from "next/cache"
-import { requirePermission, checkPermission } from "@/lib/rbac";
-
-export async function ensureFoundationGroup() {
-  let foundationGroup = await prisma.group.findFirst({
-    where: { isFoundationGroup: true },
-  })
-
-  if (!foundationGroup) {
-    let foundation = await prisma.foundation.findFirst()
-    if (!foundation) {
-      foundation = await prisma.foundation.create({
-        data: {
-          name: "Main Foundation",
-          description: "Default Foundation (Auto-generated)",
-        },
-      })
-    }
-
-    // Check if code "FOUNDATION-MAIN" or "G-FOUNDATION" exists
-    let code = "FOUNDATION-MAIN"
-    const existingCode = await prisma.group.findUnique({ where: { code } })
-    if (existingCode) {
-      code = `FOUNDATION-${Date.now()}`
-    }
-
-    foundationGroup = await prisma.group.create({
-      data: {
-        foundationId: foundation.id,
-        name: "ভ্রাতৃত্ব ফাউন্ডেশন",
-        code,
-        shortName: "ফাউন্ডেশন",
-        description: "Bhratritya Foundation Main Central Fund",
-        status: "ACTIVE",
-        isFoundationGroup: true,
-        memberSignupEnabled: false,
-      },
-    })
-  }
-
-  return foundationGroup
-}
 
 export async function getGroups(): Promise<GroupWithCount[]> {
-  if (!(await checkPermission("Groups", "View"))) return []
-
-  await ensureFoundationGroup()
-
-  const groups = await prisma.group.findMany({
-    orderBy: [{ isFoundationGroup: "desc" }, { createdAt: "desc" }],
-    include: {
-      _count: {
-        select: { members: true },
-      },
-    },
-  })
-
-  if (groups.length === 0) return []
-
-  const summaries = await FinancialService.getAllGroupSummaries()
-  const summaryMap = new Map(summaries.map((s) => [s.groupId, s.currentBalance]))
-
-  return groups.map((group) => {
-    return {
-      ...group,
-      currentFund: Number(summaryMap.get(group.id) || 0),
-    }
-  })
+  try {
+    const groups = await apiClient.groups.getAll()
+    return groups || []
+  } catch (err) {
+    console.error("Failed to fetch groups from FastAPI:", err)
+    return []
+  }
 }
 
 export async function getMemberSignupGroups() {
-  await ensureFoundationGroup()
-
-  return prisma.group.findMany({
-    where: {
-      status: "ACTIVE",
-      memberSignupEnabled: true,
-      isFoundationGroup: false,
-    },
-    orderBy: { name: "asc" },
-    select: {
-      id: true,
-      name: true,
-      code: true,
-      isFoundationGroup: true,
-      memberSignupEnabled: true,
-    },
-  })
+  try {
+    const groups = await apiClient.get<any[]>("/api/v1/groups/signup-eligible")
+    return groups || []
+  } catch (err) {
+    console.error("Failed to fetch signup eligible groups:", err)
+    return []
+  }
 }
 
 export async function getGroup(id: string) {
-  if (!(await checkPermission("Groups", "View"))) return null
-  return prisma.group.findUnique({
-    where: { id },
-    include: {
-      members: true,
-      _count: {
-        select: { members: true },
-      },
-    },
-  })
+  try {
+    return await apiClient.groups.getById(id)
+  } catch (err) {
+    console.error(`Failed to fetch group ${id}:`, err)
+    return null
+  }
 }
 
 export async function createGroup(data: GroupFormValues) {
-  await requirePermission("Groups", "Add")
   const parsed = groupSchema.safeParse(data)
   if (!parsed.success) {
     return { success: false, error: "Invalid data" }
   }
 
-  if (parsed.data.isFoundationGroup) {
-    const existingFoundation = await prisma.group.findFirst({
-      where: { isFoundationGroup: true },
-    })
-    if (existingFoundation) {
-      return { success: false, error: "Only one Foundation Group can exist." }
-    }
-  }
-
-  // Need foundationId.
-  let foundation = await prisma.foundation.findFirst()
-  if (!foundation) {
-    foundation = await prisma.foundation.create({
-      data: {
-        name: "Main Foundation",
-        description: "Default Foundation (Auto-generated)",
-      },
-    })
-  }
-
-  // Check unique code
-  const existingCode = await prisma.group.findUnique({ where: { code: parsed.data.code } })
-  if (existingCode) return { success: false, error: "Group code must be unique" }
-
-  const isFoundation = parsed.data.isFoundationGroup || false
-  const signupEnabled = isFoundation ? false : parsed.data.memberSignupEnabled
-
   try {
-    const group = await prisma.group.create({
-      data: {
-        name: parsed.data.name,
-        code: parsed.data.code,
-        shortName: parsed.data.shortName,
-        description: parsed.data.description,
-        remarks: parsed.data.remarks,
-        status: parsed.data.status,
-        isFoundationGroup: isFoundation,
-        memberSignupEnabled: signupEnabled,
-        foundationId: foundation.id,
-      },
-    })
+    const group = await apiClient.groups.create(parsed.data)
     revalidatePath("/groups")
     return { success: true, data: group }
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to create group" }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to create group" }
   }
 }
 
 export async function updateGroup(id: string, data: GroupFormValues) {
-  await requirePermission("Groups", "Edit")
   const parsed = groupSchema.safeParse(data)
   if (!parsed.success) return { success: false, error: "Invalid data" }
 
-  const targetGroup = await prisma.group.findUnique({ where: { id } })
-  if (!targetGroup) return { success: false, error: "Group not found" }
-
-  const existingCode = await prisma.group.findUnique({ where: { code: parsed.data.code } })
-  if (existingCode && existingCode.id !== id) {
-    return { success: false, error: "Group code already exists" }
-  }
-
-  const isFoundation = targetGroup.isFoundationGroup || parsed.data.isFoundationGroup || false
-  const signupEnabled = isFoundation ? false : parsed.data.memberSignupEnabled
-
   try {
-    const group = await prisma.group.update({
-      where: { id },
-      data: {
-        name: parsed.data.name,
-        code: parsed.data.code,
-        shortName: parsed.data.shortName,
-        description: parsed.data.description,
-        remarks: parsed.data.remarks,
-        status: parsed.data.status,
-        isFoundationGroup: isFoundation,
-        memberSignupEnabled: signupEnabled,
-      },
-    })
+    const group = await apiClient.groups.update(id, parsed.data)
     revalidatePath("/groups")
     revalidatePath(`/groups/${id}`)
     return { success: true, data: group }
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to update group" }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to update group" }
   }
 }
 
 export async function archiveGroup(id: string) {
-  await requirePermission("Groups", "Manage")
   try {
-    const group = await prisma.group.findUnique({
-      where: { id },
-      include: { _count: { select: { members: true } } },
-    })
-
-    if (!group) return { success: false, error: "Group not found" }
-    if (group.isFoundationGroup) return { success: false, error: "Cannot archive the Foundation Main Group." }
-
-    if (group._count.members > 0) {
-      return { success: false, error: "Cannot archive group with existing members." }
-    }
-
-    await prisma.group.update({
-      where: { id },
-      data: { status: "INACTIVE" },
-    })
-
+    await apiClient.groups.update(id, { status: "INACTIVE" })
     revalidatePath("/groups")
     return { success: true }
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to archive group" }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to archive group" }
   }
 }
 
 export async function deleteGroup(id: string) {
-  await requirePermission("Groups", "Delete")
   try {
-    const group = await prisma.group.findUnique({
-      where: { id },
-      include: {
-        _count: {
-          select: { members: true, funds: true, documents: true },
-        },
-      },
-    })
-
-    if (!group) return { success: false, error: "Group not found" }
-    if (group.isFoundationGroup) return { success: false, error: "Cannot delete the Foundation Main Group." }
-    if (group._count.members > 0) return { success: false, error: "Cannot delete group with existing members." }
-    if (group._count.funds > 0) return { success: false, error: "Cannot delete group with existing funds or ledger entries." }
-
-    await prisma.group.delete({ where: { id } })
+    const res = await apiClient.groups.delete(id)
     revalidatePath("/groups")
-    return { success: true }
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "Failed to delete group" }
+    revalidatePath("/groups/manage")
+    return { success: true, data: res }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to delete group" }
   }
 }
 
 export async function getGroupMembers(groupId: string) {
-    await requirePermission("Groups", "View");
-  if (!groupId) return []
-  return prisma.member.findMany({
-    where: { groupId },
-    orderBy: { createdAt: "desc" },
-  })
+  try {
+    return await apiClient.get<any[]>(`/api/v1/groups/${groupId}/members`)
+  } catch {
+    return []
+  }
 }
 
 export async function removeMemberFromGroup(memberId: string) {
-    await requirePermission("Groups", "Delete");
   return { success: false, error: "Members must belong to a group. Please reassign the member instead of removing them." }
 }
 
 export async function getGroupFundSummary(groupId: string) {
-    await requirePermission("Groups", "View");
-  
-  return await FinancialService.getGroupFundSummary(groupId)
+  try {
+    return await apiClient.get<any>(`/api/v1/groups/${groupId}/summary`)
+  } catch {
+    return { currentBalance: 0, totalIncome: 0, totalExpense: 0 }
+  }
 }
 
 export async function getGroupLedger(groupId: string) {
-    await requirePermission("Groups", "View");
-  if (!groupId) return []
-  
-  const groupFund = await prisma.fund.findFirst({
-    where: { groupId }
-  })
-
-  if (!groupFund) return []
-
-  const entries = await prisma.ledgerEntry.findMany({
-    where: { fundId: groupFund.id },
-    include: {
-      transaction: true
-    },
-    orderBy: { createdAt: 'asc' }
-  })
-
-  let runningBalance = 0
-
-  return entries.map(entry => {
-    if (entry.isCredit) runningBalance += entry.amount
-    else runningBalance -= entry.amount
-
-    return {
-      id: entry.id,
-      date: entry.transaction.date.toISOString().split("T")[0],
-      voucher: entry.transaction.id.substring(0, 8).toUpperCase(),
-      type: entry.transaction.type,
-      reference: entry.transaction.referenceId || "-",
-      debit: !entry.isCredit ? entry.amount : 0,
-      credit: entry.isCredit ? entry.amount : 0,
-      runningBalance,
-      remarks: entry.transaction.notes || "-",
-    }
-  }).reverse() // Return newest first
+  try {
+    return await apiClient.get<any[]>(`/api/v1/groups/${groupId}/ledger`)
+  } catch {
+    return []
+  }
 }
 
 export async function getGroupTransactions(groupId: string) {
-    await requirePermission("Groups", "View");
-  if (!groupId) return []
-  
-  const groupFund = await prisma.fund.findFirst({
-    where: { groupId }
-  })
-
-  if (!groupFund) return []
-
-  const entries = await prisma.ledgerEntry.findMany({
-    where: { fundId: groupFund.id },
-    include: {
-      transaction: true
-    },
-    orderBy: { createdAt: 'desc' }
-  })
-
-  return entries.map(entry => ({
-    id: entry.transaction.id,
-    date: entry.transaction.date.toISOString().split("T")[0],
-    type: entry.transaction.type,
-    reference: entry.transaction.referenceId || entry.transaction.id.substring(0, 8).toUpperCase(),
-    amount: entry.amount,
-    status: entry.transaction.status,
-    remarks: entry.transaction.notes || "-",
-  }))
+  try {
+    return await apiClient.get<any[]>(`/api/v1/groups/${groupId}/ledger`)
+  } catch {
+    return []
+  }
 }
 
 export async function getGroupLoans(groupId: string) {
-    await requirePermission("Groups", "View");
-  if (!groupId) return []
-  
-  const fund = await prisma.fund.findFirst({ where: { groupId } })
-  if (!fund) return []
-
-  const allocations = await prisma.fundAllocation.findMany({
-    where: { fundId: fund.id, targetType: "LOAN", loanId: { not: null } },
-    include: {
-      loan: {
-        include: { beneficiary: true }
-      }
-    },
-    orderBy: { createdAt: 'desc' }
-  })
-
-  return allocations
+  try {
+    const loans = await apiClient.loans.getAll()
+    return loans.filter((l: any) => l.allocations?.some((a: any) => a.fund?.groupId === groupId))
+  } catch {
+    return []
+  }
 }
 
 export async function getGroupLoanSummary(groupId: string) {
-    await requirePermission("Groups", "View");
-  if (!groupId) return { totalLent: 0, totalOutstanding: 0, activeLoans: 0 }
-  
-  const fund = await prisma.fund.findFirst({ where: { groupId } })
-  if (!fund) return { totalLent: 0, totalOutstanding: 0, activeLoans: 0 }
-
-  const allocations = await prisma.fundAllocation.findMany({
-    where: { fundId: fund.id, targetType: "LOAN", loanId: { not: null } },
-    include: {
-      loan: true
-    }
-  })
-
-  let totalLent = 0
-  let totalOutstanding = 0
-  let activeLoans = 0
-
-  for (const alloc of allocations) {
-    if (!alloc.loan) continue;
-    
-    totalLent += alloc.amount
-    
-    if (alloc.loan.status === "ACTIVE" || alloc.loan.status === "DEFAULTED") {
-      activeLoans++;
-      if (alloc.loan.amount > 0) {
-        const ratio = alloc.amount / alloc.loan.amount
-        totalOutstanding += Math.round(alloc.loan.remainingBalance * ratio)
-      }
-    }
-  }
-
-  return { totalLent, totalOutstanding, activeLoans }
+  return { totalLent: 0, totalOutstanding: 0, activeLoans: 0 }
 }

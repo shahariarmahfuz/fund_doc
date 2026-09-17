@@ -159,16 +159,16 @@ export function RolesManager({
   return (
     <div className="space-y-6">
       <SectionHeader 
-        title="রোল ও পারমিশন কন্ট্রোল" 
-        description="হায়ারার্কিক্যাল মডিউল, সাবমেনু ও অ্যাকশন পারমিশন নির্বাচন করুন।"
+        title="Role & Permission Control" 
+        description="Select hierarchical module, submenu, and action permissions."
       />
 
       <div className="flex flex-col md:flex-row gap-6">
         {/* Sidebar for Roles */}
         <Card className="md:w-1/4 h-fit border-border/50 shadow-sm">
           <CardHeader className="bg-muted/10 pb-4 border-b">
-            <CardTitle className="text-lg">রোল তালিকা (Roles)</CardTitle>
-            <CardDescription>পারমিশন পরিবর্তন করতে রোল নির্বাচন করুন</CardDescription>
+            <CardTitle className="text-lg">Roles</CardTitle>
+            <CardDescription>Select a role to manage its permissions</CardDescription>
           </CardHeader>
           <CardContent className="p-4 space-y-2">
             <div className="md:hidden">
@@ -208,10 +208,10 @@ export function RolesManager({
           <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b bg-muted/10 pb-4">
             <div>
               <CardTitle className="text-xl flex items-center gap-2">
-                পারমিশন গাছ (Tree): <span className="text-primary">{selectedRole?.name}</span>
+                Permission Tree: <span className="text-primary">{selectedRole?.name}</span>
               </CardTitle>
               <CardDescription className="mt-1.5">
-                মডিউল ➔ সাবমেনু ➔ অ্যাকশন হায়ারার্কি অনুসারে রোল অনুমতি দিন।
+                Assign permissions across module ➔ submenu ➔ action hierarchy.
               </CardDescription>
             </div>
             <Button 
@@ -220,15 +220,15 @@ export function RolesManager({
               className="w-full sm:w-auto shadow-sm"
             >
               <Save className="mr-2 h-4 w-4" />
-              {saving ? "সংরক্ষণ হচ্ছে..." : "পরিবর্তন সংরক্ষণ করুন"}
+              {saving ? "Saving..." : "Save Changes"}
             </Button>
           </CardHeader>
           
           <CardContent className="p-4 sm:p-6 space-y-4">
             {isSuperAdmin && (
-              <div className="p-4 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 border border-amber-500/20 text-sm font-medium flex items-center gap-2">
+              <div className="p-4 rounded-lg bg-amber-500/10 text-amber-700 border border-amber-500/20 text-sm font-medium flex items-center gap-2">
                 <ShieldCheck className="h-5 w-5 shrink-0 text-amber-600" />
-                <span>SUPER_ADMIN রোলের জন্য সমস্ত মডিউল ও অ্যাকশন স্বয়ংক্রিয়ভাবে সক্রিয় করা থাকে।</span>
+                <span>All modules and actions are automatically active for the SUPER_ADMIN role.</span>
               </div>
             )}
 
@@ -277,7 +277,7 @@ export function RolesManager({
 
                       <div className="flex items-center gap-2">
                         <Badge variant={enabledModPerms.length > 0 ? "default" : "outline"} className="text-xs">
-                          {enabledModPerms.length} / {modPermIds.length} সক্রিয়
+                          {enabledModPerms.length} / {modPermIds.length} active
                         </Badge>
                       </div>
                     </div>

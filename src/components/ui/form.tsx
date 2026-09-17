@@ -147,19 +147,7 @@ const FormMessage = React.forwardRef<
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
-  // Import dynamically or pass the hook. We can use the custom hook here if we import it.
-  // Wait, I cannot use hooks conditionally. Let's import it at the top!
-  const { t } = require("@/i18n/LanguageProvider").useLanguage();
-  
-  let body = error ? String(error?.message ?? "") : children
-  if (typeof body === "string" && body.includes(".")) {
-    // If it looks like a translation key (e.g. members.validation.name_required)
-    // we try to translate it. If it returns the same string, maybe it wasn't a key.
-    const translated = t(body);
-    if (translated !== body || typeof error?.message !== "undefined") {
-        body = translated;
-    }
-  }
+  const body = error ? String(error?.message ?? "") : children
 
   if (!body) {
     return null

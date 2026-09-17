@@ -4,7 +4,6 @@ import * as React from "react"
 import { Check, ChevronsUpDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -47,11 +46,10 @@ export function MemberCombobox({
   emptyText,
   allowInactive = false,
 }: MemberComboboxProps) {
-  const { t } = useLanguage()
   const [open, setOpen] = React.useState(false)
   
-  const effectivePlaceholder = placeholder || t("common.combobox.select")
-  const effectiveEmptyText = emptyText || t("common.combobox.not_found")
+  const effectivePlaceholder = placeholder || "Select member..."
+  const effectiveEmptyText = emptyText || "No member found."
 
   // Filter selectable members unless allowInactive is true, or member is currently selected
   const availableMembers = React.useMemo(() => {
@@ -75,11 +73,11 @@ export function MemberCombobox({
           {selectedMember ? (
             <div className="flex items-center gap-2 overflow-hidden text-left truncate">
               <span className="truncate">
-                {selectedMember.memberId || selectedMember.beneficiaryId} — {selectedMember.fullName || t("common.combobox.name_not_found")}
+                {selectedMember.memberId || selectedMember.beneficiaryId} — {selectedMember.fullName || "Unknown"}
               </span>
               {selectedMember.status === "INACTIVE" && (
                 <Badge variant="outline" className="text-xs bg-rose-50 text-rose-600 border-rose-200">
-                  {t("common.combobox.inactive")}
+                  Inactive
                 </Badge>
               )}
             </div>
@@ -100,7 +98,7 @@ export function MemberCombobox({
             return searchableStr.includes(searchLower) ? 1 : 0
           }}
         >
-          <CommandInput placeholder={t("common.combobox.search_placeholder")} />
+          <CommandInput placeholder="Search by name, ID or group..." />
           <CommandList>
             <CommandEmpty>{effectiveEmptyText}</CommandEmpty>
             <CommandGroup>
@@ -116,10 +114,10 @@ export function MemberCombobox({
                 >
                   <div className="flex w-full items-center justify-between">
                     <span className="font-medium flex items-center gap-1.5">
-                      {member.memberId || member.beneficiaryId} — {member.fullName || t("common.combobox.name_not_found")}
+                      {member.memberId || member.beneficiaryId} — {member.fullName || "Unknown"}
                       {member.status === "INACTIVE" && (
                         <Badge variant="outline" className="text-[10px] bg-rose-50 text-rose-600 border-rose-200">
-                          {t("common.combobox.inactive")}
+                          Inactive
                         </Badge>
                       )}
                     </span>
@@ -131,7 +129,7 @@ export function MemberCombobox({
                     />
                   </div>
                   <span className="text-xs text-muted-foreground mt-1">
-                    {member.group ? `${t("common.combobox.group")}: ${member.group.name} (${member.group.code})` : ''}
+                    {member.group ? `Group: ${member.group.name} (${member.group.code})` : ''}
                   </span>
                 </CommandItem>
               ))}

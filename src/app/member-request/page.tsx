@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default async function MemberRequestPage() {
   const groups = await getGroups()
   return (
-    <div className="min-h-dvh w-full relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 pt-20 sm:pt-24">
+    <div className="min-h-dvh w-full relative bg-gradient-to-br from-slate-50 to-slate-100 pt-20 sm:pt-24">
       <PublicHeader />
       <div className="max-w-4xl mx-auto py-8 px-4">
         <MemberForm 

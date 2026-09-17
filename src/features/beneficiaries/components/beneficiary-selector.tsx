@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { getBeneficiaries } from "../actions"
 import { MemberCombobox } from "@/components/member-combobox"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 type BeneficiaryOption = {
   id: string
@@ -13,8 +12,7 @@ type BeneficiaryOption = {
 }
 
 export function BeneficiarySelector() {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentBeneficiaryId = searchParams.get("beneficiaryId") || ""
@@ -27,7 +25,7 @@ export function BeneficiarySelector() {
       setBeneficiaries(
         data.map(b => ({
           id: b.id,
-          name: `${b.fullName || t("beneficiaries.table.name_not_found")}`,
+          name: `${b.fullName || "Name not found"}`,
           beneficiaryId: b.beneficiaryId
         }))
       )
@@ -50,17 +48,17 @@ export function BeneficiarySelector() {
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium">{t("beneficiaries.selector.label")}</span>
+      <span className="text-sm font-medium">{"Select beneficiary"}</span>
       <div className="w-[250px]">
         {loading ? (
           <div className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm text-muted-foreground">
-            {t("beneficiaries.selector.loading")}</div>
+            {"Loading..."}</div>
         ) : (
           <MemberCombobox
             members={beneficiaries.map(b => ({ id: b.id, beneficiaryId: b.beneficiaryId, fullName: b.name }))}
             value={currentBeneficiaryId}
             onChange={handleValueChange}
-            placeholder={t("beneficiaries.selector.placeholder")}
+            placeholder={"Select a beneficiary..."}
           />
         )}
       </div>

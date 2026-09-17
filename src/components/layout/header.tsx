@@ -1,6 +1,5 @@
 "use client"
 
-import { ThemeToggle } from "@/components/theme-toggle"
 import { User, LogOut, Settings, KeyRound, Menu, HelpCircle, MonitorSmartphone } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useSidebar } from "@/components/layout/sidebar-provider"
@@ -16,33 +15,30 @@ import {
 import Link from "next/link"
 
 import { useBranding } from "@/components/providers/branding-provider"
-import { LanguageSwitcher } from "@/i18n/LanguageSwitcher"
-import { useLanguage } from "@/i18n/LanguageProvider"
 
 export function Header() {
   const { data: session } = useSession()
   const { toggleSidebar } = useSidebar()
   const pathname = usePathname()
   const branding = useBranding()
-  const { t } = useLanguage()
 
   const getPageTitle = () => {
-    if (pathname === '/') return t('common.dashboard')
+    if (pathname === '/') return 'Dashboard'
     const path = pathname.split('/')[1]
     
     const titles: Record<string, string> = {
-      'members': t('layout.sidebar.members'),
-      'beneficiaries': t('layout.sidebar.beneficiaries'),
-      'donors': t('layout.sidebar.donors'),
-      'campaigns': t('layout.sidebar.financial_activities'),
-      'loans': t('layout.sidebar.loans'),
-      'grants': t('layout.sidebar.grants'),
-      'groups': t('layout.sidebar.groups'),
-      'settings': t('layout.sidebar.settings'),
-      'profile': t('layout.sidebar.settings')
+      'members': 'Members',
+      'beneficiaries': 'Beneficiaries',
+      'donors': 'Donors',
+      'loans': 'Qard Hasan',
+      'grants': 'Sadaqah',
+      'expenses': 'Expenses',
+      'groups': 'Groups',
+      'settings': 'Settings',
+      'profile': 'Settings'
     }
     
-    return path && titles[path] ? titles[path] : (path ? path.charAt(0).toUpperCase() + path.slice(1) : t('layout.sidebar.dashboard'))
+    return path && titles[path] ? titles[path] : (path ? path.charAt(0).toUpperCase() + path.slice(1) : 'Dashboard')
   }
 
   return (
@@ -57,23 +53,16 @@ export function Header() {
         </button>
         
         {branding.headerLogo && (
-          <img src={branding.headerLogo} alt={t("layout.sidebar.logo_8c2857")} className="h-6 w-auto object-contain hidden sm:block" />
+          <img src={branding.headerLogo} alt="Logo" className="h-6 w-auto object-contain hidden sm:block" />
         )}
         <h1 className="text-[15px] font-bold text-surface-950 tracking-tight leading-tight capitalize ml-2">{getPageTitle()}</h1>
       </div>
 
       <div className="flex items-center gap-1">
-        
-        <LanguageSwitcher />
-
-        <div className="tooltip-container">
-          <ThemeToggle />
-          <span className="tooltip-custom">{t('layout.header.theme')}</span>
-        </div>
 
         <button className="tooltip-container p-2 text-surface-500 hover:text-surface-700 hover:bg-surface-100 rounded-lg transition-all hidden sm:flex">
           <HelpCircle className="w-5 h-5" />
-          <span className="tooltip-custom">{t('layout.header.help_center')}</span>
+          <span className="tooltip-custom">Help Center</span>
         </button>
 
         <div className="w-px h-6 bg-surface-200 mx-2 hidden sm:block"></div>
@@ -83,7 +72,6 @@ export function Header() {
             <button className="flex items-center gap-2 pl-1 outline-none ring-2 ring-transparent focus:ring-brand-500 rounded-full transition-all hover:opacity-80">
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm overflow-hidden border border-surface-200">
                 {session?.user?.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
                   <img 
                     src={session.user.image} 
                     alt={session.user.name || "User"} 
@@ -112,25 +100,25 @@ export function Header() {
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
               <Link href="/profile">
                 <User className="mr-2 h-4 w-4" />
-                <span>{t('common.profile')}</span>
+                <span>Profile</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
               <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
-                <span>{t('common.settings')}</span>
+                <span>Settings</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
               <Link href="/profile/devices">
                 <MonitorSmartphone className="mr-2 h-4 w-4" />
-                <span>{t('layout.header.device_management')}</span>
+                <span>Device Management</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
               <Link href="/profile/password">
                 <KeyRound className="mr-2 h-4 w-4" />
-                <span>{t('layout.header.change_password')}</span>
+                <span>Change Password</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-surface-200" />
@@ -138,7 +126,7 @@ export function Header() {
                         return (signOut({ callbackUrl: window.location.origin + '/login' }));
                       }} className="hover:bg-accent-red/10 focus:bg-accent-red/10 text-accent-red focus:text-accent-red text-[13px] font-medium cursor-pointer transition-colors">
               <LogOut className="mr-2 h-4 w-4" />
-              <span>{t('common.logout')}</span>
+              <span>Logout</span>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

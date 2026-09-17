@@ -3,12 +3,11 @@ import { GrantsTable } from "@/features/grants/components/grants-table"
 import Link from "next/link"
 import { ChevronRight, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Trans } from "@/components/shared/trans";
 
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Grant Management",
+  title: "Sadaqah Management",
 };
 
 export default async function ManageGrantsPage() {
@@ -18,23 +17,23 @@ export default async function ManageGrantsPage() {
     <div className="space-y-4">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link href="/dashboard" className="hover:text-primary transition-colors">
-          <Trans tKey="grants.manage.breadcrumb.finance" /></Link>
+          Financial Activities</Link>
         <ChevronRight className="h-4 w-4" />
         <Link href="/grants" className="hover:text-primary transition-colors">
-          <Trans tKey="grants.manage.breadcrumb.home" /></Link>
+          Sadaqah</Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground"><Trans tKey="grants.manage.breadcrumb.manage" /></span>
+        <span className="font-medium text-foreground">Manage Sadaqah</span>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="grants.manage.pageTitle" /></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Manage Sadaqah</h1>
           <p className="text-muted-foreground mt-1">
-            <Trans tKey="grants.manage.subtitle" /></p>
+            View and manage all organization Sadaqah</p>
         </div>
         <Button asChild>
           <Link href="/grants/new">
-            <Plus className="mr-2 h-4 w-4" /> <Trans tKey="grants.manage.newBtn" /></Link>
+            <Plus className="mr-2 h-4 w-4" /> New Sadaqah</Link>
         </Button>
       </div>
 

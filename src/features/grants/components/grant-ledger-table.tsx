@@ -27,38 +27,36 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { ChevronDown, Printer, Search } from "lucide-react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 
 export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
-  const { t } = useLanguage()
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState("")
 
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "date",
-      header: t("grants.ledger.table.date"),
+      header: "Date",
       cell: ({ row }) => formatDate(row.getValue("date")),
     },
     {
       accessorKey: "referenceId",
-      header: t("grants.ledger.table.reference"),
+      header: "Reference",
     },
     {
       accessorKey: "beneficiaryName",
-      header: t("grants.ledger.table.beneficiary"),
+      header: "Beneficiary",
     },
     {
       accessorKey: "type",
       header: "Type", // Grant type is fixed
       cell: ({ row }) => {
-        return <Badge variant="destructive">SADAKAH</Badge>
+        return <Badge variant="destructive">SADAQAH</Badge>
       }
     },
     {
       accessorKey: "debit",
       header: () => {
-        return <div className="text-right">{t("grants.ledger.table.debit")}</div>
+        return <div className="text-right">{"Debit"}</div>
       },
       cell: ({ row }) => {
         const amount = row.getValue("debit") as number
@@ -68,7 +66,7 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
     {
       accessorKey: "credit",
       header: () => {
-        return <div className="text-right">{t("grants.ledger.table.credit")}</div>
+        return <div className="text-right">{"Credit"}</div>
       },
       cell: ({ row }) => {
         const amount = row.getValue("credit") as number
@@ -78,7 +76,7 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
     {
       accessorKey: "balance",
       header: () => {
-        return <div className="text-right">{t("grants.ledger.table.balance")}</div>
+        return <div className="text-right">{"Balance"}</div>
       },
       cell: ({ row }) => {
         const amount = row.getValue("balance") as number
@@ -87,24 +85,24 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
     },
     {
       accessorKey: "notes",
-      header: t("grants.ledger.table.remarks"),
+      header: "Remarks",
     },
     {
       id: "actions",
-      header: t("grants.ledger.table.actions.menu"),
+      header: "Actions",
       cell: ({ row }) => {
         return (
           <Collapsible>
             <CollapsibleTrigger asChild>
               <Button variant="ghost" size="sm">
-                {t("grants.ledger.table.actions.view")}<ChevronDown className="ml-2 h-4 w-4" />
+                {"View Breakdown"}<ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-2 space-y-2 text-sm bg-muted/50 p-2 rounded-md">
               <div className="grid grid-cols-3 font-semibold mb-1">
-                <div>{t("grants.ledger.table.fundingSource")}</div>
-                <div className="text-right">{t("grants.ledger.table.debit")}</div>
-                <div className="text-right">{t("grants.ledger.table.credit")}</div>
+                <div>{"Funding Source"}</div>
+                <div className="text-right">{"Debit"}</div>
+                <div className="text-right">{"Credit"}</div>
               </div>
               {row.original.entries.map((e: any) => (
                 <div key={e.id} className="grid grid-cols-3">
@@ -138,7 +136,7 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
         <div className="relative max-w-sm w-full">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder={t("grants.ledger.table.search")}
+            placeholder={"Search ledger..."}
             value={globalFilter ?? ""}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="pl-8"
@@ -146,7 +144,7 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
         </div>
         <Button variant="outline" onClick={() => window.print()}>
           <Printer className="mr-2 h-4 w-4" />
-          {t("grants.ledger.table.print")}
+          {"Print Ledger"}
         </Button>
       </div>
       
@@ -177,7 +175,7 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("grants.ledger.table.empty")}
+                  {"No transactions found."}
                 </TableCell>
               </TableRow>
             )}
@@ -186,10 +184,10 @@ export function GrantLedgerTable({ transactions }: { transactions: any[] }) {
       </div>
       <div className="flex items-center justify-end space-x-2 no-print">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("grants.table.pagination.previous")}
+          {"Previous"}
         </Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("grants.table.pagination.next")}
+          {"Next"}
         </Button>
       </div>
       <style jsx global>{`

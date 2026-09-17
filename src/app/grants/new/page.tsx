@@ -3,7 +3,6 @@ import { getBeneficiaries } from "@/features/beneficiaries/actions"
 import { getGroups } from "@/features/groups/actions"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
-import { Trans } from "@/components/shared/trans";
 
 export default async function AddGrantPage() {
   const beneficiaries = await getBeneficiaries()
@@ -13,15 +12,15 @@ export default async function AddGrantPage() {
     <div className="space-y-4">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link href="/grants" className="hover:text-primary transition-colors">
-          <Trans tKey="grants.new.breadcrumb.home" /></Link>
+          Sadaqah</Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground"><Trans tKey="grants.new.breadcrumb.new" /></span>
+        <span className="font-medium text-foreground">New Sadaqah</span>
       </div>
 
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="grants.new.pageTitle" /></h1>
-          <p className="text-muted-foreground mt-1"><Trans tKey="grants.new.subtitle" /></p>
+          <h1 className="text-3xl font-bold tracking-tight">New Sadaqah</h1>
+          <p className="text-muted-foreground mt-1">Create a new Sadaqah for a beneficiary</p>
         </div>
       </div>
 

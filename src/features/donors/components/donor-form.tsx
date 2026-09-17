@@ -18,7 +18,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { createDonor, updateDonor } from "../actions"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 // Removed import
 
@@ -34,8 +33,7 @@ const formSchema = z.object({
 })
 
 export function DonorForm({ mode = "create", donor = null }: { mode?: "create" | "edit", donor?: any }) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -71,14 +69,14 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
     setIsSubmitting(false)
 
     if (res.success) {
-      toast.success(mode === "create" ? t("donors.form.success_create") : t("donors.form.success_update"))
+      toast.success(mode === "create" ? "New donor successfully created" : "Donor information successfully updated")
       if (res.donor?.id) {
         router.push(`/donors/${res.donor.id}`)
       } else {
         router.push("/donors/manage")
       }
     } else {
-      toast.error(res.error || t("donors.form.error"))
+      toast.error(res.error || "Failed to save donor")
     }
   }
 
@@ -87,7 +85,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>{t("donors.form.donor_info")}</CardTitle>
+            <CardTitle>{"Donor Info"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -97,7 +95,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("donors.form.full_name")} *</FormLabel>
+                                    <FormLabel>{"Full Name"} *</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -110,7 +108,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("donors.form.mobile")}</FormLabel>
+                                    <FormLabel>{"Mobile Number"}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -123,7 +121,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("donors.form.national_id")}</FormLabel>
+                                    <FormLabel>{"National Identity Card (NID/Birth Cert)"}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -136,7 +134,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
                 render={({ field }) => {
                   return ((
                                   <FormItem className="col-span-1 md:col-span-2">
-                                    <FormLabel>{t("donors.form.address")}</FormLabel>
+                                    <FormLabel>{"Address"}</FormLabel>
                                     <FormControl><Input {...field} /></FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -149,7 +147,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
                 render={({ field }) => {
                   return ((
                                   <FormItem className="col-span-1 md:col-span-2">
-                                    <FormLabel>{t("donors.form.notes")}</FormLabel>
+                                    <FormLabel>{"Notes"}</FormLabel>
                                     <FormControl><Textarea {...field} /></FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -162,7 +160,7 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
 
         <Card>
           <CardHeader>
-            <CardTitle>{t("donors.form.document")}</CardTitle>
+            <CardTitle>{"Document"}</CardTitle>
           </CardHeader>
           <CardContent>
 
@@ -171,9 +169,9 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            {t("donors.form.cancel")}</Button>
+            {"Cancel"}</Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t("donors.form.saving") : t("donors.form.save")}
+            {isSubmitting ? "Saving..." : "Save"}
           </Button>
         </div>
       </form>

@@ -35,11 +35,9 @@ import { deleteDonor } from "../actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function DonorsTable({ data }: { data: any[] }) {
-    const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+      const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const router = useRouter()
   const { can } = useRbac()
@@ -51,22 +49,22 @@ export function DonorsTable({ data }: { data: any[] }) {
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "donorId",
-      header: t("donors.table.donor_id"),
+      header: "Donor ID",
     },
     {
       accessorKey: "fullName",
-      header: t("donors.table.name"),
+      header: "Name",
     },
     {
       accessorKey: "mobile",
-      header: t("donors.table.mobile"),
+      header: "Mobile",
     },
     {
       accessorKey: "status",
-      header: t("donors.table.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.original.status === "ACTIVE" ? "default" : "secondary"}>
-          {row.original.status === "ACTIVE" ? t("donors.table.status_active") : row.original.status}
+          {row.original.status === "ACTIVE" ? "Active" : row.original.status}
         </Badge>
       ),
     },
@@ -78,42 +76,42 @@ export function DonorsTable({ data }: { data: any[] }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("donors.open_menu_64d2cc")}</span>
+                <span className="sr-only">{"Open menu"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("donors.k_7c6fd8")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"action"}</DropdownMenuLabel>
               {canView && (
                 <DropdownMenuItem asChild>
                   <Link href={`/donors/${donor.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> {t("donors.k_f61612")}</Link>
+                    <Eye className="mr-2 h-4 w-4" /> {"See details"}</Link>
                 </DropdownMenuItem>
               )}
               {canEdit && (
                 <DropdownMenuItem asChild>
                   <Link href={`/donors/${donor.id}/edit`}>
-                    <Edit className="mr-2 h-4 w-4" /> {t("donors.k_8cdd29")}</Link>
+                    <Edit className="mr-2 h-4 w-4" /> {"Edit"}</Link>
                 </DropdownMenuItem>
               )}
               {canView && (
                 <DropdownMenuItem asChild>
                   <Link href={`/donors/ledger?donorId=${donor.id}`}>
-                    <BookOpen className="mr-2 h-4 w-4" /> {t("donors.k_800938")}</Link>
+                    <BookOpen className="mr-2 h-4 w-4" /> {"Laser"}</Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuItem onClick={() => {
                       return (window.print());
                     }}>
-                <Printer className="mr-2 h-4 w-4" /> {t("donors.k_a0b40f")}</DropdownMenuItem>
+                <Printer className="mr-2 h-4 w-4" /> {"Print"}</DropdownMenuItem>
               {canDelete && (
                 <DropdownMenuItem
                   className="text-destructive"
                   onClick={async () => {
-                    if (confirm(t("donors.table.confirm_delete"))) {
+                    if (confirm("Are you sure you want to delete this donor?")) {
                       const res = await deleteDonor(donor.id)
                       if (res.success) {
-                        toast.success(t("donors.k_9a80d2"))
+                        toast.success("Deleted successfully")
                         router.refresh()
                       } else {
                         toast.error(res.error)
@@ -121,7 +119,7 @@ export function DonorsTable({ data }: { data: any[] }) {
                     }
                   }}
                 >
-                  <Trash className="mr-2 h-4 w-4" /> {t("donors.k_047838")}</DropdownMenuItem>
+                  <Trash className="mr-2 h-4 w-4" /> {"delete"}</DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -146,7 +144,7 @@ export function DonorsTable({ data }: { data: any[] }) {
     <div>
       <div className="flex items-center py-2">
         <Input
-          placeholder={t("donors.k_8434ad")}
+          placeholder={"Search by name..."}
           value={(table.getColumn("fullName")?.getFilterValue() as string) ?? ""}
           onChange={(event) => table.getColumn("fullName")?.setFilterValue(event.target.value)}
           className="max-w-sm"
@@ -183,7 +181,7 @@ export function DonorsTable({ data }: { data: any[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("donors.k_3f8ad2")}</TableCell>
+                  {"No donors found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -191,9 +189,9 @@ export function DonorsTable({ data }: { data: any[] }) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("donors.k_8347d9")}</Button>
+          {"previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("donors.k_30ffb9")}</Button>
+          {"next"}</Button>
       </div>
     </div>
   )

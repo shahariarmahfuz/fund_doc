@@ -3,24 +3,16 @@ import { getMember } from "@/features/members/actions";
 
 function translateStatus(status: string) {
   switch (status) {
-    case "ACTIVE": return "সক্রিয়";
-    case "INACTIVE": return "নিষ্ক্রিয়";
-    case "DELETED": return "বাতিল";
+    case "ACTIVE": return "Active";
+    case "INACTIVE": return "Inactive";
+    case "DELETED": return "Deleted";
     default: return status;
   }
 }
 
-function formatBengaliDate(date: Date | null | undefined): string {
+function formatDateEnglish(date: Date | null | undefined): string {
   if (!date) return "";
-  return new Intl.DateTimeFormat('bn-BD', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(date));
-}
-
-function formatBengaliNumber(num: string | number | null | undefined): string {
-  if (num === null || num === undefined || num === '') return "";
-  return num.toString().replace(/[0-9]/g, (match) => {
-    const bnNums = ['০', '১', '২', '৩', '৪', '৫', '৬', '৭', '৮', '৯'];
-    return bnNums[parseInt(match)];
-  });
+  return new Intl.DateTimeFormat('en-US', { day: '2-digit', month: 'long', year: 'numeric' }).format(new Date(date));
 }
 
 function escapeHtml(unsafe: string | null | undefined) {
@@ -45,17 +37,17 @@ export async function GET(
   }
 
   const positionMap: Record<string, string> = {
-    PRESIDENT: "সভাপতি",
-    VICE_PRESIDENT: "সহ-সভাপতি",
-    GENERAL_SECRETARY: "সাধারণ সম্পাদক",
-    JOINT_SECRETARY: "যুগ্ম সম্পাদক",
-    ORGANIZING_SECRETARY: "সাংগঠনিক সম্পাদক",
-    TREASURER: "কোষাধ্যক্ষ",
-    ADVISOR: "উপদেষ্টা",
-    EXECUTIVE_MEMBER: "নির্বাহী সদস্য",
-    GENERAL_MEMBER: "সাধারণ সদস্য"
+    PRESIDENT: "President",
+    VICE_PRESIDENT: "Vice President",
+    GENERAL_SECRETARY: "General Secretary",
+    JOINT_SECRETARY: "Joint Secretary",
+    ORGANIZING_SECRETARY: "Organizing Secretary",
+    TREASURER: "Treasurer",
+    ADVISOR: "Advisor",
+    EXECUTIVE_MEMBER: "Executive Member",
+    GENERAL_MEMBER: "General Member"
   };
-  const positionLabel = member.position ? (positionMap[member.position] || member.position) : "সাধারণ সদস্য";
+  const positionLabel = member.position ? (positionMap[member.position] || member.position) : "General Member";
 
   const getDoc = (title: string) => member.documents?.find((d: any) => d.title === title)?.secureUrl;
   const photoUrl = getDoc("Member Photo") || getDoc("Photo");
@@ -67,18 +59,18 @@ export async function GET(
 
   const photoBoxContent = photoUrl 
     ? `<div style="width: 90px; height: 110px;"><img src="${photoUrl}" alt="Member Photo" style="width:100%;height:100%;object-fit:cover;border-radius:4px;" /></div>` 
-    : `<div class="photo-box">সদস্যের<br>সাম্প্রতিক ছবি</div>`;
+    : `<div class="photo-box">Member<br>Photo</div>`;
 
   const html = `<!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>সদস্য প্রোফাইল ও নিবন্ধন ফর্ম</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700&display=swap" rel="stylesheet">
+<title>Member Profile & Registration Form</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 
 <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Noto Sans Bengali', Arial, sans-serif; }
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', Arial, sans-serif; }
     body { background: #f3f4f6; padding: 20px; color: #1f2937; line-height: 1.4; }
     
     .paper {
@@ -102,10 +94,10 @@ export async function GET(
     .logo { width: 80px; height: 80px; display: flex; align-items: center; justify-content: center; }
     .logo img { max-width: 100%; max-height: 100%; object-fit: contain; }
     .title { flex: 1; text-align: center; padding: 0 15px; }
-    .title h1 { font-size: 26px; color: #0f766e; font-weight: 700; margin-bottom: 2px; }
-    .title h2 { font-size: 15px; color: #4b5563; font-weight: 600; margin-bottom: 4px; }
+    .title h1 { font-size: 24px; color: #0f766e; font-weight: 700; margin-bottom: 2px; }
+    .title h2 { font-size: 14px; color: #4b5563; font-weight: 600; margin-bottom: 4px; }
     .title p { font-size: 13px; color: #374151; }
-    .slogan { font-size: 15px; font-weight: 700; color: #b45309; margin-top: 4px; font-style: italic; }
+    .slogan { font-size: 14px; font-weight: 600; color: #b45309; margin-top: 4px; font-style: italic; }
     .photo-box { width: 90px; height: 110px; border: 2px dashed #d1d5db; display: flex; justify-content: center; align-items: center; font-size: 12px; color: #6b7280; text-align: center; background: #f9fafb; border-radius: 4px; }
 
     .section-title {
@@ -114,7 +106,7 @@ export async function GET(
         color: #0f766e;
         border-bottom: 1.5px solid #0f766e;
         padding-bottom: 4px;
-        margin: 12px 0 6px; /* মার্জিন কিছুটা কমিয়ে আনা হয়েছে */
+        margin: 12px 0 6px;
         display: flex;
         align-items: center;
         gap: 6px;
@@ -168,19 +160,19 @@ export async function GET(
         background: #f9fafb;
         border: 1px solid #e5e7eb;
         border-left: 4px solid #0f766e;
-        padding: 10px 15px; /* প্যাডিং কমিয়ে আনা হয়েছে */
+        padding: 10px 15px;
         margin-top: 10px;
         border-radius: 4px;
     }
     .declaration-text {
-        font-size: 14px;
+        font-size: 13px;
         color: #374151;
         line-height: 1.6;
         text-align: justify;
     }
 
     .footer {
-        margin-top: 15px; /* মার্জিন কমিয়ে আনা হয়েছে */
+        margin-top: 15px;
         text-align: center;
         color: #9ca3af;
         font-size: 11px;
@@ -215,8 +207,6 @@ export async function GET(
             margin: 0 !important;
         }
 
-
-
         .data-grid {
             display: grid !important;
             grid-template-columns: repeat(2, 1fr) !important;
@@ -250,7 +240,6 @@ export async function GET(
             margin-bottom: 14px !important;
         }
 
-        /* Prevent page breaks */
         .header,
         .section-title,
         .data-grid,
@@ -265,7 +254,6 @@ export async function GET(
             page-break-inside: avoid;
         }
 
-        /* Preserve colors and styles */
         .section-title { 
             color: #0f766e !important; 
             border-color: #0f766e !important;
@@ -282,7 +270,6 @@ export async function GET(
             print-color-adjust: exact;
         }
 
-        /* Preserve typography - সব টেক্সট এখন সমান ও সুসংহত */
         .data-label {
             font-size: 13px !important;
             white-space: nowrap !important;
@@ -293,167 +280,163 @@ export async function GET(
             white-space: nowrap !important;
         }
 
-        .title h1 { font-size: 26px !important; }
-        .title h2 { font-size: 15px !important; }
+        .title h1 { font-size: 24px !important; }
+        .title h2 { font-size: 14px !important; }
         .title p { font-size: 13px !important; }
-        .slogan { font-size: 15px !important; }
+        .slogan { font-size: 14px !important; }
         .section-title { font-size: 15px !important; }
-        .declaration-text { font-size: 14px !important; }
+        .declaration-text { font-size: 13px !important; }
     }
-
-
 </style>
 
 </head>
 <body>
 
 <div class="print-btn">
-    <button onclick="window.print()">🖨 ফর্ম প্রিন্ট করুন (A4)</button>
+    <button onclick="window.print()">🖨 Print Form (A4)</button>
 </div>
 
 <div class="paper">
 
     <div class="header">
         <div class="logo">
-            <img src="https://res.cloudinary.com/diwp8ug1r/image/upload/v1785393014/branding/o4r9o3gjgfkulrgm4bzu.png?v=1785394871157" alt="ভ্রাতিত্ব ফাউন্ডেশন লোগো">
+            <img src="https://res.cloudinary.com/diwp8ug1r/image/upload/v1785393014/branding/o4r9o3gjgfkulrgm4bzu.png?v=1785394871157" alt="Foundation Logo">
         </div>
         <div class="title">
-            <h1>ভ্রাতিত্ব ফাউন্ডেশন</h1>
-            <h2><strong>Bhratritya Foundation</strong></h2>
-            <p><strong>মঙ্গলেরগাঁও, সোনারগাঁও, নারায়ণগঞ্জ</strong></p>
-            <p><strong>যোগাযোগ:</strong> ০১৯৬৩৯৫৩৬৮২, ০১৮৩৪০০৬০১৪</p>
-            <p class="slogan">"মানবতার সেবায়, আল্লাহর সন্তুষ্টির জন্য"</p>
+            <h1>Brotherhood Foundation</h1>
+            <h2><strong>Non-Profit Welfare Organization</strong></h2>
+            <p><strong>Sonargaon, Narayanganj, Bangladesh</strong></p>
+            <p><strong>Contact:</strong> +880 1963953682, +880 1834006014</p>
+            <p class="slogan">"In service of humanity"</p>
         </div>
         ${photoBoxContent}
     </div>
 
-
-
-    <div class="section-title">ব্যক্তিগত তথ্য</div>
+    <div class="section-title">Personal Information</div>
     <div class="data-grid">
         <div class="data-item">
-            <span class="data-label">১. পুরো নাম:</span>
+            <span class="data-label">1. Full Name:</span>
             <span class="data-value">${escapeHtml(member.fullName)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২. পিতার নাম:</span>
+            <span class="data-label">2. Father's Name:</span>
             <span class="data-value">${escapeHtml(member.fatherName)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৩. মাতার নাম:</span>
+            <span class="data-label">3. Mother's Name:</span>
             <span class="data-value">${escapeHtml(member.motherName)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৪. জন্ম তারিখ:</span>
-            <span class="data-value">${escapeHtml(formatBengaliDate(member.dob))}</span>
+            <span class="data-label">4. Date of Birth:</span>
+            <span class="data-value">${escapeHtml(formatDateEnglish(member.dob))}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৫. জাতীয় পরিচয়পত্র (NID):</span>
-            <span class="data-value">${escapeHtml(formatBengaliNumber(member.nationalId))}</span>
+            <span class="data-label">5. National ID (NID):</span>
+            <span class="data-value">${escapeHtml(member.nationalId)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৬. পেশা:</span>
+            <span class="data-label">6. Occupation:</span>
             <span class="data-value">${escapeHtml(member.occupation)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৭. শিক্ষাগত যোগ্যতা:</span>
+            <span class="data-label">7. Education:</span>
             <span class="data-value">${escapeHtml(member.education)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৮. রক্তের গ্রুপ:</span>
+            <span class="data-label">8. Blood Group:</span>
             <span class="data-value">${escapeHtml(member.bloodGroup)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">৯. বৈবাহিক অবস্থা:</span>
+            <span class="data-label">9. Marital Status:</span>
             <span class="data-value">${escapeHtml(member.maritalStatus)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১০. মোবাইল নম্বর:</span>
-            <span class="data-value">${escapeHtml(formatBengaliNumber(member.mobile))}</span>
+            <span class="data-label">10. Mobile Number:</span>
+            <span class="data-value">${escapeHtml(member.mobile)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১১. ইমেইল:</span>
+            <span class="data-label">11. Email:</span>
             <span class="data-value">${escapeHtml(member.email)}</span>
         </div>
         <div class="data-item full">
-            <span class="data-label">১২. বর্তমান ঠিকানা:</span>
+            <span class="data-label">12. Present Address:</span>
             <span class="data-value">${escapeHtml(member.presentAddress)}</span>
         </div>
         <div class="data-item full">
-            <span class="data-label">১৩. স্থায়ী ঠিকানা:</span>
+            <span class="data-label">13. Permanent Address:</span>
             <span class="data-value">${escapeHtml(member.permanentAddress)}</span>
         </div>
     </div>
 
-    <div class="section-title">জরুরি যোগাযোগ</div>
+    <div class="section-title">Emergency Contact</div>
     <div class="data-grid">
         <div class="data-item">
-            <span class="data-label">১৪. নাম:</span>
+            <span class="data-label">14. Contact Name:</span>
             <span class="data-value">${escapeHtml(member.emergencyContactName)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১৫. সম্পর্ক:</span>
+            <span class="data-label">15. Relationship:</span>
             <span class="data-value">${escapeHtml(member.emergencyContactRelation)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১৬. মোবাইল নম্বর:</span>
-            <span class="data-value">${escapeHtml(formatBengaliNumber(member.emergencyContactMobile))}</span>
+            <span class="data-label">16. Contact Mobile:</span>
+            <span class="data-value">${escapeHtml(member.emergencyContactMobile)}</span>
         </div>
     </div>
 
-    <div class="section-title">রেফারেন্স</div>
+    <div class="section-title">Reference</div>
     <div class="data-grid">
         <div class="data-item">
-            <span class="data-label">১৭. নাম:</span>
+            <span class="data-label">17. Name:</span>
             <span class="data-value">${escapeHtml(reference.name)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১৮. সম্পর্ক:</span>
+            <span class="data-label">18. Relationship:</span>
             <span class="data-value">${escapeHtml(reference.relation)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">১৯. মোবাইল নম্বর:</span>
-            <span class="data-value">${escapeHtml(formatBengaliNumber(reference.mobile))}</span>
+            <span class="data-label">19. Mobile Number:</span>
+            <span class="data-value">${escapeHtml(reference.mobile)}</span>
         </div>
     </div>
 
-    <div class="section-title">ঘোষণা</div>
+    <div class="section-title">Declaration</div>
     <div class="declaration-box">
         <p class="declaration-text">
-            আমি ঘোষণা করছি যে, আমি ভ্রাতৃত্ব ফাউন্ডেশনের উদ্দেশ্য, নীতি ও নিয়ম-কানুন মেনে চলব এবং মানবসেবামূলক সকল কার্যক্রমে সততা, দায়িত্বশীলতা ও নিষ্ঠার সাথে অংশগ্রহণ করব।
+            I hereby declare that I will abide by all objectives, rules, and regulations of the Foundation, and will actively participate in all social welfare activities with integrity and dedication.
         </p>
     </div>
 
-    <div class="section-title">সদস্যপদ তথ্য</div>
+    <div class="section-title">Membership Information</div>
     <div class="data-grid">
         <div class="data-item">
-            <span class="data-label">২০. সদস্য আইডি:</span>
+            <span class="data-label">20. Member ID:</span>
             <span class="data-value">${escapeHtml(member.memberId)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২১. গ্রুপ:</span>
+            <span class="data-label">21. Group:</span>
             <span class="data-value">${escapeHtml(member.group?.name)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২২. গ্রুপ কোড:</span>
+            <span class="data-label">22. Group Code:</span>
             <span class="data-value">${escapeHtml(member.group?.code)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২৩. যোগদানের তারিখ:</span>
-            <span class="data-value">${escapeHtml(formatBengaliDate(member.joinDate))}</span>
+            <span class="data-label">23. Joining Date:</span>
+            <span class="data-value">${escapeHtml(formatDateEnglish(member.joinDate))}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২৪. সদস্যের পদ:</span>
+            <span class="data-label">24. Position:</span>
             <span class="data-value">${escapeHtml(positionLabel)}</span>
         </div>
         <div class="data-item">
-            <span class="data-label">২৫. বর্তমান অবস্থা:</span>
+            <span class="data-label">25. Status:</span>
             <span class="data-value">${escapeHtml(translateStatus(member.status))}</span>
         </div>
     </div>
 
     <div class="footer">
-        এটি একটি কম্পিউটার জেনারেটেড সদস্য প্রোফাইল ও নিবন্ধন ফর্ম।
+        This is a computer-generated member profile and registration form.
     </div>
 
 </div>

@@ -22,7 +22,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Printer, Download, FileSpreadsheet } from "lucide-react"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 // Define a placeholder type since Ledger is not fully implemented
 export type LedgerEntryPlaceholder = {
@@ -38,44 +37,43 @@ export type LedgerEntryPlaceholder = {
 }
 
 export function GroupLedgerTable({ data }: { data: LedgerEntryPlaceholder[] }) {
-    const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+      const [sorting, setSorting] = useState<SortingState>([])
 
   const columns: ColumnDef<LedgerEntryPlaceholder>[] = [
     {
       accessorKey: "date",
-      header: t("groups.ledger.table.columns.date"),
+      header: "Date",
     },
     {
       accessorKey: "voucher",
-      header: t("groups.ledger.table.columns.voucher"),
+      header: "Voucher",
     },
     {
       accessorKey: "type",
-      header: t("groups.ledger.table.columns.type"),
+      header: "Transaction Type",
     },
     {
       accessorKey: "reference",
-      header: t("groups.ledger.table.columns.reference"),
+      header: "Reference",
     },
     {
       accessorKey: "debit",
-      header: t("groups.ledger.table.columns.debit"),
+      header: "Debit",
       cell: ({ row }) => row.original.debit > 0 ? `৳${formatCurrency(row.original.debit)}` : "-",
     },
     {
       accessorKey: "credit",
-      header: t("groups.ledger.table.columns.credit"),
+      header: "Credit",
       cell: ({ row }) => row.original.credit > 0 ? `৳${formatCurrency(row.original.credit)}` : "-",
     },
     {
       accessorKey: "runningBalance",
-      header: t("groups.ledger.table.columns.runningBalance"),
+      header: "Running Balance",
       cell: ({ row }) => `৳${formatCurrency(row.original.runningBalance)}`,
     },
     {
       accessorKey: "remarks",
-      header: t("groups.ledger.table.columns.remarks"),
+      header: "Remarks",
     },
   ]
 
@@ -95,18 +93,18 @@ export function GroupLedgerTable({ data }: { data: LedgerEntryPlaceholder[] }) {
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
         <div className="flex flex-1 items-center space-x-2">
-          <Input placeholder={t("groups.ledger.table.search")} className="max-w-sm" />
+          <Input placeholder={"Search ledger entries..."} className="max-w-sm" />
           <Input type="date" className="max-w-[150px]" />
-          <span className="text-sm text-muted-foreground">{t("groups.ledger.table.to")}</span>
+          <span className="text-sm text-muted-foreground">{"to"}</span>
           <Input type="date" className="max-w-[150px]" />
         </div>
         <div className="flex items-center space-x-2">
           <Button variant="outline" size="sm">
-            <Printer className="mr-2 h-4 w-4" /> {t("groups.ledger.table.print")}</Button>
+            <Printer className="mr-2 h-4 w-4" /> {"Print"}</Button>
           <Button variant="outline" size="sm">
-            <FileSpreadsheet className="mr-2 h-4 w-4" /> {t("groups.ledger.table.exportCsv")}</Button>
+            <FileSpreadsheet className="mr-2 h-4 w-4" /> {"Export CSV"}</Button>
           <Button variant="outline" size="sm">
-            <Download className="mr-2 h-4 w-4" /> {t("groups.ledger.table.exportPdf")}</Button>
+            <Download className="mr-2 h-4 w-4" /> {"Export PDF"}</Button>
         </div>
       </div>
 
@@ -151,7 +149,7 @@ export function GroupLedgerTable({ data }: { data: LedgerEntryPlaceholder[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  {t("groups.ledger.table.empty")}</TableCell>
+                  {"No ledger records found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -164,14 +162,14 @@ export function GroupLedgerTable({ data }: { data: LedgerEntryPlaceholder[] }) {
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("groups.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {t("groups.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

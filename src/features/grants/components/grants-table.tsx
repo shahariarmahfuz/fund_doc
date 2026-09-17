@@ -41,12 +41,11 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Card, CardContent } from "@/components/ui/card"
-import type { Grant, FundAllocation, Fund } from "@prisma/client"
+import type { Grant, FundAllocation, Fund } from "@/types/models"
 import { deleteGrant } from "../actions"
 import { toast } from "sonner"
 import Link from "next/link"
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 type GrantWithDetails = Grant & {
   beneficiary: {
@@ -70,8 +69,7 @@ const globalSearchFn: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetails[], manageMode?: boolean }) {
-  const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+    const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [globalFilter, setGlobalFilter] = useState("")
   const [amountRange, setAmountRange] = useState({ min: "", max: "" })
@@ -110,66 +108,66 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-4">
-            {t("grants.table.columns.grantNo")}<ArrowUpDown className="ml-2 h-4 w-4" />
+            {"Sadaqah No"}<ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
     },
     {
       id: "beneficiary",
-      header: t("grants.table.columns.beneficiary"),
-      cell: ({ row }) => `${row.original.beneficiary?.fullName || t("grants.table.nameNotFound")} (${row.original.beneficiary?.beneficiaryId})`
+      header: "Beneficiary",
+      cell: ({ row }) => `${row.original.beneficiary?.fullName || "Name not found"} (${row.original.beneficiary?.beneficiaryId})`
     },
     {
       accessorKey: "purpose",
-      header: t("grants.table.columns.purpose"),
+      header: "Purpose",
     },
     {
       accessorKey: "amount",
-      header: t("grants.table.columns.amount"),
+      header: "Amount",
       cell: ({ row }) => `৳${formatCurrency(row.original.amount)}`
     },
     {
       accessorKey: "dateApproved",
-      header: t("grants.table.columns.date"),
+      header: "Date",
       cell: ({ row }) => row.original.dateApproved ? formatDate(row.original.dateApproved) : "N/A"
     },
     {
       id: "fundingSource",
-      header: t("grants.table.columns.fundingSource"),
+      header: "Funding Source",
       cell: ({ row }) => {
         if (row.original.allocations.length === 0) return "-";
-        return row.original.allocations.map(a => a.fund.name).join(", ");
+        return row.original.allocations.map(a => a.fund?.name || "").filter(Boolean).join(", ") || "-";
       }
     },
     {
       accessorKey: "status",
-      header: t("grants.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.original.status === "PAID" || row.original.status === "APPROVED" ? "default" : row.original.status === "REJECTED" ? "destructive" : "secondary"}>
-          {t(`grants.table.status.${row.original.status.toLowerCase()}`)}
+          {(({ PENDING: "Pending", APPROVED: "Approved", REJECTED: "Rejected", COMPLETED: "Completed" } as Record<string, string>)[row.original.status] || row.original.status)}
         </Badge>
       )
     },
     {
       id: "actions",
-      header: t("grants.table.columns.actions"),
+      header: "Actions",
       cell: ({ row }) => {
         const grant = row.original
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("grants.table.actions.menu")}</span>
+                <span className="sr-only">{"Actions"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("grants.table.actions.menu")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"Actions"}</DropdownMenuLabel>
               {canView && (
                 <DropdownMenuItem asChild>
                   <Link href={`/grants/${grant.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> {t("grants.table.actions.view")}</Link>
+                    <Eye className="mr-2 h-4 w-4" /> {"View Details"}</Link>
                 </DropdownMenuItem>
               )}
               {manageMode && (
@@ -177,33 +175,33 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
                   {canEdit && (
                     <DropdownMenuItem asChild>
                       <Link href={`/grants/${grant.id}/edit`}>
-                        <Edit className="mr-2 h-4 w-4" /> {t("grants.table.actions.edit")}</Link>
+                        <Edit className="mr-2 h-4 w-4" /> {"Edit Sadaqah"}</Link>
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuItem asChild>
                     <Link href={`/grants/ledger?grantId=${grant.id}`}>
-                      <BookOpen className="mr-2 h-4 w-4" /> {t("grants.table.actions.ledger")}</Link>
+                      <BookOpen className="mr-2 h-4 w-4" /> {"View Ledger"}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => {
                               return (window.print());
                             }}>
-                    <Printer className="mr-2 h-4 w-4" /> {t("grants.table.actions.print")}</DropdownMenuItem>
+                    <Printer className="mr-2 h-4 w-4" /> {"Print"}</DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {canDelete && (
                     <DropdownMenuItem
                       className="text-destructive focus:text-destructive"
                       onClick={async () => {
-                        if (confirm(t("grants.table.deleteConfirm"))) {
+                        if (confirm("Are you sure you want to delete this Sadaqah?")) {
                           const res = await deleteGrant(grant.id)
                           if (res.success) {
-                            toast.success(t("grants.table.deleteSuccess"))
+                            toast.success("Sadaqah deleted successfully")
                             window.location.reload()
                           }
-                          else toast.error(res.error || t("grants.table.deleteFailed"))
+                          else toast.error(res.error || "Failed to delete Sadaqah")
                         }
                       }}
                     >
-                      <Trash className="mr-2 h-4 w-4" /> {t("grants.table.actions.delete")}</DropdownMenuItem>
+                      <Trash className="mr-2 h-4 w-4" /> {"Delete Sadaqah"}</DropdownMenuItem>
                   )}
                 </>
               )}
@@ -239,31 +237,31 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground font-medium mb-1">{t("grants.manage.totalGrants")}</div>
+                <div className="text-xs text-muted-foreground font-medium mb-1">{"Total Sadaqah"}</div>
                 <div className="text-2xl font-bold">{summary.totalGrants}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground font-medium mb-1">{t("grants.manage.approvedGrants")}</div>
+                <div className="text-xs text-muted-foreground font-medium mb-1">{"Approved"}</div>
                 <div className="text-2xl font-bold text-green-600">{summary.approvedGrants}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground font-medium mb-1">{t("grants.manage.pendingGrants")}</div>
+                <div className="text-xs text-muted-foreground font-medium mb-1">{"Pending"}</div>
                 <div className="text-2xl font-bold text-orange-600">{summary.pendingGrants}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground font-medium mb-1">{t("grants.manage.rejectedGrants")}</div>
+                <div className="text-xs text-muted-foreground font-medium mb-1">{"Rejected"}</div>
                 <div className="text-2xl font-bold text-red-600">{summary.rejectedGrants}</div>
               </CardContent>
             </Card>
             <Card>
               <CardContent className="p-4">
-                <div className="text-xs text-muted-foreground font-medium mb-1">{t("grants.manage.totalAmount")}</div>
+                <div className="text-xs text-muted-foreground font-medium mb-1">{"Total Amount"}</div>
                 <div className="text-xl font-bold">৳{formatCurrency(summary.totalAmount)}</div>
               </CardContent>
             </Card>
@@ -272,13 +270,13 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
           <div className="bg-card border rounded-md p-4 space-y-4">
             <div className="flex items-center gap-2 font-medium">
               <FilterX className="h-5 w-5" />
-              {t("grants.manage.filterGrants")}</div>
+              {"Filter Sadaqah"}</div>
             <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
               <div className="lg:col-span-3">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder={t("grants.table.search")}
+                    placeholder={"Search Sadaqah..."}
                     value={globalFilter ?? ""}
                     onChange={(e) => setGlobalFilter(e.target.value)}
                     className="pl-8"
@@ -292,14 +290,14 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
                   onValueChange={(v) => table.getColumn("status")?.setFilterValue(v === "ALL" ? "" : v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder={t("grants.table.columns.status")} />
+                    <SelectValue placeholder={"Status"} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">{t("grants.table.status.all")}</SelectItem>
-                    <SelectItem value="PENDING">{t("grants.table.status.pending")}</SelectItem>
-                    <SelectItem value="APPROVED">{t("grants.table.status.approved")}</SelectItem>
-                    <SelectItem value="REJECTED">{t("grants.table.status.rejected")}</SelectItem>
-                    <SelectItem value="PAID">{t("grants.table.status.completed")}</SelectItem>
+                    <SelectItem value="ALL">{"All Statuses"}</SelectItem>
+                    <SelectItem value="PENDING">{"Pending"}</SelectItem>
+                    <SelectItem value="APPROVED">{"Approved"}</SelectItem>
+                    <SelectItem value="REJECTED">{"Rejected"}</SelectItem>
+                    <SelectItem value="PAID">{"Completed"}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -307,13 +305,13 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
               <div className="lg:col-span-2 flex items-center gap-2">
                 <Input 
                   type="number" 
-                  placeholder={t("grants.table.filters.min")} 
+                  placeholder={"Min Amount"} 
                   value={amountRange.min}
                   onChange={e => setAmountRange(p => ({ ...p, min: e.target.value }))}
                 />
                 <Input 
                   type="number" 
-                  placeholder={t("grants.table.filters.max")}
+                  placeholder={"Max Amount"}
                   value={amountRange.max}
                   onChange={e => setAmountRange(p => ({ ...p, max: e.target.value }))}
                 />
@@ -360,8 +358,8 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-32 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2">
-                    <span className="text-muted-foreground">{t("grants.table.emptyTitle")}</span>
-                    <span className="text-sm text-muted-foreground">{t("grants.table.emptySubtitle")}</span>
+                    <span className="text-muted-foreground">{"No Sadaqah found."}</span>
+                    <span className="text-sm text-muted-foreground">{"Create your first Sadaqah."}</span>
                   </div>
                 </TableCell>
               </TableRow>
@@ -371,9 +369,9 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("grants.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("grants.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

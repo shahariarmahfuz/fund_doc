@@ -12,14 +12,14 @@ import {
   Users, 
   UserRoundCheck, 
   HandCoins, 
-  WalletCards, 
   PiggyBank, 
   Landmark, 
   Gift, 
   UsersRound, 
   PieChart, 
   Settings,
-  Diamond
+  Diamond,
+  Receipt
 } from "lucide-react"
 
 import { useSidebar } from "@/components/layout/sidebar-provider"
@@ -51,130 +51,129 @@ type Section = {
 }
 
 import { useBranding } from "@/components/providers/branding-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
-export function Sidebar() {
-    const { t } = useLanguage();
-    const sidebarSections: Section[] = [
+const sidebarSections: Section[] = [
   {
-    title: t("layout.sidebar.main_menu"),
+    title: "Main Menu",
     items: [
-      { name: t("layout.sidebar.dashboard"), href: "/dashboard", icon: LayoutDashboard },
+      { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
       { 
-        name: t("layout.sidebar.members"), 
+        name: "Members", 
         href: "/members", 
         icon: Users,
         permission: "Members:View",
         submenu: [
-          { name: t("layout.sidebar.new_member"), href: "/members/new", permission: "Members:Add" },
-          { name: t("layout.sidebar.manage_members"), href: "/members/manage", permission: "Members:View" },
-          { name: t("layout.sidebar.member_ledger"), href: "/members/ledger", permission: "Members:View" },
-          { name: t("layout.sidebar.due_dues"), href: "/members/dues", permission: "Members:View" },
-          { name: t("layout.sidebar.member_requests"), href: "/members/requests", permission: "Members:View" },
+          { name: "Add Member", href: "/members/new", permission: "Members:Add" },
+          { name: "Manage Members", href: "/members/manage", permission: "Members:View" },
+          { name: "Member Ledger", href: "/members/ledger", permission: "Members:View" },
+          { name: "Due List", href: "/members/dues", permission: "Members:View" },
+          { name: "Member Requests", href: "/members/requests", permission: "Members:View" },
         ]
       },
       { 
-        name: t("layout.sidebar.beneficiaries"), 
+        name: "Beneficiaries", 
         href: "/beneficiaries", 
         icon: UserRoundCheck,
         permission: "Beneficiaries:View",
         submenu: [
-          { name: t("layout.sidebar.new_beneficiary"), href: "/beneficiaries/new", permission: "Beneficiaries:Add" },
-          { name: t("layout.sidebar.manage_beneficiaries"), href: "/beneficiaries/manage", permission: "Beneficiaries:View" },
-          { name: t("layout.sidebar.beneficiary_ledger"), href: "/beneficiaries/ledger", permission: "Beneficiaries:View" },
-          { name: t("layout.sidebar.assistance_history"), href: "/beneficiaries/assistance-history", permission: "Beneficiaries:View" },
-          { name: t("layout.sidebar.loan_history"), href: "/beneficiaries/loan-history", permission: "Beneficiaries:View" },
+          { name: "Add Beneficiary", href: "/beneficiaries/new", permission: "Beneficiaries:Add" },
+          { name: "Manage Beneficiaries", href: "/beneficiaries/manage", permission: "Beneficiaries:View" },
+          { name: "Beneficiary Ledger", href: "/beneficiaries/ledger", permission: "Beneficiaries:View" },
+          { name: "Assistance History", href: "/beneficiaries/assistance-history", permission: "Beneficiaries:View" },
+          { name: "Qard Hasan History", href: "/beneficiaries/loan-history", permission: "Beneficiaries:View" },
         ]
       },
     ]
   },
   {
-    title: t("layout.sidebar.financial_activities"),
+    title: "Financial Activities",
     items: [
       { 
-        name: t("layout.sidebar.donors"), 
+        name: "Donors", 
         href: "/donors", 
         icon: HandCoins,
         permission: "Donors:View",
         submenu: [
-          { name: t("layout.sidebar.new_donor"), href: "/donors/new", permission: "Donors:Add" },
-          { name: t("layout.sidebar.manage_donors"), href: "/donors/manage", permission: "Donors:View" },
-          { name: t("layout.sidebar.receive_donation"), href: "/donors/receive", permission: "Donors:Receive Installment" },
-          { name: t("layout.sidebar.donor_ledger"), href: "/donors/ledger", permission: "Donors:View" },
+          { name: "New Donor", href: "/donors/new", permission: "Donors:Add" },
+          { name: "Manage Donors", href: "/donors/manage", permission: "Donors:View" },
+          { name: "Receive Donation", href: "/donors/receive", permission: "Donors:Receive Installment" },
+          { name: "Donor Ledger", href: "/donors/ledger", permission: "Donors:View" },
         ]
       },
       { 
-        name: t("layout.sidebar.financial_activities"), 
-        href: "/campaigns", 
-        icon: WalletCards,
-        permission: "Fund Collection:View",
-        submenu: [
-          { name: t("layout.sidebar.new_fund"), href: "/campaigns/new", permission: "Fund Collection:Add" },
-          { name: t("layout.sidebar.manage_funds"), href: "/campaigns/manage", permission: "Fund Collection:View" },
-          { name: t("layout.sidebar.receive_fund_contribution"), href: "/campaigns/contribute", permission: "Fund Collection:Add" },
-          { name: t("layout.sidebar.distribute_funds"), href: "/campaigns/distribute", permission: "Fund Collection:Add" },
-          { name: t("layout.sidebar.fund_ledger"), href: "/campaigns/ledger", permission: "Fund Collection:View" },
-        ]
-      },
-      { 
-        name: t("layout.sidebar.fund_dues"), 
+        name: "Contributions", 
         href: "/contributions", 
         icon: PiggyBank,
         permission: "Fund Collection:View",
         submenu: [
-          { name: t("layout.sidebar.receive_fund"), href: "/contributions/new", permission: "Fund Collection:Add" },
-          { name: t("layout.sidebar.monthly_dues"), href: "/contributions/monthly", permission: "Fund Collection:View" },
-          { name: t("layout.sidebar.manage_dues"), href: "/contributions", permission: "Fund Collection:View" },
-          { name: t("layout.sidebar.due_dues"), href: "/contributions/due", permission: "Fund Collection:View" },
-          { name: t("layout.sidebar.dues_ledger"), href: "/contributions/ledger", permission: "Fund Collection:View" },
+          { name: "Collect Contribution", href: "/contributions/new", permission: "Fund Collection:Add" },
+          { name: "Monthly Contributions", href: "/contributions/monthly", permission: "Fund Collection:View" },
+          { name: "Manage Contributions", href: "/contributions", permission: "Fund Collection:View" },
+          { name: "Due List", href: "/contributions/due", permission: "Fund Collection:View" },
+          { name: "Contributions Ledger", href: "/contributions/ledger", permission: "Fund Collection:View" },
         ]
       },
       { 
-        name: t("layout.sidebar.loans"), 
+        name: "Qard Hasan", 
         href: "/loans", 
         icon: Landmark,
         permission: "Loans:View",
         submenu: [
-          { name: t("layout.sidebar.new_loan"), href: "/loans/new", permission: "Loans:Add" },
-          { name: t("layout.sidebar.manage_loans"), href: "/loans", permission: "Loans:View" },
-          { name: t("layout.sidebar.repay_loan"), href: "/loans/repayments", permission: "Loans:Manage" },
-          { name: t("layout.sidebar.loan_ledger"), href: "/loans/ledger", permission: "Loans:View" },
+          { name: "New Qard Hasan", href: "/loans/new", permission: "Loans:Add" },
+          { name: "Manage Qard Hasan", href: "/loans", permission: "Loans:View" },
+          { name: "Repay Qard Hasan", href: "/loans/repayments", permission: "Loans:Manage" },
+          { name: "Qard Hasan Ledger", href: "/loans/ledger", permission: "Loans:View" },
         ]
       },
       { 
-        name: t("layout.sidebar.grants"), 
+        name: "Sadaqah", 
         href: "/grants", 
         icon: Gift,
         permission: "Grants:View",
         submenu: [
-          { name: t("layout.sidebar.new_grant"), href: "/grants/new", permission: "Grants:Add" },
-          { name: t("layout.sidebar.manage_grants"), href: "/grants/manage", permission: "Grants:View" },
-          { name: t("layout.sidebar.donor_ledger"), href: "/grants/ledger", permission: "Grants:View" },
+          { name: "New Sadaqah", href: "/grants/new", permission: "Grants:Add" },
+          { name: "Manage Sadaqah", href: "/grants/manage", permission: "Grants:View" },
+          { name: "Sadaqah Ledger", href: "/grants/ledger", permission: "Grants:View" },
+        ]
+      },
+      { 
+        name: "Expenses", 
+        href: "/expenses", 
+        icon: Receipt,
+        permission: "Expenses:View",
+        submenu: [
+          { name: "Add Expense Name", href: "/expenses/names", permission: "Expenses:Add" },
+          { name: "Manage Expense Names", href: "/expenses/names/manage", permission: "Expenses:View" },
+          { name: "Add Expense", href: "/expenses/new", permission: "Expenses:Add" },
+          { name: "Manage Expenses", href: "/expenses/manage", permission: "Expenses:View" },
+          { name: "Expense Report", href: "/expenses/reports", permission: "Expenses:View" },
+          { name: "Expense Ledger", href: "/expenses/ledger", permission: "Expenses:View" },
         ]
       },
     ]
   },
   {
-    title: t("layout.sidebar.organization"),
+    title: "Organization",
     items: [
       { 
-        name: t("layout.sidebar.groups"), 
+        name: "Groups", 
         href: "/groups", 
         icon: UsersRound,
         permission: "Groups:View",
         submenu: [
-          { name: t("layout.sidebar.new_group"), href: "/groups/new", permission: "Groups:Add" },
-          { name: t("layout.sidebar.manage_groups"), href: "/groups/manage", permission: "Groups:View" },
-          { name: t("layout.sidebar.group_members"), href: "/groups/members", permission: "Groups:View" },
-          { name: t("layout.sidebar.group_fund"), href: "/groups/fund", permission: "Groups:View" },
-          { name: t("layout.sidebar.group_ledger"), href: "/groups/ledger", permission: "Groups:View" },
+          { name: "New Group", href: "/groups/new", permission: "Groups:Add" },
+          { name: "Manage Groups", href: "/groups/manage", permission: "Groups:View" },
+          { name: "Group Members", href: "/groups/members", permission: "Groups:View" },
+          { name: "Group Fund", href: "/groups/fund", permission: "Groups:View" },
+          { name: "Group Ledger", href: "/groups/ledger", permission: "Groups:View" },
         ]
       },
-      { name: t("layout.sidebar.settings"), href: "/settings", icon: Settings, permission: "Settings:View" },
+      { name: "Settings", href: "/settings", icon: Settings, permission: "Settings:View" },
     ]
   }
 ];
 
+export function Sidebar() {
   const pathname = usePathname()
   const { data: session } = useSession()
   const { isOpen, setIsOpen, isCollapsed } = useSidebar()
@@ -227,7 +226,7 @@ export function Sidebar() {
       })
       return changed ? next : prev
     })
-  }, [pathname])
+  }, [pathname, filteredSections])
 
   const toggleItem = (name: string) => {
     setOpenItems(prev => ({
@@ -255,7 +254,7 @@ export function Sidebar() {
         <div className="px-5 pt-5 pb-6 flex items-center justify-between border-b border-transparent">
           <div className={cn("flex items-center gap-3", isCollapsed ? "md:justify-center w-full" : "")}>
             {branding.sidebarLogo || branding.logo ? (
-              <img src={branding.sidebarLogo || branding.logo!} alt={t("layout.sidebar.logo_8c2857")} className="w-9 h-9 object-contain" />
+              <img src={branding.sidebarLogo || branding.logo!} alt="Logo" className="w-9 h-9 object-contain" />
             ) : (
               <div className="w-9 h-9 shrink-0 rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 flex items-center justify-center shadow-lg shadow-brand-500/20">
                 <Diamond className="text-white w-5 h-5" />
@@ -375,7 +374,7 @@ export function Sidebar() {
             {session?.user?.image ? (
               <img 
                 src={session.user.image} 
-                alt={t("layout.sidebar.user_8f9bfe")} 
+                alt="User" 
                 className="w-full h-full object-cover" 
                 onError={(e) => {
                   e.currentTarget.style.display = 'none';

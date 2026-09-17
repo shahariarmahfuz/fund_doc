@@ -32,33 +32,21 @@ export function toDhakaTime(date: Date | string | number): Date {
 }
 
 /**
- * Converts a Dhaka time back to UTC if needed for Prisma storage.
- * Note: Prisma mostly handles standard Date objects natively, 
- * but this is useful if you construct a local time and need it in UTC.
+ * Converts a Dhaka time back to UTC.
  */
 export function fromDhakaTime(date: Date | string | number): Date {
   return fromZonedTime(date, getTimezone());
 }
 
 // ------------------------------------------------------------------
-// FORMATTING
+// FORMATTING (English Only)
 // ------------------------------------------------------------------
-
-const BANGLA_NUMBERS: Record<string, string> = {
-  '0': '০', '1': '১', '2': '২', '3': '৩', '4': '৪',
-  '5': '৫', '6': '৬', '7': '৭', '8': '৮', '9': '৯'
-};
-
-function toBanglaDigits(str: string): string {
-  return str.replace(/[0-9]/g, (match) => BANGLA_NUMBERS[match] || match);
-}
 
 /**
  * Formats date as DD MMM YYYY (e.g., "26 Jul 2026")
  */
 export function formatDate(date: Date | string | number): string {
   const dhakaDate = toDhakaTime(date);
-  // Reformat the date formatting string based on what we store
   let fmt = getDateFormat();
   if (fmt === 'DD/MM/YYYY') fmt = 'dd/MM/yyyy';
   if (fmt === 'MM/DD/YYYY') fmt = 'MM/dd/yyyy';
@@ -70,54 +58,39 @@ export function formatDate(date: Date | string | number): string {
 }
 
 /**
- * Formats time as 12-hour format with Bangla labels (e.g., "সকাল ৯:৩০")
+ * Formats time as standard 12-hour format with AM/PM (e.g., "9:30 AM")
  */
 export function formatTimeBangla(date: Date | string | number): string {
   const dhakaDate = toDhakaTime(date);
-  const hour = dhakaDate.getHours();
-  let label = '';
-  
-  if (hour >= 5 && hour < 12) {
-    label = 'সকাল';
-  } else if (hour >= 12 && hour < 15) {
-    label = 'দুপুর';
-  } else if (hour >= 15 && hour < 18) {
-    label = 'বিকাল';
-  } else if (hour >= 18 && hour < 20) {
-    label = 'সন্ধ্যা';
-  } else {
-    label = 'রাত';
-  }
+  return formatTz(dhakaDate, 'h:mm a', { timeZone: getTimezone() });
+}
 
-  // Formatting to h:mm
-  const timeStr = formatTz(dhakaDate, 'h:mm', { timeZone: getTimezone() });
-  const banglaTimeStr = toBanglaDigits(timeStr);
-
-  return `${label} ${banglaTimeStr}`;
+export function formatTime(date: Date | string | number): string {
+  return formatTimeBangla(date);
 }
 
 /**
- * Formats date to relative string (আজ, গতকাল, আগামীকাল) or falls back to DD MMM YYYY
+ * Formats date to relative string (Today, Yesterday, Tomorrow) or falls back to DD MMM YYYY
  */
 export function formatRelativeDateBangla(date: Date | string | number): string {
   const targetDate = toDhakaTime(date);
   const now = getNow();
 
-  if (isSameDay(targetDate, now)) return 'আজ';
-  if (isSameDay(targetDate, addDays(now, -1))) return 'গতকাল';
-  if (isSameDay(targetDate, addDays(now, 1))) return 'আগামীকাল';
+  if (isSameDay(targetDate, now)) return 'Today';
+  if (isSameDay(targetDate, addDays(now, -1))) return 'Yesterday';
+  if (isSameDay(targetDate, addDays(now, 1))) return 'Tomorrow';
 
   return formatDate(targetDate);
 }
 
+export function formatRelativeDate(date: Date | string | number): string {
+  return formatRelativeDateBangla(date);
+}
+
 // ------------------------------------------------------------------
-// DATE RANGES IN DHAKA TIME (For Prisma queries)
+// DATE RANGES
 // ------------------------------------------------------------------
 
-/**
- * Returns { start, end } of TODAY in UTC, representing the bounds of Dhaka's today.
- * Pass these bounds to Prisma queries.
- */
 export function getTodayBounds() {
   const now = getNow();
   return {
@@ -126,20 +99,14 @@ export function getTodayBounds() {
   };
 }
 
-/**
- * Returns { start, end } of THIS WEEK in UTC, representing the bounds of Dhaka's this week.
- */
 export function getThisWeekBounds() {
   const now = getNow();
   return {
-    start: fromDhakaTime(startOfWeek(now, { weekStartsOn: 0 })), // Assuming Sunday start
+    start: fromDhakaTime(startOfWeek(now, { weekStartsOn: 0 })),
     end: fromDhakaTime(endOfWeek(now, { weekStartsOn: 0 }))
   };
 }
 
-/**
- * Returns { start, end } of THIS MONTH in UTC, representing the bounds of Dhaka's this month.
- */
 export function getThisMonthBounds() {
   const now = getNow();
   return {
@@ -148,9 +115,6 @@ export function getThisMonthBounds() {
   };
 }
 
-/**
- * Returns { start, end } for the NEXT 7 DAYS in UTC, representing the bounds from Dhaka's today to next 7 days.
- */
 export function getNext7DaysBounds() {
   const now = getNow();
   return {
@@ -159,28 +123,15 @@ export function getNext7DaysBounds() {
   };
 }
 
-
-/**
- * Formats date and time like toLocaleString('bn-BD')
- */
 export function formatDateTimeBanglaLocal(date: Date | string | number): string {
   const dhakaDate = toDhakaTime(date);
-  const timeStr = formatTz(dhakaDate, 'd/M/yyyy, h:mm:ss a', { timeZone: getTimezone() });
-  return toBanglaDigits(timeStr);
+  return formatTz(dhakaDate, 'dd/MM/yyyy, h:mm:ss a', { timeZone: getTimezone() });
 }
 
-/**
- * Formats date like toLocaleDateString('bn-BD')
- */
 export function formatDateBanglaLocal(date: Date | string | number): string {
-  const dhakaDate = toDhakaTime(date);
-  const timeStr = formatTz(dhakaDate, 'd/M/yyyy', { timeZone: getTimezone() });
-  return toBanglaDigits(timeStr);
+  return formatDate(date);
 }
 
-/**
- * Formats date as YYYY-MM-DD for HTML inputs
- */
 export function formatDateInput(date: Date | string | number): string {
   const dhakaDate = toDhakaTime(date);
   return formatTz(dhakaDate, 'yyyy-MM-dd', { timeZone: getTimezone() });

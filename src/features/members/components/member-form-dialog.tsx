@@ -23,10 +23,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import type { Member, Group } from "@prisma/client"
+import type { Member, Group } from "@/types/models"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface MemberFormDialogProps {
   member?: Member
@@ -35,8 +34,7 @@ interface MemberFormDialogProps {
 }
 
 export function MemberFormDialog({ member, groups, trigger }: MemberFormDialogProps) {
-    const { t } = useLanguage();
-  const [open, setOpen] = useState(false)
+      const [open, setOpen] = useState(false)
   const isEditing = !!member
 
   let parsedReference = { name: "", mobile: "", relation: "" };
@@ -81,18 +79,18 @@ export function MemberFormDialog({ member, groups, trigger }: MemberFormDialogPr
       : await createMember(data)
 
     if (res.success) {
-      toast.success(isEditing ? t("members.messages.update_success") : t("members.messages.add_success"))
+      toast.success(isEditing ? "Member updated successfully" : "Member added successfully")
       setOpen(false)
       form.reset()
     } else {
-      toast.error(res.error ? t(res.error) : "An error occurred")
+      toast.error(res.error || "An error occurred")
     }
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button>{t("members.dialog.create_member")}</Button>}
+        {trigger || <Button>{"Create Member"}</Button>}
       </DialogTrigger>
       <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col">
         <DialogHeader>
@@ -106,11 +104,11 @@ export function MemberFormDialog({ member, groups, trigger }: MemberFormDialogPr
                 <FormField control={form.control} name="groupId" render={({ field }) => {
                                 return ((
                                                   <FormItem>
-                                                    <FormLabel>{t("members.form.group")}</FormLabel>
+                                                    <FormLabel>{"Group"}</FormLabel>
                                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                                       <FormControl>
                                                         <SelectTrigger>
-                                                          <SelectValue placeholder={t("members.form.select_group")} />
+                                                          <SelectValue placeholder={"Select a group"} />
                                                         </SelectTrigger>
                                                       </FormControl>
                                                       <SelectContent>
@@ -127,93 +125,93 @@ export function MemberFormDialog({ member, groups, trigger }: MemberFormDialogPr
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t("members.form.personal_info")}</h3>
+                <h3 className="text-lg font-medium">{"Personal Information"}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="fullName" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.full_name")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Full Name"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="fatherName" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.father_name")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Father's Name"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="motherName" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.mother_name")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Mother's Name"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="dob" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.dob")}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Date of Birth"}</FormLabel><FormControl><Input type="date" {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="nationalId" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.nid")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"National ID"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="bloodGroup" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.blood_group")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Blood Group"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="occupation" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.occupation")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Occupation"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="education" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.education")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Education"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t("members.form.contact_info")}</h3>
+                <h3 className="text-lg font-medium">{"Contact Information"}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <FormField control={form.control} name="mobile" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.mobile")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Mobile"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="email" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.email")}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Email"}</FormLabel><FormControl><Input type="email" {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="presentAddress" render={({ field }) => {
                                     return ((
-                                                      <FormItem className="col-span-2"><FormLabel>{t("members.form.present_address")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem className="col-span-2"><FormLabel>{"Present Address"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="permanentAddress" render={({ field }) => {
                                     return ((
-                                                      <FormItem className="col-span-2"><FormLabel>{t("members.form.permanent_address")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem className="col-span-2"><FormLabel>{"Permanent Address"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-lg font-medium">{t("members.form.emergency_contact")}</h3>
+                <h3 className="text-lg font-medium">{"Emergency Contact"}</h3>
                 <div className="grid grid-cols-3 gap-4">
                   <FormField control={form.control} name="emergencyContactName" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.name")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Name"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="emergencyContactMobile" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.mobile")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Mobile"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                   <FormField control={form.control} name="emergencyContactRelation" render={({ field }) => {
                                     return ((
-                                                      <FormItem><FormLabel>{t("members.form.relation")}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
+                                                      <FormItem><FormLabel>{"Relation"}</FormLabel><FormControl><Input {...field} /></FormControl><FormMessage /></FormItem>
                                                     ));
                                   }} />
                 </div>
@@ -221,8 +219,8 @@ export function MemberFormDialog({ member, groups, trigger }: MemberFormDialogPr
 
               <div className="flex justify-end space-x-2 pt-4 border-t">
                 <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                  {t("members.form.cancel")}</Button>
-                <Button type="submit">{t("members.form.save")}</Button>
+                  {"Cancel"}</Button>
+                <Button type="submit">{"Save"}</Button>
               </div>
             </form>
           </Form>

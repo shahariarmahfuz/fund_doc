@@ -1,10 +1,10 @@
 import { getNow } from "@/lib/date";
 import { formatCurrency } from "@/lib/format"
 import { getMemberDuesList } from "@/features/members/due-actions"
+import { apiClient } from "@/lib/api/client"
 import { MemberDuesTable } from "@/features/members/components/member-dues-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, AlertCircle, TrendingUp, Wallet, Banknote } from "lucide-react"
-import { Trans } from "@/components/shared/trans";
 
 export default async function MemberDuesPage() {
   const dues = await getMemberDuesList()
@@ -14,28 +14,22 @@ export default async function MemberDuesPage() {
   const totalOutstanding = dues.reduce((acc, m) => acc + m.currentDue, 0)
   const totalAdvanceBalance = dues.reduce((acc, m) => acc + m.advanceBalance, 0)
   
-  // Aggregate collected this month based on the payments (approximated here by recent payments in actual DB logic, 
-  // but since we only have `lastCollectionDate` per member in the dues list, 
-  // we can fetch the real collected this month directly via prisma if needed. Let's do a simple prisma query here).
-  
-  // Instead of querying prisma directly here, I'll export a small helper from due-actions or just calculate it.
-  // Actually, I'll query it inline just for the summary card.
-  const { prisma } = await import("@/lib/prisma")
-  const startOfMonth = new Date(getNow().getFullYear(), getNow().getMonth(), 1)
-  const collectedThisMonthAgg = await prisma.contributionPayment.aggregate({
-    where: { paymentDate: { gte: startOfMonth } },
-    _sum: { amount: true }
-  })
-  const collectedThisMonth = collectedThisMonthAgg._sum.amount || 0
+  let collectedThisMonth = 0
+  try {
+    const summary = await apiClient.contributions.getSummary()
+    collectedThisMonth = summary?.collectedThisMonth || 0
+  } catch (err) {
+    console.error("Error fetching contributions summary:", err)
+  }
 
   return (
     <div className="space-y-4">
-      <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="members.dues_page.title" /></h1>
+      <h1 className="text-3xl font-bold tracking-tight">Member Dues</h1>
       
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="members.dues_page.total_members" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -45,7 +39,7 @@ export default async function MemberDuesPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="members.dues_page.members_in_due" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Members in Due</CardTitle>
             <AlertCircle className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -55,7 +49,7 @@ export default async function MemberDuesPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="members.dues_page.total_outstanding" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Total Outstanding Due</CardTitle>
             <TrendingUp className="h-4 w-4 text-destructive" />
           </CardHeader>
           <CardContent>
@@ -65,7 +59,7 @@ export default async function MemberDuesPage() {
         
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="members.dues_page.total_advance" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Total Advance Balance</CardTitle>
             <Wallet className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -75,7 +69,7 @@ export default async function MemberDuesPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="members.dues_page.collected_this_month" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Collected This Month</CardTitle>
             <Banknote className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>

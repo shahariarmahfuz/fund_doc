@@ -23,10 +23,9 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
-import type { Group } from "@prisma/client"
+import type { Group } from "@/types/models"
 import type { GroupWithCount } from "../types"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 import { Switch } from "@/components/ui/switch"
 import { FormDescription } from "@/components/ui/form"
@@ -37,8 +36,7 @@ interface GroupFormDialogProps {
 }
 
 export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
-    const { t } = useLanguage();
-  const [open, setOpen] = useState(false)
+      const [open, setOpen] = useState(false)
   const isEditing = !!group
 
   const form = useForm<GroupFormValues>({
@@ -62,7 +60,7 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
       : await createGroup(data)
 
     if (res.success) {
-      toast.success(isEditing ? t("groups.form.updateSuccess") : t("groups.form.success"))
+      toast.success(isEditing ? "Group updated successfully" : "Group created successfully")
       setOpen(false)
       form.reset()
     } else {
@@ -73,11 +71,11 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger || <Button>{t("groups.manage.newBtn")}</Button>}
+        {trigger || <Button>{"Add Group"}</Button>}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{isEditing ? t("groups.table.actions.edit") : t("groups.manage.newBtn")}</DialogTitle>
+          <DialogTitle>{isEditing ? "Edit" : "Add Group"}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -87,9 +85,9 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("groups.form.groupName")}</FormLabel>
+                                <FormLabel>{"Group Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("groups.form.placeholders.groupName")} {...field} />
+                                  <Input placeholder={"Enter group name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -102,7 +100,7 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("groups.form.groupCode")}</FormLabel>
+                                <FormLabel>{"Group Code"}</FormLabel>
                                 <FormControl>
                                   <Input placeholder={"G-001"} {...field} />
                                 </FormControl>
@@ -117,9 +115,9 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("groups.form.description")}</FormLabel>
+                                <FormLabel>{"Description"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("groups.form.placeholders.description")} {...field} />
+                                  <Input placeholder={"Enter group description..."} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -134,8 +132,8 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3">
                   <div className="space-y-0.5 pr-2">
                     <FormLabel className="text-sm font-semibold">
-                      Allow Member Signup (সদস্য নিবন্ধন)
-                    </FormLabel>
+                    Allow Member Signup
+                  </FormLabel>
                     <FormDescription className="text-xs text-muted-foreground">
                       Enable or disable member registration for this group.
                     </FormDescription>
@@ -158,7 +156,7 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("groups.form.status")}</FormLabel>
+                                    <FormLabel>{"Status"}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
@@ -166,8 +164,8 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="ACTIVE">{t("groups.table.status.active")}</SelectItem>
-                                        <SelectItem value="INACTIVE">{t("groups.table.status.inactive")}</SelectItem>
+                                        <SelectItem value="ACTIVE">{"Active"}</SelectItem>
+                                        <SelectItem value="INACTIVE">{"Inactive"}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -178,8 +176,8 @@ export function GroupFormDialog({ group, trigger }: GroupFormDialogProps) {
             )}
             <div className="flex justify-end space-x-2 pt-4">
               <Button variant="outline" type="button" onClick={() => setOpen(false)}>
-                {t("groups.form.cancel")}</Button>
-              <Button type="submit">{t("groups.form.save")}</Button>
+                {"Cancel"}</Button>
+              <Button type="submit">{"Save Group"}</Button>
             </div>
           </form>
         </Form>

@@ -4,7 +4,6 @@ import { DueListTable } from "@/features/loans/components/due-list-table"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { Plus } from "lucide-react"
-import { Trans } from "@/components/shared/trans";
 
 export default async function LoanDueListPage() {
   const rawLoans = await getLoans()
@@ -43,14 +42,16 @@ export default async function LoanDueListPage() {
     <div className="space-y-4">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="app.loan_due_list" /></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Qard Hasan Due List</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            </p>
+            Track overdue and upcoming Qard Hasan installments
+          </p>
         </div>
         <Button asChild>
           <Link href="/loans/new">
             <Plus className="mr-2 h-4 w-4" />
-            </Link>
+            New Qard Hasan
+          </Link>
         </Button>
       </div>
 

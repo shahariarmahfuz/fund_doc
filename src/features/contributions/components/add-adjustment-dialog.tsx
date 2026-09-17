@@ -55,15 +55,15 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
     try {
       const res = await createContributionAdjustment(data)
       if (res.success) {
-        toast.success("চাঁদা সমন্বয় সফলভাবে রেকর্ড করা হয়েছে")
+        toast.success("Contribution adjustment recorded successfully")
         reset()
         onOpenChange(false)
         if (onSuccess) onSuccess()
       } else {
-        toast.error((res as any).error || "সমন্বয় প্রক্রিয়া করতে ব্যর্থ হয়েছে")
+        toast.error((res as any).error || "Failed to process adjustment")
       }
     } catch (err: any) {
-      toast.error(err.message || "ত্রুটি ঘটেছে")
+      toast.error(err.message || "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -75,28 +75,28 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-primary">
             <SlidersHorizontal className="h-5 w-5" />
-            চাঁদা সমন্বয় রেকর্ড করুন (Contribution Adjustment)
+            Record Contribution Adjustment
           </DialogTitle>
           <DialogDescription>
-            হিসাবের গরমিল বা পূর্ববর্তী চাঁদা সমন্বয় করতে এখান থেকে ক্রেডিট (জমা) অথবা ডেবিট (কর্তন) সমন্বয় যুক্ত করুন।
+            Record a credit (deposit) or debit (deduction) adjustment to reconcile past dues or balance differences.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           {/* Member Selection */}
           <div className="space-y-2">
-            <Label htmlFor="memberId">সদস্য নির্বাচন করুন *</Label>
+            <Label htmlFor="memberId">Select Member *</Label>
             <Select
               value={watch("memberId")}
               onValueChange={(val) => setValue("memberId", val, { shouldValidate: true })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="সদস্য খুঁজুন/নির্বাচন করুন" />
+                <SelectValue placeholder="Search or select member" />
               </SelectTrigger>
               <SelectContent className="max-h-60">
                 {members.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.memberId} - {m.fullName || "সদস্য"}
+                    {m.memberId} - {m.fullName || "Member"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -106,7 +106,7 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
 
           {/* Adjustment Type */}
           <div className="space-y-2">
-            <Label htmlFor="adjustmentType">সমন্বয়ের ধরন *</Label>
+            <Label htmlFor="adjustmentType">Adjustment Type *</Label>
             <Select
               value={watch("adjustmentType")}
               onValueChange={(val: "CREDIT" | "DEBIT") => setValue("adjustmentType", val, { shouldValidate: true })}
@@ -115,15 +115,15 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="CREDIT">জমা সমন্বয় (CREDIT - বাড়াবে)</SelectItem>
-                <SelectItem value="DEBIT">কর্তন সমন্বয় (DEBIT - কমাবে)</SelectItem>
+                <SelectItem value="CREDIT">Credit (Deposit - Increases Balance)</SelectItem>
+                <SelectItem value="DEBIT">Debit (Deduction - Decreases Balance)</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount">পরিমাণ (টাকা) *</Label>
+            <Label htmlFor="amount">Amount *</Label>
             <Input
               type="number"
               id="amount"
@@ -136,13 +136,13 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
           {/* Date & Payment Method */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="paymentDate">তারিখ *</Label>
+              <Label htmlFor="paymentDate">Date *</Label>
               <Input type="date" id="paymentDate" {...register("paymentDate")} />
               {errors.paymentDate && <p className="text-xs text-destructive">{errors.paymentDate.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentMethod">মাধ্যম *</Label>
+              <Label htmlFor="paymentMethod">Payment Method *</Label>
               <Select
                 value={watch("paymentMethod")}
                 onValueChange={(val) => setValue("paymentMethod", val, { shouldValidate: true })}
@@ -151,10 +151,10 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CASH">ক্যাশ (CASH)</SelectItem>
-                  <SelectItem value="BANK">ব্যাংক স্থানান্তর (BANK)</SelectItem>
-                  <SelectItem value="MOBILE_BANKING">মোবাইল ব্যাংকিং (bKash/Nagad)</SelectItem>
-                  <SelectItem value="OTHER">অন্যান্য</SelectItem>
+                  <SelectItem value="CASH">Cash</SelectItem>
+                  <SelectItem value="BANK">Bank Transfer</SelectItem>
+                  <SelectItem value="MOBILE_BANKING">Mobile Banking</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -162,20 +162,20 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
 
           {/* Reference Number */}
           <div className="space-y-2">
-            <Label htmlFor="referenceNumber">রেফারেন্স/রসিদ নং (ঐচ্ছিক)</Label>
+            <Label htmlFor="referenceNumber">Reference / Voucher No (Optional)</Label>
             <Input
               id="referenceNumber"
-              placeholder="উদা: ADJ-2026-001"
+              placeholder="e.g. ADJ-2026-001"
               {...register("referenceNumber")}
             />
           </div>
 
           {/* Notes / Reason */}
           <div className="space-y-2">
-            <Label htmlFor="notes">সমন্বয়ের কারণ *</Label>
+            <Label htmlFor="notes">Adjustment Reason *</Label>
             <Input
               id="notes"
-              placeholder="উদা: পূর্বের হিসেব সমন্বয়"
+              placeholder="e.g. Reconciliation of past dues"
               {...register("notes")}
             />
             {errors.notes && <p className="text-xs text-destructive">{errors.notes.message}</p>}
@@ -183,10 +183,10 @@ export function AddAdjustmentDialog({ open, onOpenChange, members, onSuccess }: 
 
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-              বাতিল
+              Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? "সংরক্ষণ হচ্ছে..." : "সমন্বয় সংরক্ষণ করুন"}
+              {loading ? "Saving..." : "Save Adjustment"}
             </Button>
           </DialogFooter>
         </form>

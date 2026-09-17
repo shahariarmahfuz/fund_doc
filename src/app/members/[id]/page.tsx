@@ -2,7 +2,6 @@ import { getMember } from "@/features/members/actions"
 import { getMemberDonations } from "@/features/donors/actions"
 import { notFound } from "next/navigation"
 import { MemberProfileActions } from "@/features/members/components/member-profile-actions"
-import { Trans } from "@/components/shared/trans";
 import { MemberProfileLayout, MemberProfileData } from "@/features/members/components/member-profile-layout"
 
 export default async function MemberProfilePage({ params }: { params: Promise<{ id: string }> }) {
@@ -33,7 +32,7 @@ export default async function MemberProfilePage({ params }: { params: Promise<{ 
   return (
     <MemberProfileLayout
       data={profileData}
-      titleNode={<Trans tKey="members.view.title" />}
+      titleNode="Member Details"
       backHref="/members/manage"
       topActionNode={<MemberProfileActions memberId={member.id} />}
     />

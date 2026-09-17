@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Dependencies & Build artifacts
+node_modules
+.next
+out
+build
+coverage
+
+# Python / Backend
+backend/.venv
+.venv
+__pycache__
+*.py[cod]
+*.pyo
+*.pyd
+.pytest_cache
+
+# Environment & Secrets (NEVER bake into image)
+.env*
+!.env.example
+backend/.env*
+!backend/.env.example
+
+# Development & IDE
+.vscode
+.idea
+.DS_Store
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Documentation & Temp
+README.md
+*.tmp
+*.temp

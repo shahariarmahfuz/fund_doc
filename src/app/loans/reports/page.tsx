@@ -1,14 +1,16 @@
 import { getNow } from "@/lib/date";
 import { formatCurrency } from "@/lib/format"
-
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { PrintButton } from "@/components/shared/print-button"
 
 export default async function LoanReportsPage() {
-  const loans = await prisma.loan.findMany({
-    include: { repayments: true }
-  })
+  let loans: any[] = []
+  try {
+    loans = await apiClient.loans.getAll() || []
+  } catch (err) {
+    console.error("Error fetching loans for reports:", err)
+  }
 
   const totalLoans = loans.length
   const activeLoans = loans.filter(l => l.status === "ACTIVE").length

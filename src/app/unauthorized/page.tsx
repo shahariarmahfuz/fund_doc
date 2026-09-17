@@ -6,7 +6,6 @@ import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import { useRbac } from "@/components/providers/rbac-provider";
-import { Trans } from "@/components/shared/trans";
 
 function UnauthorizedContent() {
   const router = useRouter();
@@ -18,18 +17,18 @@ function UnauthorizedContent() {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[75vh] px-4">
-      <div className="bg-red-50 dark:bg-red-950/30 text-red-500 p-5 rounded-full mb-6 shadow-sm border border-red-100 dark:border-red-900/50">
+      <div className="bg-red-50 text-red-500 p-5 rounded-full mb-6 shadow-sm border border-red-100">
         <ShieldAlert className="w-16 h-16" />
       </div>
       
-      <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-3"><Trans tKey="unauthorized.title" /></h1>
-      <p className="text-gray-600 dark:text-gray-400 mb-8 max-w-md mx-auto">
-        <Trans tKey="unauthorized.desc" /></p>
+      <h1 className="text-3xl font-bold text-gray-900 mb-3">Unauthorized Access</h1>
+      <p className="text-gray-600 mb-8 max-w-md mx-auto">
+        You do not have permission to access this page.</p>
 
       {(moduleName || action) && (
-        <div className="bg-white dark:bg-card rounded-xl p-6 mb-10 w-full max-w-md text-center border shadow-sm">
-          <p className="text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2"><Trans tKey="unauthorized.requested_permission" /></p>
-          <div className="inline-flex items-center gap-2 bg-gray-50 dark:bg-muted/50 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 border">
+        <div className="bg-white rounded-xl p-6 mb-10 w-full max-w-md text-center border shadow-sm">
+          <p className="text-xs uppercase tracking-wider font-semibold text-gray-400 mb-2">Requested Permission</p>
+          <div className="inline-flex items-center gap-2 bg-gray-50 px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border">
             {moduleName && <span>Module: <strong className="text-primary">{moduleName}</strong></span>}
             {moduleName && action && <span>•</span>}
             {action && <span>Action: <strong className="text-primary">{action}</strong></span>}
@@ -45,12 +44,12 @@ function UnauthorizedContent() {
           className="flex items-center w-full sm:w-auto"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          <Trans tKey="unauthorized.back" /></Button>
+          Go Back</Button>
         {hasDashboardAccess && (
           <Button asChild size="lg" className="w-full sm:w-auto">
             <Link href="/" className="flex items-center justify-center">
               <LayoutDashboard className="w-4 h-4 mr-2" />
-              <Trans tKey="unauthorized.dashboard" /></Link>
+              Back to Dashboard</Link>
           </Button>
         )}
       </div>

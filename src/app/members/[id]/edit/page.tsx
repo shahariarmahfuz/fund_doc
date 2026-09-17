@@ -7,7 +7,6 @@ import { ArrowLeft } from "lucide-react"
 import Link from "next/link"
 
 import { authorizePage } from "@/lib/rbac"
-import { Trans } from "@/components/shared/trans";
 
 import { Metadata } from "next";
 
@@ -33,7 +32,7 @@ export default async function EditMemberPage({ params }: { params: Promise<{ id:
   } catch (e) {}
 
   // Find existing documents for initialization (optional for form defaults, but useful if needed)
-  const idDocument = member.documents?.find(d => d.title === "National ID" || d.title === "Birth Certificate")
+  const idDocument = member.documents?.find((d: any) => d.title === "National ID" || d.title === "Birth Certificate")
   const idDocType = idDocument?.title === "Birth Certificate" ? "BIRTH_CERTIFICATE" : "NID"
 
   // Convert the DB member to initial form data matching MemberFormValues
@@ -76,8 +75,8 @@ export default async function EditMemberPage({ params }: { params: Promise<{ id:
           </Link>
         </Button>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="members.edit.title" /></h1>
-          <p className="text-muted-foreground">{member.fullName || ''} <Trans tKey="members.edit.title" /></p>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Member</h1>
+          <p className="text-muted-foreground">{member.fullName || ''} Edit Member</p>
         </div>
       </div>
       

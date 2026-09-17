@@ -2,8 +2,6 @@
 
 @plugin "tailwindcss-animate";
 
-@custom-variant dark (&:is(.dark *));
-
 @theme {
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
@@ -206,54 +204,6 @@
     --surface-900: #3b3f52;
     --surface-950: #1e2035;
   }
-
-  .dark {
-    /* Base overrides */
-    --background: 226 21% 7%; /* #0F1117 */
-    --foreground: 216 33% 97%; /* #F5F7FA */
-    --card: 225 14% 11%; /* #181A20 */
-    --card-foreground: 216 33% 97%;
-    --popover: 225 14% 11%;
-    --popover-foreground: 216 33% 97%;
-    --primary: 244 89% 65%; /* #6358f5 */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 16% 15%; /* #20242C */
-    --secondary-foreground: 216 33% 97%;
-    --muted: 220 16% 15%; /* #20242C */
-    --muted-foreground: 218 16% 60%; /* #8B93A3 */
-    --accent: 220 16% 15%; /* #20242C */
-    --accent-foreground: 216 33% 97%;
-    --destructive: 0 84% 60%; /* #ef4444 */
-    --destructive-foreground: 210 40% 98%;
-    
-    /* Status Dark */
-    --success: 160 84% 39%; /* Emerald #10b981 */
-    --success-foreground: 0 0% 100%;
-    --warning: 38 92% 50%; /* Amber #f59e0b */
-    --warning-foreground: 0 0% 100%;
-    --error: 0 84% 60%; /* Red #ef4444 */
-    --error-foreground: 0 0% 100%;
-    --info: 221 83% 53%; /* Blue #2563EB */
-    --info-foreground: 0 0% 100%;
-
-    --border: 221 16% 20%; /* #2A2F3A */
-    --input: 221 16% 20%; /* #2A2F3A */
-    --ring: 244 89% 65%;
-
-    /* Exact requested Surface Variables for Dark Mode */
-    --surface-0: #181A20; 
-    --surface-50: #0F1117; 
-    --surface-100: #1C1F26;
-    --surface-200: #2A2F3A; 
-    --surface-300: #383F4D;
-    --surface-400: #4B5563;
-    --surface-500: #6B7280; 
-    --surface-600: #8B93A3; 
-    --surface-700: #A3ADC2;
-    --surface-800: #B8C0CC; 
-    --surface-900: #E5E7EB;
-    --surface-950: #F5F7FA; 
-  }
 }
 
 @layer base {
@@ -404,9 +354,6 @@
   justify-content: space-between;
   contain: layout style;
 }
-.dark .wm-card {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
 
 /* Watermark Icon - simplified */
 .wm-card .watermark {
@@ -420,9 +367,6 @@
   color: var(--wm-color, #6366f1);
   pointer-events: none;
   z-index: 0;
-}
-.dark .wm-card .watermark {
-  opacity: 0.05;
 }
 
 /* Top accent line - simple, no gradient animation */
@@ -444,17 +388,11 @@
   transform: translateY(-4px);
   box-shadow: 0 8px 24px var(--shadow-hover, rgba(99, 102, 241, 0.1));
 }
-.dark .wm-card:hover {
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-}
 .wm-card:hover::before {
   opacity: 1;
 }
 .wm-card:hover .watermark {
   opacity: 0.06;
-}
-.dark .wm-card:hover .watermark {
-  opacity: 0.08;
 }
 
 .wm-card > * {
@@ -479,40 +417,20 @@
   color: #059669;
   border-color: #a7f3d0;
 }
-.dark .wm-badge.up {
-  background: rgba(16, 185, 129, 0.15);
-  color: #34d399;
-  border-color: rgba(16, 185, 129, 0.3);
-}
 .wm-badge.down {
   background: #fef2f2;
   color: #dc2626;
   border-color: #fecaca;
-}
-.dark .wm-badge.down {
-  background: rgba(239, 68, 68, 0.15);
-  color: #f87171;
-  border-color: rgba(239, 68, 68, 0.3);
 }
 .wm-badge.neutral {
   background: #f8fafc;
   color: #64748b;
   border-color: #e2e8f0;
 }
-.dark .wm-badge.neutral {
-  background: rgba(148, 163, 184, 0.15);
-  color: #94a3b8;
-  border-color: rgba(148, 163, 184, 0.3);
-}
 .wm-badge.info {
   background: #eff6ff;
   color: #2563eb;
   border-color: #bfdbfe;
-}
-.dark .wm-badge.info {
-  background: rgba(59, 130, 246, 0.15);
-  color: #60a5fa;
-  border-color: rgba(59, 130, 246, 0.3);
 }
 
 .wm-value {
@@ -522,9 +440,6 @@
   line-height: 1;
   color: #0f172a;
 }
-.dark .wm-value {
-  color: #F5F7FA;
-}
 
 .wm-label {
   font-size: 12px;
@@ -533,17 +448,11 @@
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
-.dark .wm-label {
-  color: #B8C0CC;
-}
 
 .wm-sublabel {
   font-size: 12px;
   color: #94a3b8;
   font-weight: 400;
-}
-.dark .wm-sublabel {
-  color: #8B93A3;
 }
 
 .wm-dot {

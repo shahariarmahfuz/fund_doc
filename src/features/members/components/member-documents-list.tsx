@@ -6,7 +6,6 @@ import { Download, Eye, FileText, Image as ImageIcon, FileSpreadsheet, FileArchi
 import { Button } from "@/components/ui/button"
 import { ReplaceDocumentButton } from "@/features/documents/components/replace-document-button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface MemberDocumentsListProps {
   documents: any[]
@@ -32,8 +31,7 @@ const REQUIRED_DOCS = [
 ]
 
 export function MemberDocumentsList({ documents }: MemberDocumentsListProps) {
-    const { t } = useLanguage();
-  // Only show the specific slots
+      // Only show the specific slots
   const docsByTitle = documents.reduce((acc, doc) => {
     acc[doc.title] = doc
     return acc
@@ -53,14 +51,14 @@ export function MemberDocumentsList({ documents }: MemberDocumentsListProps) {
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">{t("members.documents.title")}</h3>
+        <h3 className="text-lg font-medium">{"Member Documents"}</h3>
       </div>
 
       {slotsToRender.length === 0 ? (
         <Card className="bg-muted/50">
           <CardContent className="flex flex-col items-center justify-center py-10">
             <FileText className="h-10 w-10 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">{t("members.documents.no_documents")}</p>
+            <p className="text-muted-foreground">{"No documents uploaded."}</p>
           </CardContent>
         </Card>
       ) : (
@@ -126,12 +124,12 @@ export function MemberDocumentsList({ documents }: MemberDocumentsListProps) {
                     {!isImage && (
                       <Button variant="outline" size="sm" className="w-full" asChild>
                         <a href={doc.secureUrl} target="_blank" rel="noreferrer">
-                          <Eye className="mr-2 h-4 w-4" /> {t("members.documents.view")}</a>
+                          <Eye className="mr-2 h-4 w-4" /> {"View"}</a>
                       </Button>
                     )}
                     <Button variant="outline" size="sm" className="w-full" asChild>
                       <a href={doc.secureUrl} download={doc.originalFilename}>
-                        <Download className="mr-2 h-4 w-4" /> {t("members.form.save")}</a>
+                        <Download className="mr-2 h-4 w-4" /> {"Save"}</a>
                     </Button>
                     <ReplaceDocumentButton documentId={doc.id} className="w-full col-span-2" />
                   </div>

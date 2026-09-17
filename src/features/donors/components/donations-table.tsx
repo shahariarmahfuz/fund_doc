@@ -45,7 +45,6 @@ import { ViewDonationDialog } from "./view-donation-dialog"
 import { EditDonationSheet } from "./edit-donation-sheet"
 import { ReceiptDonationModal } from "./receipt-donation-modal"
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import type { ComboboxMember } from "@/components/member-combobox"
 
 interface DonationsTableProps {
@@ -56,8 +55,7 @@ interface DonationsTableProps {
 }
 
 export function DonationsTable({ data, donors, members = [], groups }: DonationsTableProps) {
-  const { t } = useLanguage();
-  const router = useRouter()
+    const router = useRouter()
   const [sorting, setSorting] = useState<SortingState>([])
   const { can } = useRbac()
 
@@ -79,12 +77,12 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
   const [receiptItem, setReceiptItem] = useState<{ item: DonationTransactionItem; mode: "print" | "pdf" } | null>(null)
 
   const handleDelete = async (id: string) => {
-    if (confirm(t("donors.donations_table.delete_confirm_msg"))) {
+    if (confirm("Are you sure you want to delete this donation transaction?\n\nIt will be permanently deleted and automatically reverse the donor ledger, group ledger, group total fund, and dashboard calculations.")) {
       const res = await deleteDonationTransaction(id)
       if (res.success) {
-        toast.success(t("donors.k_9a80d2"), { description: t("donors.donations_table.delete_success_desc") })
+        toast.success("Deleted successfully", { description: "Transaction and all related ledger entries have been automatically reversed." })
       } else {
-        toast.error(t("donors.k_82553c"), { description: (res as any).error })
+        toast.error("Unable to delete", { description: (res as any).error })
       }
     }
   }
@@ -188,12 +186,12 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
         return isMember ? (
           <Badge className="bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-normal flex items-center gap-1 w-fit">
             <UserCheck className="w-3 h-3" />
-            <span>{t("donors.source_member")}</span>
+            <span>{"Foundation Member"}</span>
           </Badge>
         ) : (
           <Badge variant="outline" className="border-primary text-primary text-[11px] font-normal flex items-center gap-1 w-fit">
             <Users className="w-3 h-3" />
-            <span>{t("donors.source_donor")}</span>
+            <span>{"Non-member / Donor"}</span>
           </Badge>
         )
       }
@@ -211,7 +209,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
               <>
                 <div className="font-semibold text-foreground">{member?.fullName || "Foundation Member"}</div>
                 <div className="text-xs text-muted-foreground">
-                  {t("donors.k_e6f2eb")}{member?.memberId || row.original.memberId}
+                  {"ID:"}{member?.memberId || row.original.memberId}
                 </div>
               </>
             ) : (
@@ -219,7 +217,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                 <div className="font-semibold text-foreground">{donor?.fullName || "External Donor"}</div>
                 {donor && (
                   <div className="text-xs text-muted-foreground">
-                    {t("donors.k_e6f2eb")}{donor.donorId} | {donor.mobile}
+                    {"ID:"}{donor.donorId} | {donor.mobile}
                   </div>
                 )}
               </>
@@ -241,7 +239,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
       accessorKey: "amount",
       header: "Amount",
       cell: ({ row }) => (
-        <span className="font-bold text-green-600 dark:text-green-400 font-mono text-base">
+        <span className="font-bold text-green-600 font-mono text-base">
           ৳{row.getValue("amount")}
         </span>
       ),
@@ -268,7 +266,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
       id: "actions",
       enableHiding: false,
       header: () => {
-        return (<div className="text-right">{t("donors.k_7c6fd8")}</div>);
+        return (<div className="text-right">{"action"}</div>);
       },
       cell: ({ row }) => {
         const item = row.original
@@ -278,31 +276,31 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
-                  <span className="sr-only">{t("donors.open_menu_64d2cc")}</span>
+                  <span className="sr-only">{"Open menu"}</span>
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <DropdownMenuLabel>{t("donors.k_797f3d")}</DropdownMenuLabel>
+                <DropdownMenuLabel>{"actions"}</DropdownMenuLabel>
                 <DropdownMenuSeparator />
 
                 {canView && (
                   <DropdownMenuItem onClick={() => setViewingItem(item)} className="cursor-pointer">
-                    <Eye className="mr-2 h-4 w-4 text-blue-500" /> {t("donors.view_7fd672")}</DropdownMenuItem>
+                    <Eye className="mr-2 h-4 w-4 text-blue-500" /> {"View"}</DropdownMenuItem>
                 )}
 
                 {canEdit && (
                   <DropdownMenuItem onClick={() => setEditingItem(item)} className="cursor-pointer">
-                    <Edit className="mr-2 h-4 w-4 text-amber-500" /> {t("donors.edit_1eba42")}</DropdownMenuItem>
+                    <Edit className="mr-2 h-4 w-4 text-amber-500" /> {"Edit"}</DropdownMenuItem>
                 )}
 
                 <DropdownMenuSeparator />
 
                 <DropdownMenuItem onClick={() => setReceiptItem({ item, mode: "print" })} className="cursor-pointer">
-                  <Printer className="mr-2 h-4 w-4 text-emerald-500" /> {t("donors.print_receipt_5c2c0d")}</DropdownMenuItem>
+                  <Printer className="mr-2 h-4 w-4 text-emerald-500" /> {"Print Receipt"}</DropdownMenuItem>
 
                 <DropdownMenuItem onClick={() => setReceiptItem({ item, mode: "pdf" })} className="cursor-pointer">
-                  <Download className="mr-2 h-4 w-4 text-purple-500" /> {t("donors.pdf_export_pdf_4ed1f3")}</DropdownMenuItem>
+                  <Download className="mr-2 h-4 w-4 text-purple-500" /> {"Export PDF"}</DropdownMenuItem>
 
                 {canView && (
                   <>
@@ -325,28 +323,28 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                         onClick={() => {
                           if (item.donorId) {
                             router.push(`/donors/ledger?donorId=${item.donorId}`)
-                            toast.info(t("donors.k_eb7528"), { description: `Donor: ${item.donor?.fullName || item.donorId}` })
+                            toast.info("Donor ledger has been opened", { description: `Donor: ${item.donor?.fullName || item.donorId}` })
                           } else {
-                            toast.error(t("donors.k_4838f6"))
+                            toast.error("Donor not found")
                           }
                         }}
                         className="cursor-pointer"
                       >
-                        <Users className="mr-2 h-4 w-4 text-sky-500" /> {t("donors.k_247207")}</DropdownMenuItem>
+                        <Users className="mr-2 h-4 w-4 text-sky-500" /> {"Open Donor Ledger"}</DropdownMenuItem>
                     )}
 
                     <DropdownMenuItem
                       onClick={() => {
                         if (item.groupId) {
                           router.push(`/groups/${item.groupId}/ledger`)
-                          toast.info(t("donors.k_29088c"), { description: `Group: ${item.groupName}` })
+                          toast.info("Group ledger is opened", { description: `Group: ${item.groupName}` })
                         } else {
                           router.push("/groups/fund")
                         }
                       }}
                       className="cursor-pointer"
                     >
-                      <Building className="mr-2 h-4 w-4 text-indigo-500" /> {t("donors.k_d96ead")}</DropdownMenuItem>
+                      <Building className="mr-2 h-4 w-4 text-indigo-500" /> {"Open the group ledger"}</DropdownMenuItem>
                   </>
                 )}
 
@@ -355,7 +353,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                     <DropdownMenuSeparator />
 
                     <DropdownMenuItem onClick={() => handleDelete(item.id)} className="cursor-pointer text-destructive focus:text-destructive">
-                      <Trash className="mr-2 h-4 w-4" /> {t("donors.delete_c25b14")}</DropdownMenuItem>
+                      <Trash className="mr-2 h-4 w-4" /> {"Delete"}</DropdownMenuItem>
                   </>
                 )}
               </DropdownMenuContent>
@@ -387,19 +385,19 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
             <Search className="h-4 w-4 text-primary" />
-            {t("donors.filter_donations_2cea79")}</h3>
+            {"Filter Donations"}</h3>
           {hasActiveFilters && (
             <Button variant="ghost" size="sm" onClick={handleResetFilters} className="h-8 px-2 text-xs text-muted-foreground hover:text-destructive">
-              <FilterX className="h-3.5 w-3.5 mr-1" /> {t("donors.k_6881e6")}</Button>
+              <FilterX className="h-3.5 w-3.5 mr-1" /> {"Reset filter"}</Button>
           )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {/* Search Input */}
           <div className="space-y-1 col-span-1 sm:col-span-2 md:col-span-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.search_939bb4")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"Search"}</label>
             <Input
-              placeholder={t("donors.k_f26d2e")}
+              placeholder={"Voucher, Name, Mobile or Details..."}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="h-9 text-sm"
@@ -408,28 +406,28 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
 
           {/* Source Filter */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.donation_source")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"Donation Source *"}</label>
             <Select value={selectedSource} onValueChange={setSelectedSource}>
               <SelectTrigger className="h-9 text-sm">
                 <SelectValue placeholder="All Sources" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="ALL">All Sources</SelectItem>
-                <SelectItem value="MEMBER">{t("donors.source_member")}</SelectItem>
-                <SelectItem value="DONOR">{t("donors.source_donor")}</SelectItem>
+                <SelectItem value="MEMBER">{"Foundation Member"}</SelectItem>
+                <SelectItem value="DONOR">{"Non-member / Donor"}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           {/* Donor/Member Filter */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.donor_9c2b8d")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"Donor"}</label>
             <Select value={selectedDonor} onValueChange={setSelectedDonor}>
               <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder={t("donors.k_22da40")} />
+                <SelectValue placeholder={"All donors"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">{t("donors.all_donors_e94b73")}</SelectItem>
+                <SelectItem value="ALL">{"All Donors"}</SelectItem>
                 {donors.map((d) => (
                   <SelectItem key={d.id} value={d.id}>
                     {d.fullName} ({d.donorId})
@@ -441,13 +439,13 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
 
           {/* Group Filter */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.selected_group_1437b5")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"Selected Group"}</label>
             <Select value={selectedGroup} onValueChange={setSelectedGroup}>
               <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder={t("donors.k_a3853a")} />
+                <SelectValue placeholder={"All groups"} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="ALL">{t("donors.all_groups_15b06f")}</SelectItem>
+                <SelectItem value="ALL">{"All Groups"}</SelectItem>
                 {groups.map((g) => (
                   <SelectItem key={g.id} value={g.id}>
                     {g.name}
@@ -459,7 +457,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
 
           {/* From Date */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.from_date_02241c")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"From Date"}</label>
             <Input
               type="date"
               value={fromDate}
@@ -470,7 +468,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
 
           {/* To Date */}
           <div className="space-y-1">
-            <label className="text-xs font-medium text-muted-foreground">{t("donors.to_date_0b6f4a")}</label>
+            <label className="text-xs font-medium text-muted-foreground">{"To Date"}</label>
             <Input
               type="date"
               value={toDate}
@@ -517,9 +515,9 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                 <TableCell colSpan={columns.length} className="h-36 text-center">
                   <div className="flex flex-col items-center justify-center space-y-2 text-muted-foreground">
                     <FileText className="h-8 w-8 text-muted-foreground/40" />
-                    <p className="font-medium text-base">{t("donors.k_266340")}</p>
+                    <p className="font-medium text-base">{"No donation transactions found"}</p>
                     <p className="text-xs text-muted-foreground">
-                      {hasActiveFilters ? t("donors.donations_table.empty_state_filter_prompt") : t("donors.donations_table.empty_state_new_prompt")}
+                      {hasActiveFilters ? "Try changing the filters to see results" : "Create a new donation entry from the Receive Donation menu."}
                     </p>
                   </div>
                 </TableCell>
@@ -532,7 +530,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
         {table.getPageCount() > 1 && (
           <div className="flex items-center justify-between px-6 py-3 border-t bg-muted/20">
             <div className="text-xs text-muted-foreground">
-              {t("donors.k_70ac0f")}<span className="font-bold text-foreground">{filteredData.length}</span> {t("donors.k_44d554")}</div>
+              {"total"}<span className="font-bold text-foreground">{filteredData.length}</span> {"t transaction displayed"}</div>
             <div className="flex items-center space-x-2">
               <Button
                 variant="outline"
@@ -541,9 +539,9 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                 disabled={!table.getCanPreviousPage()}
                 className="h-8 px-3 text-xs"
               >
-                {t("donors.prev_b3e8a7")}</Button>
+                {"Prev"}</Button>
               <span className="text-xs font-medium px-2">
-                {t("donors.k_512a83")}{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
+                {"page"}{table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
               </span>
               <Button
                 variant="outline"
@@ -552,7 +550,7 @@ export function DonationsTable({ data, donors, members = [], groups }: Donations
                 disabled={!table.getCanNextPage()}
                 className="h-8 px-3 text-xs"
               >
-                {t("donors.next_916a30")}</Button>
+                {"Next"}</Button>
             </div>
           </div>
         )}

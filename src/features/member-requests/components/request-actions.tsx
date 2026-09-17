@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 
 import {
   DropdownMenu,
@@ -30,8 +29,7 @@ import { toast } from "sonner"
 import { Check, X, AlertCircle } from "lucide-react"
 
 export function RequestActions({ requestId, status }: { requestId: string, status: string }) {
-  const { t } = useLanguage()
-  const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false)
   const [actionType, setActionType] = useState<"APPROVE" | "REJECT" | "CHANGES" | null>(null)
   
   const [reason, setReason] = useState("")
@@ -46,40 +44,40 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
       if (actionType === "APPROVE") {
         const res = await approveMemberRequest(requestId)
         if (res.success) {
-          toast.success(t("member-requests.messages.approve_success"))
+          toast.success("Application approved. Member created successfully.")
           setActionType(null)
         } else {
-          toast.error((res as any).error || t("common.error"))
+          toast.error((res as any).error || "An error occurred")
         }
       } else if (actionType === "REJECT") {
         if (!reason.trim()) {
-          toast.error(t("member-requests.messages.reason_required"))
+          toast.error("Reason is required.")
           setLoading(false)
           return
         }
         const res = await rejectMemberRequest(requestId, reason)
         if (res.success) {
-          toast.success(t("member-requests.messages.reject_success"))
+          toast.success("Application rejected.")
           setActionType(null)
         } else {
-          toast.error((res as any).error || t("common.error"))
+          toast.error((res as any).error || "An error occurred")
         }
       } else if (actionType === "CHANGES") {
         if (!reason.trim()) {
-          toast.error(t("member-requests.messages.reason_required"))
+          toast.error("Reason is required.")
           setLoading(false)
           return
         }
         const res = await requestChangesMemberRequest(requestId, reason)
         if (res.success) {
-          toast.success(t("member-requests.messages.changes_success"))
+          toast.success("Changes requested.")
           setActionType(null)
         } else {
-          toast.error((res as any).error || t("common.error"))
+          toast.error((res as any).error || "An error occurred")
         }
       }
     } catch (err: any) {
-      toast.error(err.message || t("common.error"))
+      toast.error(err.message || "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -90,13 +88,13 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" className="h-8 w-8 p-0 hover:bg-muted">
-            <span className="sr-only">{t("common.actions")}</span>
+            <span className="sr-only">{"Actions"}</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
           <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">
-            {t("common.actions")}
+            {"Actions"}
           </DropdownMenuLabel>
           <DropdownMenuSeparator />
           
@@ -105,7 +103,7 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
             onClick={() => setActionType("APPROVE")}
           >
             <Check className="mr-2 h-4 w-4" />
-            <span>{t("common.approve")}</span>
+            <span>{"Approve"}</span>
           </DropdownMenuItem>
 
           <DropdownMenuItem 
@@ -113,7 +111,7 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
             onClick={() => setActionType("CHANGES")}
           >
             <AlertCircle className="mr-2 h-4 w-4" />
-            <span>{t("member-requests.actions.request_changes")}</span>
+            <span>{"Request Changes"}</span>
           </DropdownMenuItem>
 
           <DropdownMenuSeparator />
@@ -123,7 +121,7 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
             onClick={() => setActionType("REJECT")}
           >
             <X className="mr-2 h-4 w-4" />
-            <span>{t("common.reject")}</span>
+            <span>{"Reject"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -137,26 +135,26 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
-              {actionType === "APPROVE" && t("member-requests.actions.approve_title")}
-              {actionType === "REJECT" && t("member-requests.actions.reject_title")}
-              {actionType === "CHANGES" && t("member-requests.actions.changes_title")}
+              {actionType === "APPROVE" && "Approve Application"}
+              {actionType === "REJECT" && "Reject Application"}
+              {actionType === "CHANGES" && "Request Changes"}
             </DialogTitle>
             <DialogDescription>
-              {actionType === "APPROVE" && t("member-requests.actions.approve_desc")}
-              {actionType === "REJECT" && t("member-requests.actions.reject_desc")}
-              {actionType === "CHANGES" && t("member-requests.actions.changes_desc")}
+              {actionType === "APPROVE" && "Are you sure you want to approve this application? This will create a new member."}
+              {actionType === "REJECT" && "Reason for rejection"}
+              {actionType === "CHANGES" && "Message to applicant"}
             </DialogDescription>
           </DialogHeader>
 
           {(actionType === "REJECT" || actionType === "CHANGES") && (
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="reason">{t("common.reason")}</Label>
+                <Label htmlFor="reason">{"Reason"}</Label>
                 <Textarea 
                   id="reason" 
                   value={reason} 
                   onChange={(e) => setReason(e.target.value)} 
-                  placeholder={t("member-requests.actions.reason_placeholder")}
+                  placeholder={"Enter reason or details..."}
                 />
               </div>
             </div>
@@ -164,7 +162,7 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
 
           <DialogFooter>
             <Button variant="outline" onClick={() => setActionType(null)} disabled={loading}>
-              {t("common.cancel")}
+              {"Cancel"}
             </Button>
             <Button 
               onClick={handleAction} 
@@ -172,7 +170,7 @@ export function RequestActions({ requestId, status }: { requestId: string, statu
               variant={actionType === "REJECT" ? "destructive" : "default"}
               className={actionType === "APPROVE" ? "bg-emerald-600 hover:bg-emerald-700" : ""}
             >
-              {loading ? t("common.loading") : t("common.confirm")}
+              {loading ? "Loading..." : "Confirm"}
             </Button>
           </DialogFooter>
         </DialogContent>

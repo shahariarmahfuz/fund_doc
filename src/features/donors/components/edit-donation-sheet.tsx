@@ -34,7 +34,6 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { toast } from "sonner"
-import { useLanguage } from "@/i18n/LanguageProvider";
 import { MemberCombobox, type ComboboxMember } from "@/components/member-combobox"
 import { GroupCombobox } from "@/components/group-combobox"
 import { UserCheck, Users } from "lucide-react"
@@ -79,8 +78,7 @@ interface EditDonationSheetProps {
 }
 
 export function EditDonationSheet({ isOpen, onClose, donation, donors, members = [], groups }: EditDonationSheetProps) {
-  const { t } = useLanguage();
-  const [isSubmitting, setIsSubmitting] = useState(false)
+    const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<EditFormValues>({
     resolver: zodResolver(editSchema as any),
@@ -129,12 +127,12 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
     setIsSubmitting(false)
 
     if (result.success) {
-      toast.success(t("donors.k_b3d00a"), { 
-        description: t("donors.edit_donation.sync_success") 
+      toast.success("Donation updated successfully", { 
+        description: "Donor ledger, group ledger, and dashboard calculations have been synchronized automatically." 
       })
       onClose()
     } else {
-      toast.error(t("donors.k_f4b1e8"), { description: (result as any).error })
+      toast.error("Update failed", { description: (result as any).error })
     }
   }
 
@@ -142,15 +140,15 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent className="sm:max-w-[500px] overflow-y-auto">
         <SheetHeader>
-          <SheetTitle>{t("donors.edit_donation_ddd78c")}</SheetTitle>
+          <SheetTitle>{"Edit Donation"}</SheetTitle>
           <SheetDescription>
-            {t("donors.single_db_transactio_12c012")}</SheetDescription>
+            {"Single DB Transaction"}</SheetDescription>
         </SheetHeader>
 
         <div className="my-4 p-3 bg-muted/40 rounded-md border text-sm">
-          <p><span className="font-medium text-muted-foreground">{t("donors.k_347e5a")}</span> {donation.voucherNo}</p>
-          <p><span className="font-medium text-muted-foreground">{t("donors.k_25bccc")}</span> ৳{donation.amount}</p>
-          <p><span className="font-medium text-muted-foreground">{t("donors.k_d6b11f")}</span> {donation.createdBy}</p>
+          <p><span className="font-medium text-muted-foreground">{"Voucher No:"}</span> {donation.voucherNo}</p>
+          <p><span className="font-medium text-muted-foreground">{"Current Amount:"}</span> ৳{donation.amount}</p>
+          <p><span className="font-medium text-muted-foreground">{"Entries made by:"}</span> {donation.createdBy}</p>
         </div>
 
         <Form {...form}>
@@ -160,7 +158,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
               name="sourceType"
               render={({ field }) => (
                 <FormItem className="space-y-2">
-                  <FormLabel>{t("donors.donation_source")}</FormLabel>
+                  <FormLabel>{"Donation Source *"}</FormLabel>
                   <FormControl>
                     <RadioGroup
                       onValueChange={(val) => {
@@ -180,7 +178,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
                         </FormControl>
                         <Label className="font-medium cursor-pointer flex items-center gap-1.5 text-xs">
                           <Users className="w-3.5 h-3.5 text-primary" />
-                          <span>{t("donors.source_donor")}</span>
+                          <span>{"Non-member / Donor"}</span>
                         </Label>
                       </FormItem>
                       
@@ -190,7 +188,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
                         </FormControl>
                         <Label className="font-medium cursor-pointer flex items-center gap-1.5 text-xs">
                           <UserCheck className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>{t("donors.source_member")}</span>
+                          <span>{"Foundation Member"}</span>
                         </Label>
                       </FormItem>
                     </RadioGroup>
@@ -206,7 +204,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
                 name="memberId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("donors.member_label")}</FormLabel>
+                    <FormLabel>{"Foundation Member *"}</FormLabel>
                     <FormControl>
                       <MemberCombobox
                         members={members}
@@ -236,11 +234,11 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
                 name="donorId"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("donors.donor_462f00")}</FormLabel>
+                    <FormLabel>{"Donor *"}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value || ""}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder={t("donors.k_1d5605")} />
+                          <SelectValue placeholder={"Select the donor"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -262,7 +260,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
               name="groupId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("donors.selected_group_06aad2")}</FormLabel>
+                  <FormLabel>{"Selected Group"}</FormLabel>
                   <FormControl>
                     <GroupCombobox
                       groups={groups.map((g) => ({
@@ -273,7 +271,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
                       }))}
                       value={field.value}
                       onChange={field.onChange}
-                      placeholder={t("donors.k_4a6394")}
+                      placeholder={"Select the foundation group"}
                     />
                   </FormControl>
                   <FormMessage />
@@ -286,7 +284,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
               name="amount"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("donors.amount_in_108419")}</FormLabel>
+                  <FormLabel>{"Amount (Amount in \u09f3) *"}</FormLabel>
                   <FormControl>
                     <Input type="number" step="any" {...field} />
                   </FormControl>
@@ -300,7 +298,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
               name="date"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("donors.date_fd1a4c")}</FormLabel>
+                  <FormLabel>{"Date"}</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -314,7 +312,7 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
               name="remarks"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("donors.remarks_19ab1b")}</FormLabel>
+                  <FormLabel>{"Remarks"}</FormLabel>
                   <FormControl>
                     <Textarea rows={3} {...field} />
                   </FormControl>
@@ -325,9 +323,9 @@ export function EditDonationSheet({ isOpen, onClose, donation, donors, members =
 
             <div className="flex justify-end gap-3 pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
-                {t("donors.cancel_adfff0")}</Button>
+                {"Cancel"}</Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("donors.edit_donation.updating") : t("donors.edit_donation.save_changes")}
+                {isSubmitting ? "Updating..." : "Save Changes"}
               </Button>
             </div>
           </form>

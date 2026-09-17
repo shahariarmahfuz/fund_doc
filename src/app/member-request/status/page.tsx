@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState, useCallback } from "react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import { getMemberRequestByApplicationNumber } from "@/features/member-requests/actions"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -12,8 +11,7 @@ import { format } from "date-fns"
 import { PublicHeader } from "@/components/public-header"
 
 export default function MemberRequestStatusPage() {
-  const { t } = useLanguage()
-  const [appNumber, setAppNumber] = useState("")
+    const [appNumber, setAppNumber] = useState("")
   const [loading, setLoading] = useState(false)
   const [statusData, setStatusData] = useState<any>(null)
   const [error, setError] = useState("")
@@ -21,7 +19,7 @@ export default function MemberRequestStatusPage() {
 
   const fetchStatus = useCallback(async (numberToFetch: string) => {
     if (!numberToFetch.trim()) {
-      setError(t("member-requests.status.enter_number"))
+      setError("Enter Application Number")
       return
     }
     
@@ -33,15 +31,15 @@ export default function MemberRequestStatusPage() {
       if (data) {
         setStatusData(data)
       } else {
-        setError(t("member-requests.status.not_found"))
+        setError("Application not found")
         setStatusData(null)
       }
     } catch (err: any) {
-      setError(err.message || t("common.error"))
+      setError(err.message || "An error occurred")
     } finally {
       setLoading(false)
     }
-  }, [t])
+  }, [])
 
   useEffect(() => {
     setMounted(true)
@@ -62,26 +60,26 @@ export default function MemberRequestStatusPage() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PENDING":
-        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-800">{t("member-requests.status.pending")}</Badge>
+        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">{"Pending Review"}</Badge>
       case "APPROVED":
-        return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-900/30 dark:text-emerald-300 dark:border-emerald-800">{t("member-requests.status.approved")}</Badge>
+        return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">{"Approved"}</Badge>
       case "REJECTED":
-        return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-900/30 dark:text-rose-300 dark:border-rose-800">{t("member-requests.status.rejected")}</Badge>
+        return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200">{"Rejected"}</Badge>
       case "NEEDS_CHANGES":
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-800">{t("member-requests.status.needs_changes")}</Badge>
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">{"Changes Requested"}</Badge>
       default:
         return <Badge>{status}</Badge>
     }
   }
 
   return (
-    <div className="min-h-dvh w-full relative bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4 pt-20">
+    <div className="min-h-dvh w-full relative bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4 pt-20">
       <PublicHeader />
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl text-center">{t("member-requests.status.title")}</CardTitle>
+          <CardTitle className="text-2xl text-center">{"Application Status"}</CardTitle>
           <CardDescription className="text-center">
-            {t("member-requests.status.description")}
+            {"Check the status of your membership application."}
           </CardDescription>
         </CardHeader>
         
@@ -90,7 +88,7 @@ export default function MemberRequestStatusPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Input
-                  placeholder={t("member-requests.status.placeholder")}
+                  placeholder={"e.g. MR-2026-00001"}
                   value={appNumber}
                   onChange={(e) => setAppNumber(e.target.value)}
                   disabled={loading}
@@ -98,7 +96,7 @@ export default function MemberRequestStatusPage() {
               </div>
               {error && <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-md">{error}</div>}
               <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? t("common.loading") : t("member-requests.status.check_button")}
+                {loading ? "Loading..." : "Check Status"}
               </Button>
             </form>
           )}
@@ -106,19 +104,19 @@ export default function MemberRequestStatusPage() {
           {statusData && (
             <div className="space-y-6">
               <div className="flex flex-col items-center justify-center space-y-2 p-6 bg-muted/50 rounded-lg border">
-                <div className="text-sm text-muted-foreground">{t("member-requests.status.application_number")}</div>
+                <div className="text-sm text-muted-foreground">{"Application Number"}</div>
                 <div className="font-mono text-xl font-bold">{statusData.applicationNumber}</div>
                 <div className="mt-2">{getStatusBadge(statusData.status)}</div>
               </div>
 
               <div className="space-y-3">
                 <div className="grid grid-cols-2 gap-1 text-sm border-b pb-2">
-                  <span className="text-muted-foreground">{t("member-requests.status.applicant_name")}:</span>
+                  <span className="text-muted-foreground">{"Applicant Name"}:</span>
                   <span className="font-medium">{statusData.fullName}</span>
                 </div>
                 
                 <div className="grid grid-cols-2 gap-1 text-sm border-b pb-2">
-                  <span className="text-muted-foreground">{t("member-requests.status.submitted_date")}:</span>
+                  <span className="text-muted-foreground">{"Submitted Date"}:</span>
                   <span className="font-medium">
                     {statusData.submittedAt ? format(new Date(statusData.submittedAt), 'PPP') : 'N/A'}
                   </span>
@@ -126,8 +124,8 @@ export default function MemberRequestStatusPage() {
 
                 {statusData.status === 'APPROVED' && statusData.approvedAt && (
                   <div className="grid grid-cols-2 gap-1 text-sm border-b pb-2">
-                    <span className="text-muted-foreground">{t("member-requests.status.approved_date")}:</span>
-                    <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                    <span className="text-muted-foreground">{"Approved Date"}:</span>
+                    <span className="font-medium text-emerald-600">
                       {format(new Date(statusData.approvedAt), 'PPP')}
                     </span>
                   </div>
@@ -135,22 +133,22 @@ export default function MemberRequestStatusPage() {
               </div>
 
               {statusData.adminMessage && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-100 dark:border-blue-900">
-                  <div className="font-semibold text-blue-800 dark:text-blue-300 text-sm mb-1">
-                    {t("member-requests.status.admin_message")}:
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                  <div className="font-semibold text-blue-800 text-sm mb-1">
+                    {"Message from Admin"}:
                   </div>
-                  <div className="text-sm text-blue-700 dark:text-blue-400">
+                  <div className="text-sm text-blue-700">
                     {statusData.adminMessage}
                   </div>
                 </div>
               )}
 
               {statusData.status === 'REJECTED' && statusData.rejectionReason && (
-                <div className="bg-rose-50 dark:bg-rose-900/20 p-4 rounded-lg border border-rose-100 dark:border-rose-900">
-                  <div className="font-semibold text-rose-800 dark:text-rose-300 text-sm mb-1">
-                    {t("member-requests.status.rejection_reason")}:
+                <div className="bg-rose-50 p-4 rounded-lg border border-rose-100">
+                  <div className="font-semibold text-rose-800 text-sm mb-1">
+                    {"Rejection Reason"}:
                   </div>
-                  <div className="text-sm text-rose-700 dark:text-rose-400">
+                  <div className="text-sm text-rose-700">
                     {statusData.rejectionReason}
                   </div>
                 </div>
@@ -158,12 +156,12 @@ export default function MemberRequestStatusPage() {
 
               <div className="pt-2 flex justify-between gap-2">
                 <Button variant="outline" className="flex-1" onClick={() => setStatusData(null)}>
-                  {t("member-requests.status.check_another")}
+                  {"Check Another Application"}
                 </Button>
                 {statusData.status === 'NEEDS_CHANGES' && (
                   <Button className="flex-1" asChild>
                     <Link href={`/member-request/edit/${statusData.applicationNumber}`}>
-                      {t("member-requests.status.edit_application")}
+                      {"Edit Application"}
                     </Link>
                   </Button>
                 )}
@@ -173,7 +171,7 @@ export default function MemberRequestStatusPage() {
         </CardContent>
         <CardFooter className="justify-center border-t pt-6 text-sm text-muted-foreground">
           <Link href="/" className="hover:underline text-primary">
-            {t("member-requests.status.back_to_home")}
+            {"Back to Home"}
           </Link>
         </CardFooter>
       </Card>

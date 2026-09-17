@@ -4,11 +4,9 @@ import { useState, useEffect } from "react"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
 import { GroupCombobox, type ComboboxGroup } from "@/components/group-combobox"
 import { getGroups } from "../actions"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function GroupSelector() {
-  const { t } = useLanguage();
-  const router = useRouter()
+    const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentGroupId = searchParams.get("groupId") || ""
@@ -37,13 +35,13 @@ export function GroupSelector() {
 
   return (
     <div className="flex items-center space-x-2">
-      <span className="text-sm font-medium whitespace-nowrap">{t("groups.selector.label")}</span>
+      <span className="text-sm font-medium whitespace-nowrap">{"Select Group"}</span>
       <div className="w-[260px] sm:w-[300px]">
         <GroupCombobox
           groups={groups}
           value={currentGroupId}
           onChange={handleValueChange}
-          placeholder={t("groups.selector.placeholder")}
+          placeholder={"Select a group..."}
         />
       </div>
     </div>

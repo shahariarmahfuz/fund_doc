@@ -1,22 +1,12 @@
 "use server"
 
-import { prisma } from "@/lib/prisma"
-import { requirePermission, checkPermission } from "@/lib/rbac";
+import { apiClient } from "@/lib/api/client"
 
 export async function getAuditLogs() {
-  if (!await checkPermission("Settings", "View")) return [];
-  return prisma.auditLog.findMany({
-    include: {
-      user: {
-        select: {
-          name: true,
-          username: true
-        }
-      }
-    },
-    orderBy: {
-      createdAt: 'desc'
-    },
-    take: 500 // Limit for initial UI load
-  })
+  try {
+    return await apiClient.auditLogs.getAll()
+  } catch (err) {
+    console.error("Failed to fetch audit logs:", err)
+    return []
+  }
 }

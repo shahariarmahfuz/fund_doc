@@ -9,7 +9,6 @@ import { toast } from "sonner";
 import { saveUserProfile } from "@/features/settings/actions";
 import { useSession } from "next-auth/react";
 import { Camera, Loader2 } from "lucide-react";
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface PersonalProfileFormProps {
   user: {
@@ -22,8 +21,7 @@ interface PersonalProfileFormProps {
 }
 
 export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
-    const { t } = useLanguage();
-  const { update } = useSession();
+      const { update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -51,12 +49,12 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
       const result = await response.json();
       if (result.secure_url) {
         setFormData((prev) => ({ ...prev, photo: result.secure_url }));
-        toast.success(t("settings.profile_picture_uplo_b383f8"));
+        toast.success("Profile picture uploaded. Please save changes.");
       } else {
         throw new Error(result.error || "Failed to upload image");
       }
     } catch (error) {
-      toast.error(t("settings.failed_to_upload_pro_70e7ec"));
+      toast.error("Failed to upload profile picture");
     } finally {
       setIsUploading(false);
     }
@@ -69,9 +67,9 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
     try {
       await saveUserProfile(user.id, formData);
       await update({ name: formData.name, image: formData.photo });
-      toast.success(t("settings.personal_profile_upd_90e66a"));
+      toast.success("Personal profile updated successfully");
     } catch (error) {
-      toast.error(t("settings.failed_to_update_pro_9470d6"));
+      toast.error("Failed to update profile");
     } finally {
       setIsSubmitting(false);
     }
@@ -80,9 +78,9 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("settings.personal_profile_f876d5")}</CardTitle>
+        <CardTitle>{"Personal Profile"}</CardTitle>
         <CardDescription>
-          {t("settings.update_your_personal_34a0c9")}</CardDescription>
+          {"Update your personal details and profile picture."}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -92,7 +90,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
                 {formData.photo ? (
                   <img
                     src={formData.photo}
-                    alt={t("settings.profile_cce99c")}
+                    alt={"Profile"}
                     className="h-full w-full object-cover"
                   />
                 ) : (
@@ -109,7 +107,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
                   htmlFor="photo-upload"
                   className="cursor-pointer bg-secondary text-secondary-foreground hover:bg-secondary/80 px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
-                  {t("settings.change_picture_72c69e")}</Label>
+                  {"Change Picture"}</Label>
                 <Input
                   id="photo-upload"
                   type="file"
@@ -124,7 +122,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
             <div className="flex-1 space-y-4 w-full">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">{t("settings.full_name_630058")}</Label>
+                  <Label htmlFor="name">{"Full Name"}</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -133,7 +131,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="mobile">{t("settings.mobile_number_a4c72a")}</Label>
+                  <Label htmlFor="mobile">{"Mobile Number"}</Label>
                   <Input
                     id="mobile"
                     value={formData.mobile}
@@ -141,7 +139,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
                   />
                 </div>
                 <div className="space-y-2 md:col-span-2">
-                  <Label htmlFor="email">{t("settings.email_address_643a86")}</Label>
+                  <Label htmlFor="email">{"Email Address"}</Label>
                   <Input
                     id="email"
                     type="email"
@@ -156,7 +154,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
           <div className="flex justify-end pt-4 border-t">
             <Button type="submit" disabled={isSubmitting || isUploading}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("settings.save_changes_f5d604")}</Button>
+              {"Save Changes"}</Button>
           </div>
         </form>
       </CardContent>

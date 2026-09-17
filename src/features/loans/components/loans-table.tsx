@@ -59,7 +59,6 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { deleteLoanAction } from "../actions"
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 const globalSearchFn: FilterFn<any> = (row, columnId, value, addMeta) => {
   const searchValue = value.toLowerCase()
@@ -70,8 +69,7 @@ const globalSearchFn: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 export function LoansTable({ data }: { data: any[] }) {
-    const { t } = useLanguage();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+      const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState("")
   const [amountRange, setAmountRange] = useState({ min: "", max: "" })
@@ -85,14 +83,14 @@ export function LoansTable({ data }: { data: any[] }) {
 
   const handleDelete = async (id: string, hasRepayments: boolean) => {
     if (hasRepayments) {
-      toast.error(t("loans.manage.deleteErrorHasRepayments") )
+      toast.error("Cannot delete Qard Hasan with existing repayments." )
       return
     }
-    if (!confirm(t("loans.manage.deleteConfirm") )) return
+    if (!confirm("Are you sure you want to delete this Qard Hasan?" )) return
 
     const res = await deleteLoanAction(id)
     if (res.success) {
-      toast.success(t("loans.manage.deleteSuccess") )
+      toast.success("Qard Hasan deleted successfully." )
       router.refresh()
     } else {
       toast.error(res.error)
@@ -100,7 +98,7 @@ export function LoansTable({ data }: { data: any[] }) {
   }
 
   const handleMarkAsCompleted = async (id: string) => {
-    toast.info(t("loans.manage.comingSoon") )
+    toast.info("Coming soon!" )
   }
 
   const filteredData = useMemo(() => {
@@ -134,7 +132,7 @@ export function LoansTable({ data }: { data: any[] }) {
       header: ({ column }) => {
         return ((
               <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}>
-                {t("loans.table.columns.loanNo")}<ArrowUpDown className="ml-2 h-4 w-4" />
+                {"Qard Hasan No"}<ArrowUpDown className="ml-2 h-4 w-4" />
               </Button>
             ));
       },
@@ -142,31 +140,31 @@ export function LoansTable({ data }: { data: any[] }) {
     {
       id: "beneficiary",
       accessorFn: row => row.beneficiary ? row.beneficiary.fullName : "Unknown",
-      header: t("loans.table.columns.beneficiary"),
+      header: "Beneficiary",
     },
     {
       id: "phone",
-      header: t("loans.table.columns.phone"),
+      header: "Phone",
       cell: ({ row }) => row.original.beneficiary?.phone 
     },
     {
       accessorKey: "amount",
-      header: t("loans.table.columns.amount"),
+      header: "Amount",
       cell: ({ row }) => `৳${(row.getValue("amount") as number)}`,
     },
     {
       id: "remaining",
-      header: t("loans.table.columns.balance"),
+      header: "Remaining Balance",
       cell: ({ row }) => `৳${row.original.remainingBalance}`,
     },
     {
       id: "nextDueDate",
-      header: t("loans.table.columns.nextDue"),
+      header: "Next Due",
       cell: ({ row }) => row.original.nextDueDate ? formatDate(row.original.nextDueDate) : "-",
     },
     {
       accessorKey: "dueStatus",
-      header: t("loans.table.columns.due"),
+      header: "Due Status",
       cell: ({ row }) => {
         const status = row.getValue("dueStatus") as string
         let variant: "default" | "secondary" | "destructive" | "outline" = "outline"
@@ -178,7 +176,7 @@ export function LoansTable({ data }: { data: any[] }) {
     },
     {
       accessorKey: "status",
-      header: t("loans.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => {
         const s = row.getValue("status") as string
         return (
@@ -199,28 +197,28 @@ export function LoansTable({ data }: { data: any[] }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("loans.table.actions.menu")}</span>
+                <span className="sr-only">{"Actions"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("loans.table.actions.menu")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"Actions"}</DropdownMenuLabel>
               {canView && (
                 <DropdownMenuItem asChild>
                   <Link href={`/loans/${loan.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> {t("loans.table.actions.view")}</Link>
+                    <Eye className="mr-2 h-4 w-4" /> {"View Details"}</Link>
                 </DropdownMenuItem>
               )}
               {canEdit && (
                 <DropdownMenuItem asChild>
                   <Link href={`/loans/${loan.id}/edit`}>
-                    <Edit className="mr-2 h-4 w-4" /> {t("loans.table.actions.edit")}</Link>
+                    <Edit className="mr-2 h-4 w-4" /> {"Edit Qard Hasan"}</Link>
                 </DropdownMenuItem>
               )}
               {canManage && isEligibleForCompletion && loan.remainingBalance > 0 && (
                 <DropdownMenuItem asChild>
                   <Link href={`/loans/repayments?loanId=${loan.id}`}>
-                    <CreditCard className="mr-2 h-4 w-4" /> {t("loans.table.actions.repay")}</Link>
+                    <CreditCard className="mr-2 h-4 w-4" /> {"Receive Repayment"}</Link>
                 </DropdownMenuItem>
               )}
               <DropdownMenuSeparator />
@@ -228,25 +226,25 @@ export function LoansTable({ data }: { data: any[] }) {
                 <>
                   <DropdownMenuItem asChild>
                     <Link href={`/loans/${loan.id}#history`}>
-                      <FileText className="mr-2 h-4 w-4" /> {t("loans.table.actions.ledger")}</Link>
+                      <FileText className="mr-2 h-4 w-4" /> {"View Ledger"}</Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href={`/loans/ledger?loanId=${loan.id}`}>
-                      <BookOpen className="mr-2 h-4 w-4" /> {t("loans.table.actions.ledger")}</Link>
+                      <BookOpen className="mr-2 h-4 w-4" /> {"View Ledger"}</Link>
                   </DropdownMenuItem>
                 </>
               )}
               <DropdownMenuItem onClick={() => {
                       return (window.print());
                     }}>
-                <Printer className="mr-2 h-4 w-4" /> {t("loans.table.actions.print")}</DropdownMenuItem>
+                <Printer className="mr-2 h-4 w-4" /> {"Print"}</DropdownMenuItem>
               <DropdownMenuSeparator />
               {canDelete && (
                 <DropdownMenuItem 
                   onClick={() => handleDelete(loan.id, hasRepayments)}
                   className="text-red-600 focus:text-red-600"
                 >
-                  <Trash2 className="mr-2 h-4 w-4" /> {t("loans.table.actions.delete")}</DropdownMenuItem>
+                  <Trash2 className="mr-2 h-4 w-4" /> {"Delete Qard Hasan"}</DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -289,43 +287,43 @@ export function LoansTable({ data }: { data: any[] }) {
       <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.totalLoans") }</div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Total Qard Hasan" }</div>
             <div className="text-2xl font-bold">{summary.totalLoans}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.activeLoans") }</div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Active Qard Hasan" }</div>
             <div className="text-2xl font-bold text-blue-600">{summary.activeLoans}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.completedLoans") }</div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Completed Qard Hasan" }</div>
             <div className="text-2xl font-bold text-green-600">{summary.completedLoans}</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 bg-orange-50 dark:bg-orange-950/20">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.table.dueStatus.dueToday")}</div>
+          <CardContent className="p-4 bg-orange-50">
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Due Today"}</div>
             <div className="text-2xl font-bold text-orange-600">{summary.dueToday}</div>
           </CardContent>
         </Card>
         <Card>
-          <CardContent className="p-4 bg-red-50 dark:bg-red-950/20">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.overdueLoans") }</div>
+          <CardContent className="p-4 bg-red-50">
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Overdue Qard Hasan"}</div>
             <div className="text-2xl font-bold text-red-600">{summary.overdueLoans}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.totalOutstanding") }</div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Total Outstanding"}</div>
             <div className="text-xl font-bold">৳{summary.totalOutstanding}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="p-4">
-            <div className="text-xs text-muted-foreground font-medium mb-1">{t("loans.manage.totalRecovered") }</div>
+            <div className="text-xs text-muted-foreground font-medium mb-1">{"Total Recovered"}</div>
             <div className="text-xl font-bold text-green-600">৳{summary.totalRecovered}</div>
           </CardContent>
         </Card>
@@ -334,13 +332,13 @@ export function LoansTable({ data }: { data: any[] }) {
       <div className="bg-card border rounded-md p-4 space-y-4">
         <div className="flex items-center gap-2 font-medium">
           <FilterX className="h-5 w-5" />
-          {t("loans.manage.filterLoans") }</div>
+          {"Filter Qard Hasan"}</div>
         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
           <div className="lg:col-span-2">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={t("loans.table.search")}
+                placeholder={"Search Qard Hasan..."}
                 value={globalFilter ?? ""}
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="pl-8"
@@ -353,12 +351,12 @@ export function LoansTable({ data }: { data: any[] }) {
             onValueChange={(v) => table.getColumn("loanType")?.setFilterValue(v === "ALL" ? "" : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t("loans.table.columns.type")} />
+              <SelectValue placeholder={"Type"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("loans.form.types.all") }</SelectItem>
-              <SelectItem value="BUSINESS">{t("loans.form.purposes.business")}</SelectItem>
-              <SelectItem value="OTHER">{t("loans.form.purposes.other")}</SelectItem>
+              <SelectItem value="ALL">{"All Types"}</SelectItem>
+              <SelectItem value="BUSINESS">{"Business"}</SelectItem>
+              <SelectItem value="OTHER">{"Other"}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -367,13 +365,13 @@ export function LoansTable({ data }: { data: any[] }) {
             onValueChange={(v) => table.getColumn("status")?.setFilterValue(v === "ALL" ? "" : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t("loans.table.columns.status")} />
+              <SelectValue placeholder={"Status"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("loans.form.types.all") }</SelectItem>
-              <SelectItem value="ACTIVE">{t("loans.table.status.active")}</SelectItem>
-              <SelectItem value="COMPLETED">{t("loans.manage.completedLoans") }</SelectItem>
-              <SelectItem value="OVERDUE">{t("loans.table.status.overdue") }</SelectItem>
+              <SelectItem value="ALL">{"All Statuses"}</SelectItem>
+              <SelectItem value="ACTIVE">{"Active"}</SelectItem>
+              <SelectItem value="COMPLETED">{"Completed"}</SelectItem>
+              <SelectItem value="OVERDUE">{"Overdue"}</SelectItem>
             </SelectContent>
           </Select>
 
@@ -382,28 +380,28 @@ export function LoansTable({ data }: { data: any[] }) {
             onValueChange={(v) => table.getColumn("dueStatus")?.setFilterValue(v === "ALL" ? "" : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t("loans.table.columns.due")} />
+              <SelectValue placeholder={"Due Status"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("loans.form.types.all") }</SelectItem>
-              <SelectItem value="Due Today">{t("loans.table.dueStatus.dueToday")}</SelectItem>
-              <SelectItem value="Upcoming Due">{t("loans.table.dueStatus.upcomingDue")}</SelectItem>
-              <SelectItem value="Overdue">{t("loans.table.status.overdue") }</SelectItem>
-              <SelectItem value="No Due">{t("loans.table.dueStatus.noDue")}</SelectItem>
-              <SelectItem value="Completed">{t("loans.manage.completedLoans") }</SelectItem>
+              <SelectItem value="ALL">{"All Due Statuses"}</SelectItem>
+              <SelectItem value="Due Today">{"Due Today"}</SelectItem>
+              <SelectItem value="Upcoming Due">{"Upcoming Due"}</SelectItem>
+              <SelectItem value="Overdue">{"Overdue"}</SelectItem>
+              <SelectItem value="No Due">{"No Due"}</SelectItem>
+              <SelectItem value="Completed">{"Completed"}</SelectItem>
             </SelectContent>
           </Select>
 
           <div className="flex items-center gap-2">
             <Input 
               type="number" 
-              placeholder={t("loans.table.filters.min")} 
+              placeholder={"Min"} 
               value={amountRange.min}
               onChange={e => setAmountRange(p => ({ ...p, min: e.target.value }))}
             />
             <Input 
               type="number" 
-              placeholder={t("loans.table.filters.max")}
+              placeholder={"Max"}
               value={amountRange.max}
               onChange={e => setAmountRange(p => ({ ...p, max: e.target.value }))}
             />
@@ -442,7 +440,7 @@ export function LoansTable({ data }: { data: any[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("loans.table.empty")}</TableCell>
+                  {"No Qard Hasan found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -450,9 +448,9 @@ export function LoansTable({ data }: { data: any[] }) {
       </div>
       <div className="flex items-center justify-end space-x-2">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("loans.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("loans.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

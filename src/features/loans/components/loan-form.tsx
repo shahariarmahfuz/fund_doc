@@ -31,12 +31,10 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import type { Beneficiary, Document } from "@prisma/client"
+import type { Beneficiary, Document } from "@/types/models"
 import { MemberCombobox } from "@/components/member-combobox"
 import { GroupCombobox } from "@/components/group-combobox"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface LoanFormProps {
   beneficiaries: Beneficiary[]
@@ -46,8 +44,7 @@ interface LoanFormProps {
 }
 
 export function LoanForm({ beneficiaries, groups, initialData, initialDocuments = [] }: LoanFormProps) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   
   // Documents State
@@ -57,21 +54,26 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
 
   const isEditMode = !!initialData
 
+  const baseDefaults: LoanFormValues = {
+    beneficiaryId: "",
+    loanType: "OTHER",
+    amount: 0,
+    purpose: "",
+    businessType: "",
+    notes: "",
+    installmentType: "MONTHLY",
+    installmentAmount: 0,
+    totalInstallments: 0,
+    firstInstallmentDate: new Date(),
+    isMultiGroup: false,
+    fundAllocations: [{ groupId: "", amount: 0 }]
+  }
+
   const form = useForm<LoanFormValues>({
     resolver: zodResolver(loanSchema),
-    defaultValues: initialData || {
-      beneficiaryId: "",
-      loanType: "OTHER", // Let's use OTHER as a default if not set
-      amount: 0,
-      purpose: "",
-      businessType: "",
-      notes: "",
-      installmentType: "MONTHLY",
-      installmentAmount: 0,
-      totalInstallments: 0,
-      firstInstallmentDate: undefined,
-      isMultiGroup: false,
-      fundAllocations: [{ groupId: "", amount: 0 }]
+    defaultValues: {
+      ...baseDefaults,
+      ...(initialData || {})
     },
   })
 
@@ -97,21 +99,16 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
   }
 
   const handleDeleteExistingDoc = async (docId: string) => {
-    if (confirm(t("loans.form.confirmDelete"))) {
+    if (confirm("Are you sure?")) {
       const res = await deleteDocumentById(docId)
       if (res.success) {
-        toast.success(t("loans.form.guarantorAddress"))
+        toast.success("Document deleted successfully")
         setExistingDocs(prev => prev.filter(d => d.id !== docId))
       } else {
-        toast.error(t("loans.form.docDeleteFailed") + res.error)
+        toast.error("Failed to delete document: " + res.error)
       }
     }
   }
-
-  
-  useEffect(() => {
-    form.setValue("firstInstallmentDate", new Date())
-  }, [form])
 
   async function onSubmit(data: LoanFormValues) {
     setIsLoading(true)
@@ -125,7 +122,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
       const currentLoanId = isEditMode ? initialData?.id : (result.success && 'data' in result && result.data && typeof result.data === 'object' && 'id' in result.data ? String(result.data.id) : undefined)
 
       if (currentLoanId && pendingFiles.length > 0) {
-        toast.info(t("loans.form.summary"))
+        toast.info("Summary")
         let uploadErrors = 0
         for (const file of pendingFiles) {
           const formData = new FormData()
@@ -139,11 +136,11 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
         }
         
         if (uploadErrors > 0) {
-          toast.error(`${uploadErrors} টি ডকুমেন্ট আপলোড করতে সমস্যা হয়েছে।`)
+          toast.error(`Failed to upload ${uploadErrors} document(s).`)
         }
       }
 
-      toast.success(isEditMode ? t("loans.form.updateSuccess") : t("loans.form.success"))
+      toast.success(isEditMode ? "Qard Hasan updated successfully" : "Qard Hasan saved successfully")
       if (currentLoanId) {
         router.push(`/loans/${currentLoanId}`)
       } else {
@@ -159,11 +156,11 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         
-        {/* ১. সুবিধাভোগী নির্বাচন */}
+        {/* 1. Select Beneficiary */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("loans.form.steps.beneficiarySelection")}</CardTitle>
-            <CardDescription>{t("loans.form.summaryDesc")}</CardDescription>
+            <CardTitle>{"Beneficiary Selection"}</CardTitle>
+            <CardDescription>{"Please review the information before submitting"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <FormField
@@ -171,7 +168,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
               name="beneficiaryId"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("loans.form.beneficiary")}</FormLabel>
+                  <FormLabel>{"Beneficiary"}</FormLabel>
                   <FormControl>
                     <MemberCombobox
                       members={beneficiaries}
@@ -185,19 +182,19 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
             />
             {selectedBeneficiary && (
               <div className="bg-muted p-4 rounded-md space-y-2">
-                <div className="flex gap-2"><span className="font-semibold w-32">{t("loans.form.beneficiary")}</span> <span>{selectedBeneficiary.fullName}</span></div>
+                <div className="flex gap-2"><span className="font-semibold w-32">{"Beneficiary"}</span> <span>{selectedBeneficiary.fullName}</span></div>
                 <div className="flex gap-2"><span className="font-semibold w-32">ID</span> <span>{selectedBeneficiary.beneficiaryId || "-"}</span></div>
-                <div className="flex gap-2"><span className="font-semibold w-32">{t("loans.summary.mobile")}</span> <span>{selectedBeneficiary.phone || "-"}</span></div>
+                <div className="flex gap-2"><span className="font-semibold w-32">{"Mobile"}</span> <span>{selectedBeneficiary.phone || "-"}</span></div>
               </div>
             )}
           </CardContent>
         </Card>
 
-        {/* ২. ঋণের তথ্য */}
+        {/* 2. Loan Details */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("loans.form.steps.loanInfo")}</CardTitle>
-            <CardDescription>{t("loans.form.summaryDesc")}</CardDescription>
+            <CardTitle>{"Qard Hasan Information"}</CardTitle>
+            <CardDescription>{"Please review the information before submitting"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <FormField
@@ -205,21 +202,21 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
               name="loanType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{t("loans.form.loanType")}</FormLabel>
+                  <FormLabel>{"Qard Hasan Type"}</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder={t("loans.form.loanType")} />
+                        <SelectValue placeholder={"Qard Hasan Type"} />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      <SelectItem value="BUSINESS">{t("loans.form.purposes.business")}</SelectItem>
-                      <SelectItem value="EDUCATION">{t("loans.form.purposes.education")}</SelectItem>
-                      <SelectItem value="MEDICAL">{t("loans.form.purposes.medical")}</SelectItem>
-                      <SelectItem value="AGRICULTURE">{t("loans.form.purposes.agriculture")}</SelectItem>
-                      <SelectItem value="EMERGENCY">{t("loans.form.purposes.emergency")}</SelectItem>
-                      <SelectItem value="HOUSING">{t("loans.form.purposes.housing")}</SelectItem>
-                      <SelectItem value="OTHER">{t("loans.form.purposes.other")}</SelectItem>
+                      <SelectItem value="BUSINESS">{"Business"}</SelectItem>
+                      <SelectItem value="EDUCATION">{"Education"}</SelectItem>
+                      <SelectItem value="MEDICAL">{"Medical"}</SelectItem>
+                      <SelectItem value="AGRICULTURE">{"Agriculture"}</SelectItem>
+                      <SelectItem value="EMERGENCY">{"Emergency"}</SelectItem>
+                      <SelectItem value="HOUSING">{"Housing"}</SelectItem>
+                      <SelectItem value="OTHER">{"Other"}</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage />
@@ -235,9 +232,9 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                     name="businessType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("loans.form.businessType")}</FormLabel>
+                        <FormLabel>{"Business Type"}</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder={t("loans.form.businessTypePlaceholder")} />
+                          <Input {...field} placeholder={"e.g. Grocery Shop"} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -248,9 +245,9 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                     name="purpose"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("loans.form.reason")}</FormLabel>
+                        <FormLabel>{"Reason"}</FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder={t("loans.form.reasonPlaceholder")} />
+                          <Input {...field} placeholder={"Enter reason..."} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -265,9 +262,9 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                   name="purpose"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("loans.form.reason")}</FormLabel>
+                      <FormLabel>{"Reason"}</FormLabel>
                       <FormControl>
-                        <Input {...field} placeholder={t("loans.form.reasonPlaceholder")} />
+                        <Input {...field} placeholder={"Enter reason..."} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -280,7 +277,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("loans.form.amount")}</FormLabel>
+                    <FormLabel>{"Qard Hasan Amount"}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -303,18 +300,18 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("loans.form.installmentType")}</FormLabel>
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <FormLabel>{"Installment Type"}</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
-                                          <SelectValue placeholder={t("loans.form.installmentType")} />
+                                          <SelectValue placeholder={"Installment Type"} />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="DAILY">{t("loans.form.types.daily")}</SelectItem>
-                                        <SelectItem value="WEEKLY">{t("loans.form.types.weekly")}</SelectItem>
-                                        <SelectItem value="MONTHLY">{t("loans.form.types.monthly")}</SelectItem>
-                                        <SelectItem value="CUSTOM">{t("loans.form.types.custom")}</SelectItem>
+                                        <SelectItem value="DAILY">{"Daily"}</SelectItem>
+                                        <SelectItem value="WEEKLY">{"Weekly"}</SelectItem>
+                                        <SelectItem value="MONTHLY">{"Monthly"}</SelectItem>
+                                        <SelectItem value="CUSTOM">{"Custom"}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -329,7 +326,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("loans.form.installmentAmount")}</FormLabel>
+                                    <FormLabel>{"Installment Amount"}</FormLabel>
                                     <FormControl>
                                       <Input
                                         type="number"
@@ -349,7 +346,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 name="totalInstallments"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("loans.form.numberOfInstallments")}</FormLabel>
+                    <FormLabel>{"Number of Installments"}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -368,7 +365,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 name="firstInstallmentDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("loans.form.firstInstallmentDate")}</FormLabel>
+                    <FormLabel>{"First Installment Date"}</FormLabel>
                     <FormControl>
                       <Input
                         type="date"
@@ -389,9 +386,9 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("loans.form.remarks")}</FormLabel>
+                                <FormLabel>{"Comment"}</FormLabel>
                                 <FormControl>
-                                  <Textarea {...field} placeholder={t("loans.form.remarksPlaceholder")} />
+                                  <Textarea {...field} placeholder={"Enter comment..."} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -401,11 +398,11 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
           </CardContent>
         </Card>
 
-        {/* ৪. ঋণের অর্থের উৎস */}
+        {/* 4. Funding Sources */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("loans.form.fundingSource")}</CardTitle>
-            <CardDescription>{t("loans.form.selectFundingSource")}</CardDescription>
+            <CardTitle>{"Funding Source"}</CardTitle>
+            <CardDescription>{"Select funding source"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             <FormField
@@ -428,7 +425,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                     />
                   </FormControl>
                   <div className="space-y-1 leading-none">
-                    <FormLabel>{t("loans.form.fundingSource")}</FormLabel>
+                    <FormLabel>{"Funding Source"}</FormLabel>
                   </div>
                 </FormItem>
               )}
@@ -450,7 +447,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                         name={`fundAllocations.${index}.groupId`}
                         render={({ field: selectField }) => (
                           <FormItem>
-                            <FormLabel>{t("loans.form.group")}</FormLabel>
+                            <FormLabel>{"Group"}</FormLabel>
                             <FormControl>
                               <GroupCombobox
                                 groups={(groups || []).map((g) => ({
@@ -461,7 +458,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                                 }))}
                                 value={selectField.value}
                                 onChange={selectField.onChange}
-                                placeholder={t("loans.form.selectFundingSource")}
+                                placeholder={"Select funding source"}
                               />
                             </FormControl>
                             <FormMessage />
@@ -470,8 +467,8 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                       />
                       {group && (
                         <div className="flex justify-between text-sm bg-muted p-2 rounded">
-                          <div><span className="text-muted-foreground">{t("loans.form.availableBalance")}</span> ৳{currentBalance}</div>
-                          <div><span className="text-muted-foreground">{t("loans.form.remainingAfterLoan")}</span> <span className={remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold"}>৳{remaining}</span></div>
+                          <div><span className="text-muted-foreground">{"Available Balance"}</span> ৳{currentBalance}</div>
+                          <div><span className="text-muted-foreground">{"Remaining after Qard Hasan"}</span> <span className={remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold"}>৳{remaining}</span></div>
                         </div>
                       )}
                     </div>
@@ -481,7 +478,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                         name={`fundAllocations.${index}.amount`}
                         render={({ field: inputField }) => (
                           <FormItem>
-                            <FormLabel>{t("loans.form.amount")}</FormLabel>
+                            <FormLabel>{"Qard Hasan Amount"}</FormLabel>
                             <FormControl>
                               <Input
                                 type="number"
@@ -511,7 +508,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
               })}
               {form.watch("isMultiGroup") && (
                 <Button type="button" variant="outline" onClick={() => append({ groupId: "", amount: 0 })}>
-                  + {t("loans.form.group")}</Button>
+                  + {"Group"}</Button>
               )}
               {form.formState.errors.fundAllocations?.root?.message && (
                 <p className="text-sm font-medium text-destructive">{form.formState.errors.fundAllocations.root.message}</p>
@@ -520,21 +517,21 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
           </CardContent>
         </Card>
 
-        {/* ৫. ডকুমেন্ট (ঐচ্ছিক) */}
+        {/* 5. Documents (Optional) */}
         <Card>
           <CardHeader>
-            <CardTitle>{t("loans.form.documents")}</CardTitle>
-            <CardDescription>{t("loans.form.documentsDesc")}</CardDescription>
+            <CardTitle>{"Documents"}</CardTitle>
+            <CardDescription>{"Upload supporting documents"}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {existingDocs.length > 0 && (
               <div className="space-y-4 mb-6">
-                <h4 className="text-sm font-medium">{t("loans.form.existingDocs")}</h4>
+                <h4 className="text-sm font-medium">{"Existing Documents"}</h4>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  {existingDocs.map((doc) => {
+                  {existingDocs.map((doc: any) => {
                     return ((
                                       <Card key={doc.id} className="relative overflow-hidden group">
-                                        {doc.type === "IMAGE" ? (
+                                        {doc.type === "IMAGE" || doc.mimeType?.startsWith("image/") ? (
                                           <div className="relative h-32 w-full bg-muted">
                                             <img src={doc.secureUrl} alt={doc.title} className="object-cover h-full w-full" />
                                           </div>
@@ -551,7 +548,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                                           <CardTitle className="text-sm truncate" title={doc.title}>{doc.title}</CardTitle>
                                         </CardHeader>
                                         <CardContent className="p-3 pt-2 space-y-3">
-                                          <Badge variant="secondary">{(doc.sizeBytes / 1024 / 1024).toFixed(2)} MB</Badge>
+                                          <Badge variant="secondary">{(Number(doc.sizeBytes || doc.fileSize || 0) / 1024 / 1024).toFixed(2)} MB</Badge>
                                           
                                           <div className="flex space-x-2 pt-2 border-t">
                                             <Button type="button" variant="outline" size="sm" className="w-full" asChild>
@@ -559,7 +556,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                                                 <Eye className="mr-2 h-4 w-4" /> {"View"}</a>
                                             </Button>
                                             <Button type="button" variant="destructive" size="sm" className="w-full" onClick={() => handleDeleteExistingDoc(doc.id)}>
-                                              <Trash2 className="mr-2 h-4 w-4" /> {t("loans.form.removeDocument")}</Button>
+                                              <Trash2 className="mr-2 h-4 w-4" /> {"Remove Document"}</Button>
                                           </div>
                                         </CardContent>
                                       </Card>
@@ -571,7 +568,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
 
             {pendingFiles.length > 0 && (
               <div className="space-y-4 mb-6">
-                <h4 className="text-sm font-medium">{t("loans.form.newDocs")}</h4>
+                <h4 className="text-sm font-medium">{"New Documents"}</h4>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   {pendingFiles.map((file, idx) => {
                     const isImage = file.type.startsWith("image/")
@@ -604,7 +601,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                                 <Eye className="mr-2 h-4 w-4" /> {"View"}</Button>
                             )}
                             <Button type="button" variant="destructive" size="sm" className={previewUrl ? "w-full" : "w-full"} onClick={() => removePendingFile(idx)}>
-                              <Trash2 className="mr-2 h-4 w-4" /> {t("loans.form.removeDocument")}</Button>
+                              <Trash2 className="mr-2 h-4 w-4" /> {"Remove Document"}</Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -617,8 +614,8 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
             <div className="border-2 border-dashed rounded-lg p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/30 transition-colors"
                  onClick={() => fileInputRef.current?.click()}>
               <UploadCloud className="h-10 w-10 text-muted-foreground mb-2" />
-              <p className="text-sm font-medium">{t("loans.form.uploadDocument")}</p>
-              <p className="text-xs text-muted-foreground mt-1">{t("loans.form.fileTypes")}</p>
+              <p className="text-sm font-medium">{"Upload Document"}</p>
+              <p className="text-xs text-muted-foreground mt-1">{"PDF, JPG, PNG, WEBP (Max 5MB)"}</p>
               <input 
                 type="file" 
                 multiple 
@@ -633,9 +630,9 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()} disabled={isLoading}>
-            {t("loans.form.cancel")}</Button>
+            {"Cancel"}</Button>
           <Button type="submit" disabled={isLoading}>
-            {isLoading ? t("loans.form.processing") : (isEditMode ? t("loans.form.updateBtn") : t("loans.form.submitBtn"))}
+            {isLoading ? "Processing..." : (isEditMode ? "Update Qard Hasan" : "Submit Qard Hasan")}
           </Button>
         </div>
       </form>

@@ -13,7 +13,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
-import { Trans } from "@/components/shared/trans";
 
 export default async function DueContributionsPage() {
   const members = await getMembers()
@@ -67,16 +66,16 @@ export default async function DueContributionsPage() {
     <div className="space-y-4">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link href="/contributions" className="hover:text-primary transition-colors">
-          <Trans tKey="contributions.due.breadcrumb.home" /></Link>
+          Contributions</Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground"><Trans tKey="contributions.due.breadcrumb.due" /></span>
+        <span className="font-medium text-foreground">Outstanding Dues</span>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="contributions.due.pageTitle" /></h1>
+          <h1 className="text-3xl font-bold tracking-tight">Outstanding Dues</h1>
           <p className="text-muted-foreground text-sm mt-1">
-            <Trans tKey="contributions.due.subtitle" /> {formatMonth(getNow().getMonth())} {currentYear}</p>
+            Members with unpaid dues for {formatMonth(getNow().getMonth())} {currentYear}</p>
         </div>
       </div>
 
@@ -84,22 +83,22 @@ export default async function DueContributionsPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead><Trans tKey="contributions.due.columns.member" /></TableHead>
-              <TableHead><Trans tKey="contributions.due.columns.group" /></TableHead>
-              <TableHead><Trans tKey="contributions.due.columns.status" /></TableHead>
-              <TableHead><Trans tKey="contributions.due.columns.period" /></TableHead>
-              <TableHead><Trans tKey="contributions.due.columns.actions" /></TableHead>
+              <TableHead>Member</TableHead>
+              <TableHead>Group</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Period</TableHead>
+              <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {dueMembers.length ? (
               dueMembers.map((member) => (
                 <TableRow key={member.id}>
-                  <TableCell className="font-medium">{member.fullName || 'নাম পাওয়া যায়নি'} ({member.memberId})</TableCell>
+                  <TableCell className="font-medium">{member.fullName || 'Name not found'} ({member.memberId})</TableCell>
                   <TableCell>{member.group?.name || "N/A"}</TableCell>
                   <TableCell>
                     <Badge variant="destructive" className="flex w-fit items-center gap-1">
-                      <AlertCircle className="h-3 w-3" /> {member.monthsDue} <Trans tKey="contributions.bulk.totalMonths" />
+                      <AlertCircle className="h-3 w-3" /> {member.monthsDue} Total Months
                     </Badge>
                   </TableCell>
                   <TableCell className="text-xs">
@@ -109,14 +108,14 @@ export default async function DueContributionsPage() {
                   </TableCell>
                   <TableCell>
                     <Link href={`/contributions/new?memberId=${member.id}`} className="text-primary hover:underline text-sm font-medium">
-                      <Trans tKey="contributions.due.receiveAction" /></Link>
+                      Receive Payment</Link>
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
                 <TableCell colSpan={5} className="h-24 text-center text-muted-foreground">
-                  <Trans tKey="contributions.due.empty" /></TableCell>
+                  No outstanding dues found.</TableCell>
               </TableRow>
             )}
           </TableBody>

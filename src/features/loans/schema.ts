@@ -58,3 +58,5 @@ export const loanSchema = z.object({
 });
 
 export type LoanFormValues = z.infer<typeof loanSchema>
+export const qardHasanSchema = loanSchema
+export type QardHasanFormValues = LoanFormValues

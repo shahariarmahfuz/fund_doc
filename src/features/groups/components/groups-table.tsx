@@ -1,7 +1,9 @@
 "use client"
 import { formatDate, formatCurrency } from "@/lib/format"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 import {
   ColumnDef,
   flexRender,
@@ -23,34 +25,55 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Group } from "@prisma/client"
+import type { Group } from "@/types/models"
 import { GroupFormDialog } from "./group-form-dialog"
 
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { Eye, Edit, Trash, MoreHorizontal, ArrowUpDown, Building2 } from "lucide-react"
+import { Eye, Edit, Trash2, MoreHorizontal, ArrowUpDown, Building2 } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { archiveGroup, deleteGroup, updateGroup } from "../actions"
 import type { GroupWithCount } from "../types"
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
+import { isSuperAdminRole } from "@/lib/rbac-client"
 
 export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount[], manageMode?: boolean }) {
-    const { t } = useLanguage();
+  const router = useRouter()
+  const { data: session } = useSession()
+  const isSuperAdmin = isSuperAdminRole((session?.user as any)?.role)
+
+  const [tableData, setTableData] = useState<GroupWithCount[]>(data)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
-  const { can } = useRbac()
+  const [groupToDelete, setGroupToDelete] = useState<GroupWithCount | null>(null)
+  const [confirmInput, setConfirmInput] = useState("")
+  const [isDeleting, setIsDeleting] = useState(false)
 
+  useEffect(() => {
+    setTableData(data)
+  }, [data])
+
+  const { can } = useRbac()
   const canView = can("Groups", "View")
   const canEdit = can("Groups", "Edit")
   const canDelete = can("Groups", "Delete")
+
 
   const columns: ColumnDef<GroupWithCount>[] = [
     {
@@ -58,7 +81,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-4">
-            {t("groups.table.columns.code")}<ArrowUpDown className="ml-2 h-4 w-4" />
+            {"Code"}<ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
@@ -68,7 +91,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-4">
-            {t("groups.table.columns.name")}<ArrowUpDown className="ml-2 h-4 w-4" />
+            {"Name"}<ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
@@ -89,14 +112,14 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-4">
-            {t("groups.table.columns.members")}<ArrowUpDown className="ml-2 h-4 w-4" />
+            {"Members"}<ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
     },
     {
       id: "currentFund",
-      header: t("groups.table.columns.currentFund"),
+      header: "Current Fund",
       cell: ({ row }) => `৳${formatCurrency(row.original.currentFund || 0)}`,
     },
     {
@@ -112,10 +135,10 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
     },
     {
       accessorKey: "status",
-      header: t("groups.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.getValue("status") === "ACTIVE" ? "default" : "secondary"}>
-          {row.getValue("status") === "ACTIVE" ? t("groups.table.status.active") : t("groups.table.status.inactive")}
+          {row.getValue("status") === "ACTIVE" ? "Active" : "Inactive"}
         </Badge>
       ),
     },
@@ -124,7 +147,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
       header: ({ column }) => {
         return (
           <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === "asc")} className="-ml-4">
-            {t("groups.table.columns.created")}<ArrowUpDown className="ml-2 h-4 w-4" />
+            {"Created"}<ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         )
       },
@@ -138,16 +161,16 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("groups.table.actions.menu")}</span>
+                <span className="sr-only">{"Actions"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("groups.table.actions.menu")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"Actions"}</DropdownMenuLabel>
               {canView && (
                 <DropdownMenuItem asChild>
                   <Link href={`/groups/${group.id}`}>
-                    <Eye className="mr-2 h-4 w-4" /> {t("groups.table.actions.view")}</Link>
+                    <Eye className="mr-2 h-4 w-4" /> {"View"}</Link>
                 </DropdownMenuItem>
               )}
               {manageMode && (
@@ -160,7 +183,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
                           <DropdownMenuItem onSelect={(e) => {
                               return (e.preventDefault());
                             }}>
-                            <Edit className="mr-2 h-4 w-4" /> {t("groups.table.actions.edit")}</DropdownMenuItem>
+                            <Edit className="mr-2 h-4 w-4" /> {"Edit"}</DropdownMenuItem>
                         }
                       />
                       {group.status === "INACTIVE" ? (
@@ -178,11 +201,11 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
                               isFoundationGroup: group.isFoundationGroup ?? false,
                             }
                             const res = await updateGroup(group.id, payload)
-                            if (res.success) toast.success(t("groups.table.activateSuccess"))
+                            if (res.success) toast.success("Group activated successfully")
                             else toast.error(res.error)
                           }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> {t("groups.table.actions.activate")}</DropdownMenuItem>
+                          <Eye className="mr-2 h-4 w-4" /> {"Activate"}</DropdownMenuItem>
                       ) : (
                         <DropdownMenuItem
                           onClick={async () => {
@@ -198,37 +221,27 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
                               isFoundationGroup: group.isFoundationGroup ?? false,
                             }
                             const res = await updateGroup(group.id, payload)
-                            if (res.success) toast.success(t("groups.table.deactivateSuccess"))
+                            if (res.success) toast.success("Group deactivated successfully")
                             else toast.error(res.error)
                           }}
                         >
-                          <Eye className="mr-2 h-4 w-4" /> {t("groups.table.actions.deactivate")}</DropdownMenuItem>
+                          <Eye className="mr-2 h-4 w-4" /> {"Deactivate"}</DropdownMenuItem>
                       )}
                     </>
                   )}
-                  {canDelete && (
+                  {/* Super Admin True Hard Delete */}
+                  {isSuperAdmin && (
                     <>
+                      <DropdownMenuSeparator />
                       <DropdownMenuItem
-                        onClick={async () => {
-                          if (confirm(t("groups.table.archiveConfirm"))) {
-                            const res = await archiveGroup(group.id)
-                            if (res.success) toast.success(t("groups.table.archiveSuccess"))
-                            else toast.error(res.error)
-                          }
+                        className="text-destructive focus:text-destructive focus:bg-destructive/10 font-medium cursor-pointer"
+                        onSelect={() => {
+                          setGroupToDelete(group)
+                          setConfirmInput("")
                         }}
                       >
-                        <Trash className="mr-2 h-4 w-4" /> {t("groups.table.actions.archive")}</DropdownMenuItem>
-                      <DropdownMenuItem
-                        className="text-destructive"
-                        onClick={async () => {
-                          if (confirm(t("groups.table.deleteConfirm"))) {
-                            const res = await deleteGroup(group.id)
-                            if (res.success) toast.success(t("groups.table.deleteSuccess"))
-                            else toast.error(res.error)
-                          }
-                        }}
-                      >
-                        <Trash className="mr-2 h-4 w-4" /> {t("groups.table.actions.delete")}</DropdownMenuItem>
+                        <Trash2 className="mr-2 h-4 w-4 text-destructive" /> {"Delete Permanently"}
+                      </DropdownMenuItem>
                     </>
                   )}
                 </>
@@ -240,9 +253,41 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
     },
   ]
 
+  const handleDeleteConfirm = async () => {
+    if (!groupToDelete) return
+    const expectedCode = groupToDelete.code?.trim()
+    const expectedId = groupToDelete.id?.trim()
+    const entered = confirmInput.trim()
+
+    if (entered !== expectedCode && entered !== expectedId) {
+      toast.error(`Please type "${expectedCode}" exactly to confirm deletion.`)
+      return
+    }
+
+    setIsDeleting(true)
+    try {
+      const res = await deleteGroup(groupToDelete.id)
+      if (res.success) {
+        toast.success("✓ Group deleted permanently")
+        const deletedId = groupToDelete.id
+        setTableData((prev) => prev.filter((g) => g.id !== deletedId))
+        setGroupToDelete(null)
+        setConfirmInput("")
+        router.refresh()
+      } else {
+        toast.error(res.error || "Failed to permanently delete group.")
+      }
+    } catch (err: any) {
+      toast.error(err?.message || "An unexpected error occurred.")
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   const table = useReactTable({
-    data,
+    data: tableData,
     columns,
+
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
@@ -259,7 +304,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
     <div>
       <div className="flex items-center py-2">
         <Input
-          placeholder={t("groups.table.search")}
+          placeholder={"Search groups..."}
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
@@ -308,7 +353,7 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("groups.table.emptyTitle")}</TableCell>
+                  {"No groups found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -321,15 +366,88 @@ export function GroupsTable({ data, manageMode = false }: { data: GroupWithCount
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("groups.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {t("groups.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
+
+      {/* Super Admin True Hard Delete Confirmation Dialog */}
+      <Dialog
+        open={!!groupToDelete}
+        onOpenChange={(open) => {
+          if (!open && !isDeleting) {
+            setGroupToDelete(null)
+            setConfirmInput("")
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold text-destructive flex items-center gap-2">
+              <Trash2 className="h-5 w-5" />
+              Delete Group?
+            </DialogTitle>
+            <DialogDescription className="pt-2 text-sm text-muted-foreground leading-relaxed">
+              This action permanently deletes the group and all Group-owned records associated with it. This cannot be undone.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-3 py-3">
+            <p className="text-sm font-medium text-foreground">
+              Type <span className="font-mono font-bold text-destructive select-all bg-destructive/10 px-1.5 py-0.5 rounded border border-destructive/20">{groupToDelete?.code}</span> to permanently delete this group.
+            </p>
+            <Input
+              placeholder={`Type ${groupToDelete?.code || "Group ID"}`}
+              value={confirmInput}
+              onChange={(e) => setConfirmInput(e.target.value)}
+              disabled={isDeleting}
+              className="font-mono"
+              autoFocus
+              onKeyDown={(e) => {
+                if (
+                  e.key === "Enter" &&
+                  groupToDelete &&
+                  (confirmInput.trim() === groupToDelete.code?.trim() || confirmInput.trim() === groupToDelete.id?.trim()) &&
+                  !isDeleting
+                ) {
+                  handleDeleteConfirm()
+                }
+              }}
+            />
+          </div>
+
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setGroupToDelete(null)
+                setConfirmInput("")
+              }}
+              disabled={isDeleting}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={
+                isDeleting ||
+                !groupToDelete ||
+                (confirmInput.trim() !== groupToDelete.code?.trim() && confirmInput.trim() !== groupToDelete.id?.trim())
+              }
+              onClick={handleDeleteConfirm}
+              className="font-semibold shadow-sm"
+            >
+              {isDeleting ? "Deleting Permanently..." : "Delete Permanently"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
+

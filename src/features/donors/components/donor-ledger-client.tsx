@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Printer, Download, Search, FilterX, Users, FileText, Banknote, UserCheck } from "lucide-react"
 import type { DonationTransactionItem } from "../actions"
 import { useBranding } from "@/components/providers/branding-provider"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import type { ComboboxMember } from "@/components/member-combobox"
 
 interface DonorLedgerClientProps {
@@ -23,8 +22,7 @@ interface DonorLedgerClientProps {
 }
 
 export function DonorLedgerClient({ data, donors, members = [], groups }: DonorLedgerClientProps) {
-  const { t } = useLanguage();
-  const branding = useBranding()
+    const branding = useBranding()
   
   // Filters
   const [searchQuery, setSearchQuery] = useState("")
@@ -151,11 +149,11 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 bg-muted/30 p-4 rounded-lg border hide-print">
         <div>
-          <Label className="mb-2 block">{t("donors.search_939bb4")}</Label>
+          <Label className="mb-2 block">{"Search"}</Label>
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input 
-              placeholder={t("donors.k_5efc15")} 
+              placeholder={"Voucher, name or details..."} 
               className="pl-8"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -164,27 +162,27 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
         </div>
 
         <div>
-          <Label className="mb-2 block">{t("donors.donation_source")}</Label>
+          <Label className="mb-2 block">{"Donation Source *"}</Label>
           <Select value={selectedSource} onValueChange={setSelectedSource}>
             <SelectTrigger>
               <SelectValue placeholder="All Sources" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">All Sources</SelectItem>
-              <SelectItem value="MEMBER">{t("donors.source_member")}</SelectItem>
-              <SelectItem value="DONOR">{t("donors.source_donor")}</SelectItem>
+              <SelectItem value="MEMBER">{"Foundation Member"}</SelectItem>
+              <SelectItem value="DONOR">{"Non-member / Donor"}</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div>
-          <Label className="mb-2 block">{t("donors.donor_9c2b8d")}</Label>
+          <Label className="mb-2 block">{"Donor"}</Label>
           <Select value={selectedDonor} onValueChange={setSelectedDonor}>
             <SelectTrigger>
-              <SelectValue placeholder={t("donors.k_22da40")} />
+              <SelectValue placeholder={"All donors"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("donors.all_donors_e94b73")}</SelectItem>
+              <SelectItem value="ALL">{"All Donors"}</SelectItem>
               {donors.map(d => (
                 <SelectItem key={d.id} value={d.id}>{d.fullName} ({d.mobile})</SelectItem>
               ))}
@@ -193,13 +191,13 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
         </div>
 
         <div>
-          <Label className="mb-2 block">{t("donors.group_d4d811")}</Label>
+          <Label className="mb-2 block">{"Group"}</Label>
           <Select value={selectedGroup} onValueChange={setSelectedGroup}>
             <SelectTrigger>
-              <SelectValue placeholder={t("donors.k_a3853a")} />
+              <SelectValue placeholder={"All groups"} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">{t("donors.all_groups_15b06f")}</SelectItem>
+              <SelectItem value="ALL">{"All Groups"}</SelectItem>
               {groups.map(g => (
                 <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
               ))}
@@ -208,16 +206,16 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
         </div>
 
         <div>
-          <Label className="mb-2 block">{t("donors.from_b4afab")}</Label>
+          <Label className="mb-2 block">{"From"}</Label>
           <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
         </div>
 
         <div className="flex items-end gap-2">
           <div className="flex-1">
-            <Label className="mb-2 block">{t("donors.k_a0eff4")}</Label>
+            <Label className="mb-2 block">{"To"}</Label>
             <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
           </div>
-          <Button variant="outline" size="icon" onClick={handleResetFilters} title={t("donors.k_6881e6")} className="mb-[1px]">
+          <Button variant="outline" size="icon" onClick={handleResetFilters} title={"Reset filter"} className="mb-[1px]">
             <FilterX className="h-4 w-4" />
           </Button>
         </div>
@@ -232,7 +230,7 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
                 <Users className="w-6 h-6" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">{t("donors.k_2ddc42")}</p>
+                <p className="text-sm font-medium text-muted-foreground">{"Selected donors"}</p>
                 <h3 className="text-2xl font-bold mt-1">{activeDonor.fullName}</h3>
                 <p className="text-xs text-muted-foreground">{activeDonor.donorId} | {activeDonor.mobile}</p>
               </div>
@@ -241,7 +239,7 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
         ) : (
           <Card>
             <CardContent className="p-6 flex items-center gap-4">
-              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full text-blue-600 dark:text-blue-400">
+              <div className="p-3 bg-blue-100 rounded-full text-blue-600">
                 <Users className="w-6 h-6" />
               </div>
               <div>
@@ -254,24 +252,24 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
         
         <Card>
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-600 dark:text-emerald-400">
+            <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
               <FileText className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">{t("donors.total_transactions_86d5c2")}</p>
-              <h3 className="text-2xl font-bold mt-1">{summary.totalTransactions} {t("donors.k_600e65")}</h3>
+              <p className="text-sm font-medium text-muted-foreground">{"Total Transactions"}</p>
+              <h3 className="text-2xl font-bold mt-1">{summary.totalTransactions} {"T"}</h3>
             </div>
           </CardContent>
         </Card>
         
         <Card className={selectedDonor !== "ALL" ? "bg-emerald-500/10 border-emerald-500/20" : ""}>
           <CardContent className="p-6 flex items-center gap-4">
-            <div className="p-3 bg-emerald-100 dark:bg-emerald-900/30 rounded-full text-emerald-600 dark:text-emerald-400">
+            <div className="p-3 bg-emerald-100 rounded-full text-emerald-600">
               <Banknote className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-medium text-muted-foreground">{t("donors.total_amount_2f6775")}</p>
-              <h3 className="text-2xl font-bold mt-1 text-emerald-600 dark:text-emerald-400">৳{formatCurrency(summary.totalAmount)}</h3>
+              <p className="text-sm font-medium text-muted-foreground">{"Total Amount"}</p>
+              <h3 className="text-2xl font-bold mt-1 text-emerald-600">৳{formatCurrency(summary.totalAmount)}</h3>
             </div>
           </CardContent>
         </Card>
@@ -280,27 +278,27 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
       {/* Ledger Table */}
       <Card className="print:shadow-none print:border-none print:m-0">
         <div className="flex justify-between items-center p-4 border-b hide-print">
-          <h2 className="text-lg font-semibold">{t("donors.ledger_entries_4f872d")}</h2>
+          <h2 className="text-lg font-semibold">{"Ledger Entries"}</h2>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" onClick={handleExportCSV}>
-              <Download className="mr-2 h-4 w-4" /> {t("donors.excel_csv_b5be46")}</Button>
+              <Download className="mr-2 h-4 w-4" /> {"Excel/CSV"}</Button>
             <Button variant="outline" size="sm" onClick={handlePrint}>
-              <Printer className="mr-2 h-4 w-4" /> {t("donors.pdf_c93abc")}</Button>
+              <Printer className="mr-2 h-4 w-4" /> {"Print / PDF"}</Button>
           </div>
         </div>
 
         {/* Print Header (Hidden on screen) */}
         <div className="hidden print:block text-center pb-6 mb-6 border-b">
           <h1 className="text-2xl font-bold">{branding?.foundationName || "Foundation ERP"}</h1>
-          <h2 className="text-xl font-semibold mt-1">{t("donors.master_ledger_ab8201")}</h2>
+          <h2 className="text-xl font-semibold mt-1">{"Master Ledger"}</h2>
           {selectedDonor !== "ALL" && activeDonor && (
             <div className="mt-2 text-sm">
-              <p>{t("donors.k_4f08c3")}<strong>{activeDonor.fullName}</strong> ({activeDonor.donorId})</p>
-              <p>{t("donors.k_9767a6")}{activeDonor.mobile}</p>
+              <p>{"Donor:"}<strong>{activeDonor.fullName}</strong> ({activeDonor.donorId})</p>
+              <p>{"Mobile:"}{activeDonor.mobile}</p>
             </div>
           )}
           <p className="text-xs text-muted-foreground mt-2">
-            {t("donors.k_791ec1")}{printDate}
+            {"Print Date:"}{printDate}
           </p>
         </div>
 
@@ -308,14 +306,14 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
           <table className="w-full text-sm text-left">
             <thead className="bg-muted/50 text-muted-foreground uppercase">
               <tr>
-                <th className="px-4 py-3 font-medium">{t("donors.k_3e10c2")}</th>
-                <th className="px-4 py-3 font-medium">{t("donors.k_390ea9")}</th>
-                <th className="px-4 py-3 font-medium">{t("donors.donation_source")}</th>
+                <th className="px-4 py-3 font-medium">{"Date"}</th>
+                <th className="px-4 py-3 font-medium">{"Voucher no"}</th>
+                <th className="px-4 py-3 font-medium">{"Donation Source *"}</th>
                 <th className="px-4 py-3 font-medium">Donated By</th>
-                <th className="px-4 py-3 font-medium">{t("donors.group_d4d811")}</th>
-                <th className="px-4 py-3 font-medium">{t("donors.k_e147d5")}</th>
-                <th className="px-4 py-3 font-medium text-right">{t("donors.amount_261c82")}</th>
-                <th className="px-4 py-3 font-medium text-right">{t("donors.k_b13101")}</th>
+                <th className="px-4 py-3 font-medium">{"Group"}</th>
+                <th className="px-4 py-3 font-medium">{"Description / Comment"}</th>
+                <th className="px-4 py-3 font-medium text-right">{"Amount"}</th>
+                <th className="px-4 py-3 font-medium text-right">{"Running Balance"}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
@@ -332,12 +330,12 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
                         {isMember ? (
                           <Badge className="bg-emerald-600 text-white text-[10px] flex items-center gap-1 w-fit">
                             <UserCheck className="w-3 h-3" />
-                            <span>{t("donors.source_member")}</span>
+                            <span>{"Foundation Member"}</span>
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="border-primary text-primary text-[10px] flex items-center gap-1 w-fit">
                             <Users className="w-3 h-3" />
-                            <span>{t("donors.source_donor")}</span>
+                            <span>{"Non-member / Donor"}</span>
                           </Badge>
                         )}
                       </td>
@@ -370,7 +368,7 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
               ) : (
                 <tr>
                   <td colSpan={8} className="px-4 py-8 text-center text-muted-foreground">
-                    {t("donors.k_31c268")}</td>
+                    {"No transactions found"}</td>
                 </tr>
               )}
             </tbody>
@@ -378,7 +376,7 @@ export function DonorLedgerClient({ data, donors, members = [], groups }: DonorL
             {dataWithBalance.length > 0 && (
               <tfoot className="bg-muted/50 font-bold border-t-2">
                 <tr>
-                  <td colSpan={6} className="px-4 py-3 text-right">{t("donors.total_amount_195a6a")}</td>
+                  <td colSpan={6} className="px-4 py-3 text-right">{"Total Amount"}</td>
                   <td className="px-4 py-3 text-right text-emerald-600 font-mono">৳{formatCurrency(summary.totalAmount)}</td>
                   <td className="px-4 py-3"></td>
                 </tr>

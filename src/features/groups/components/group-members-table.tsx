@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/table"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import type { Member } from "@prisma/client"
+import type { Member } from "@/types/models"
 import { removeMemberFromGroup } from "../actions"
 import { toast } from "sonner"
 import { Badge } from "@/components/ui/badge"
@@ -36,42 +36,40 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function GroupMembersTable({ data }: { data: Member[] }) {
-    const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+      const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const columns: ColumnDef<Member>[] = [
     {
       accessorKey: "memberId",
-      header: t("groups.table.columns.memberId"),
+      header: "Member ID",
     },
     {
       id: "name",
-      header: t("groups.table.columns.name"),
-      cell: ({ row }) => `${row.original.fullName || t("groups.table.nameNotFound")}`,
+      header: "Name",
+      cell: ({ row }) => `${row.original.fullName || "Name not found"}`,
     },
     {
       accessorKey: "status",
-      header: t("groups.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.getValue("status") === "ACTIVE" ? "default" : "secondary"}>
-          {row.getValue("status") === "ACTIVE" ? t("groups.table.status.active") : t("groups.table.status.inactive")}
+          {row.getValue("status") === "ACTIVE" ? "Active" : "Inactive"}
         </Badge>
       ),
     },
     {
       id: "contributionStatus",
-      header: t("groups.table.columns.contribution"),
+      header: "Contribution",
       cell: () => {
-        return (<Badge variant="outline">{t("groups.table.status.upToDate")}</Badge>);
+        return (<Badge variant="outline">{"Up to date"}</Badge>);
       }, // Placeholder
     },
     {
       accessorKey: "joinDate",
-      header: t("groups.table.columns.joinDate"),
+      header: "Join Date",
       cell: ({ row }) => row.original.joinDate ? formatDate(row.original.joinDate) : "N/A",
     },
     {
@@ -82,27 +80,27 @@ export function GroupMembersTable({ data }: { data: Member[] }) {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("groups.table.actions.menu")}</span>
+                <span className="sr-only">{"Actions"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("groups.table.actions.menu")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"Actions"}</DropdownMenuLabel>
               <DropdownMenuItem asChild>
                 <Link href={`/members/${member.id}`}>
-                  <Eye className="mr-2 h-4 w-4" /> {t("groups.table.actions.viewMember")}</Link>
+                  <Eye className="mr-2 h-4 w-4" /> {"View Member"}</Link>
               </DropdownMenuItem>
               <DropdownMenuItem
                 className="text-destructive"
                 onClick={async () => {
-                  if (confirm(t("groups.table.actions.removeConfirm"))) {
+                  if (confirm("Are you sure you want to remove this member from the group?")) {
                     const res = await removeMemberFromGroup(member.id)
-                    if (res.success) toast.success(t("groups.table.actions.removeSuccess"))
+                    if (res.success) toast.success("Member removed from group")
                     else toast.error(res.error)
                   }
                 }}
               >
-                <Trash className="mr-2 h-4 w-4" /> {t("groups.table.actions.removeMember")}</DropdownMenuItem>
+                <Trash className="mr-2 h-4 w-4" /> {"Remove from Group"}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )
@@ -129,7 +127,7 @@ export function GroupMembersTable({ data }: { data: Member[] }) {
     <div>
       <div className="flex items-center py-2">
         <Input
-          placeholder={t("groups.table.searchMembers")}
+          placeholder={"Search Members"}
           value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("name")?.setFilterValue(event.target.value)
@@ -178,7 +176,7 @@ export function GroupMembersTable({ data }: { data: Member[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("groups.table.noMembersFound")}</TableCell>
+                  {"No members found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -191,14 +189,14 @@ export function GroupMembersTable({ data }: { data: Member[] }) {
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("groups.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {t("groups.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

@@ -11,7 +11,6 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { CheckCircle2, Clock, Circle } from "lucide-react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 
 interface Member {
   id: string
@@ -35,8 +34,7 @@ export function MonthlyMatrixTable({
   contributions: Contribution[], 
   currentMonth: number 
 }) {
-  const { t } = useLanguage()
-
+  
   const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 
   const getCellState = (memberId: string, month: number) => {
@@ -78,7 +76,7 @@ export function MonthlyMatrixTable({
             <TableHead className="w-[100px]">Group</TableHead>
             {months.map(m => (
               <TableHead key={m} className="text-center w-12 px-1">
-                {(() => { const arr = t("contributions.months"); return Array.isArray(arr) ? arr[m - 1]?.slice(0, 3) : m; })()}
+                {(["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][m - 1])}
               </TableHead>
             ))}
           </TableRow>

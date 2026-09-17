@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import { format } from "date-fns"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -21,8 +20,7 @@ interface MemberRequest {
 }
 
 export function RequestsTable({ data }: { data: MemberRequest[] }) {
-  const { t } = useLanguage()
-  const [searchTerm, setSearchTerm] = useState("")
+    const [searchTerm, setSearchTerm] = useState("")
 
   const filteredData = data.filter(item => 
     item.fullName?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -33,13 +31,13 @@ export function RequestsTable({ data }: { data: MemberRequest[] }) {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "PENDING":
-        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">{t("member-requests.status.pending")}</Badge>
+        return <Badge variant="outline" className="bg-amber-100 text-amber-800 border-amber-200">{"Pending Review"}</Badge>
       case "APPROVED":
-        return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">{t("member-requests.status.approved")}</Badge>
+        return <Badge variant="outline" className="bg-emerald-100 text-emerald-800 border-emerald-200">{"Approved"}</Badge>
       case "REJECTED":
-        return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200">{t("member-requests.status.rejected")}</Badge>
+        return <Badge variant="outline" className="bg-rose-100 text-rose-800 border-rose-200">{"Rejected"}</Badge>
       case "NEEDS_CHANGES":
-        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">{t("member-requests.status.needs_changes")}</Badge>
+        return <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-200">{"Changes Requested"}</Badge>
       default:
         return <Badge>{status}</Badge>
     }
@@ -51,7 +49,7 @@ export function RequestsTable({ data }: { data: MemberRequest[] }) {
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder={t("common.search")}
+            placeholder={"Search"}
             className="pl-8"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -63,19 +61,19 @@ export function RequestsTable({ data }: { data: MemberRequest[] }) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>{t("member-requests.status.application_number")}</TableHead>
-              <TableHead>{t("member-requests.status.applicant_name")}</TableHead>
-              <TableHead>{t("members.phone")}</TableHead>
-              <TableHead>{t("member-requests.status.submitted_date")}</TableHead>
-              <TableHead>{t("common.status")}</TableHead>
-              <TableHead className="text-right">{t("common.actions")}</TableHead>
+              <TableHead>{"Application Number"}</TableHead>
+              <TableHead>{"Applicant Name"}</TableHead>
+              <TableHead>{"Phone"}</TableHead>
+              <TableHead>{"Submitted Date"}</TableHead>
+              <TableHead>{"Status"}</TableHead>
+              <TableHead className="text-right">{"Actions"}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filteredData.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={6} className="text-center h-24 text-muted-foreground">
-                  {t("common.no_data")}
+                  {"No data available"}
                 </TableCell>
               </TableRow>
             ) : (
@@ -91,7 +89,7 @@ export function RequestsTable({ data }: { data: MemberRequest[] }) {
                       <Button variant="ghost" size="sm" asChild>
                         <Link href={`/members/requests/${req.id}`}>
                           <Eye className="h-4 w-4 mr-1" />
-                          {t("common.view")}
+                          {"View"}
                         </Link>
                       </Button>
                       <RequestActions requestId={req.id} status={req.status} />

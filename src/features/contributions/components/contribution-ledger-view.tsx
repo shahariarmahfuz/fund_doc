@@ -1,7 +1,6 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useLanguage } from "@/i18n/LanguageProvider"
 import { useRbac } from "@/components/providers/rbac-provider"
 import {
   getContributionLedger,
@@ -66,8 +65,7 @@ export function ContributionLedgerView({
   foundationLogo,
   userName = "Admin",
 }: ContributionLedgerViewProps) {
-  const { t } = useLanguage()
-  const { can } = useRbac()
+    const { can } = useRbac()
 
   const canView = can("Fund Collection", "View")
   const canAdd = can("Fund Collection", "Add")
@@ -145,7 +143,7 @@ export function ContributionLedgerView({
       setPreviousBalance(res.previousBalance)
       setPagination(res.pagination)
     } catch (err: any) {
-      toast.error(err.message || "চাঁদা লেজার লোড করতে ব্যর্থ হয়েছে")
+      toast.error(err.message || "Failed to load contribution ledger")
     } finally {
       setLoading(false)
     }
@@ -202,9 +200,9 @@ export function ContributionLedgerView({
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
-      toast.success("চাঁদা লেজার সিএসভি (CSV) এক্সপোর্ট সফল হয়েছে")
+      toast.success("Contribution ledger exported to CSV successfully")
     } catch (err: any) {
-      toast.error("এক্সপোর্ট করতে ব্যর্থ হয়েছে")
+      toast.error("Failed to export")
     }
   }
 
@@ -218,7 +216,7 @@ export function ContributionLedgerView({
     setMemberLedgerOpen(true)
   }
 
-  const dateRangeString = from || to ? `${from || "শুরু"} হতে ${to || "বর্তমান"}` : "সকল সময় (All Time)"
+  const dateRangeString = from || to ? `${from || "Start"} to ${to || "Present"}` : "All Time"
 
   return (
     <div className="space-y-6">
@@ -227,10 +225,10 @@ export function ContributionLedgerView({
         <div>
           <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
             <BookOpen className="h-8 w-8 text-primary" />
-            চাঁদা লেজার (Contribution Ledger)
+            Contribution Ledger
           </h1>
           <p className="text-muted-foreground">
-            সদস্যদের প্রতিটি নিয়মিত ও অতিরিক্ত চাঁদা, ফেরত এবং সমন্বয়ের সময়ানুক্রমিক মূল লেজার খতিয়ান।
+            Chronological ledger tracking all regular and additional contributions, refunds, and adjustments.
           </p>
         </div>
 
@@ -238,14 +236,14 @@ export function ContributionLedgerView({
         <div className="flex flex-wrap items-center gap-2">
           {canAdd && (
             <>
-              <Button variant="outline" size="sm" onClick={() => setRefundDialogOpen(true)} className="border-rose-300 hover:bg-rose-50 text-rose-700 dark:hover:bg-rose-950/30">
+              <Button variant="outline" size="sm" onClick={() => setRefundDialogOpen(true)} className="border-rose-300 hover:bg-rose-50 text-rose-700">
                 <RotateCcw className="h-4 w-4 mr-1.5" />
-                চাঁদা ফেরত
+                Refund
               </Button>
 
-              <Button variant="outline" size="sm" onClick={() => setAdjustmentDialogOpen(true)} className="border-amber-300 hover:bg-amber-50 text-amber-700 dark:hover:bg-amber-950/30">
+              <Button variant="outline" size="sm" onClick={() => setAdjustmentDialogOpen(true)} className="border-amber-300 hover:bg-amber-50 text-amber-700">
                 <SlidersHorizontal className="h-4 w-4 mr-1.5" />
-                সমন্বয় রেকর্ড
+                Record Adjustment
               </Button>
             </>
           )}
@@ -255,11 +253,11 @@ export function ContributionLedgerView({
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="sm">
                   <Download className="h-4 w-4 mr-1.5" />
-                  এক্সপোর্ট
+                  Export
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuLabel>ফাইল ফরম্যাট নির্বাচন করুন</DropdownMenuLabel>
+                <DropdownMenuLabel>Select File Format</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleExportExcel}>
                   <FileSpreadsheet className="h-4 w-4 mr-2 text-emerald-600" />
@@ -267,11 +265,11 @@ export function ContributionLedgerView({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleExportCSV}>
                   <FileCode className="h-4 w-4 mr-2 text-blue-600" />
-                  CSV ফাইল (.csv)
+                  CSV File (.csv)
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handlePrintFullLedger}>
                   <FileText className="h-4 w-4 mr-2 text-rose-600" />
-                  PDF / প্রিন্ট রিপোর্ট
+                  PDF / Print Report
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -279,7 +277,7 @@ export function ContributionLedgerView({
 
           <Button variant="default" size="sm" onClick={handlePrintFullLedger}>
             <Printer className="h-4 w-4 mr-1.5" />
-            লেজার প্রিন্ট
+            Print Ledger
           </Button>
         </div>
       </div>
@@ -289,8 +287,8 @@ export function ContributionLedgerView({
         <Card className="bg-emerald-500/10 border-emerald-500/20">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">মোট প্রাপ্ত চাঁদা (Contributions)</p>
-              <h3 className="text-lg sm:text-xl font-bold text-emerald-700 dark:text-emerald-400 mt-1">
+              <p className="text-xs font-medium text-muted-foreground">Total Contributions</p>
+              <h3 className="text-lg sm:text-xl font-bold text-emerald-700 mt-1">
                 ৳ {formatCurrency(summary.totalContributions)}
               </h3>
             </div>
@@ -303,8 +301,8 @@ export function ContributionLedgerView({
         <Card className="bg-rose-500/10 border-rose-500/20">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">মোট ফেরত (Total Refunds)</p>
-              <h3 className="text-lg sm:text-xl font-bold text-rose-700 dark:text-rose-400 mt-1">
+              <p className="text-xs font-medium text-muted-foreground">Total Refunds</p>
+              <h3 className="text-lg sm:text-xl font-bold text-rose-700 mt-1">
                 ৳ {formatCurrency(summary.totalRefund)}
               </h3>
             </div>
@@ -317,8 +315,8 @@ export function ContributionLedgerView({
         <Card className="bg-amber-500/10 border-amber-500/20">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">মোট সমন্বয় (Adjustments)</p>
-              <h3 className="text-lg sm:text-xl font-bold text-amber-700 dark:text-amber-400 mt-1">
+              <p className="text-xs font-medium text-muted-foreground">Total Adjustments</p>
+              <h3 className="text-lg sm:text-xl font-bold text-amber-700 mt-1">
                 ৳ {formatCurrency(summary.totalAdjustment)}
               </h3>
             </div>
@@ -331,8 +329,8 @@ export function ContributionLedgerView({
         <Card className="bg-blue-500/10 border-blue-500/20">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">বর্তমান জের (Current Balance)</p>
-              <h3 className="text-lg sm:text-xl font-bold text-blue-700 dark:text-blue-400 mt-1">
+              <p className="text-xs font-medium text-muted-foreground">Current Balance</p>
+              <h3 className="text-lg sm:text-xl font-bold text-blue-700 mt-1">
                 ৳ {formatCurrency(summary.currentBalance)}
               </h3>
             </div>
@@ -345,9 +343,9 @@ export function ContributionLedgerView({
         <Card className="bg-purple-500/10 border-purple-500/20 col-span-2 lg:col-span-1">
           <CardContent className="p-4 flex items-center justify-between">
             <div>
-              <p className="text-xs font-medium text-muted-foreground">মোট লেনদেন (Transactions)</p>
-              <h3 className="text-lg sm:text-xl font-bold text-purple-700 dark:text-purple-400 mt-1">
-                {summary.totalTransactions} টি
+              <p className="text-xs font-medium text-muted-foreground">Total Transactions</p>
+              <h3 className="text-lg sm:text-xl font-bold text-purple-700 mt-1">
+                {summary.totalTransactions}
               </h3>
             </div>
             <div className="h-10 w-10 rounded-full bg-purple-500/20 flex items-center justify-center text-purple-600">
@@ -363,13 +361,13 @@ export function ContributionLedgerView({
           <div className="flex flex-wrap items-center justify-between gap-3 border-b pb-3">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <Filter className="h-4 w-4 text-primary" />
-              লেজার ফিল্টার এবং অনুসন্ধান (Server-Side Filtering)
+              Ledger Filters & Search
             </div>
 
             {(search || from || to || selectedMember !== "ALL" || type !== "ALL" || collector !== "ALL" || paymentMethod !== "ALL") && (
               <Button variant="ghost" size="sm" onClick={handleResetFilters} className="text-xs h-7 px-2">
                 <X className="h-3.5 w-3.5 mr-1" />
-                ফিল্টার রিসেট করুন
+                Reset Filters
               </Button>
             )}
           </div>
@@ -377,11 +375,11 @@ export function ContributionLedgerView({
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
             {/* Search Input */}
             <div className="space-y-1.5 col-span-1 sm:col-span-2">
-              <Label className="text-xs">অনুসন্ধান (রসিদ/সদস্য/ফোন/মন্তব্য)</Label>
+              <Label className="text-xs">Search (Receipt / Member / Phone / Remarks)</Label>
               <div className="relative">
                 <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="রসিদ নং, সদস্য আইডি, নাম বা মোবাইল দিয়ে খুঁজুন..."
+                  placeholder="Search by receipt no, member ID, name or phone..."
                   className="pl-9 text-xs h-9"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -391,7 +389,7 @@ export function ContributionLedgerView({
 
             {/* Date From */}
             <div className="space-y-1.5">
-              <Label className="text-xs">তারিখ থেকে (From)</Label>
+              <Label className="text-xs">From Date</Label>
               <Input
                 type="date"
                 className="text-xs h-9"
@@ -402,7 +400,7 @@ export function ContributionLedgerView({
 
             {/* Date To */}
             <div className="space-y-1.5">
-              <Label className="text-xs">তারিখ পর্যন্ত (To)</Label>
+              <Label className="text-xs">To Date</Label>
               <Input
                 type="date"
                 className="text-xs h-9"
@@ -413,16 +411,16 @@ export function ContributionLedgerView({
 
             {/* Member Filter */}
             <div className="space-y-1.5">
-              <Label className="text-xs">সদস্য নির্বাচন</Label>
+              <Label className="text-xs">Select Member</Label>
               <Select value={selectedMember} onValueChange={setSelectedMember}>
                 <SelectTrigger className="text-xs h-9">
-                  <SelectValue placeholder="সকল সদস্য" />
+                  <SelectValue placeholder="All Members" />
                 </SelectTrigger>
                 <SelectContent className="max-h-60">
-                  <SelectItem value="ALL">সকল সদস্য (All Members)</SelectItem>
+                  <SelectItem value="ALL">All Members</SelectItem>
                   {filterOptions.members.map((m) => (
                     <SelectItem key={m.id} value={m.id}>
-                      {m.memberId} - {m.fullName || "সদস্য"}
+                      {m.memberId} - {m.fullName || "Member"}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -431,30 +429,30 @@ export function ContributionLedgerView({
 
             {/* Contribution Type Filter */}
             <div className="space-y-1.5">
-              <Label className="text-xs">চাঁদার ধরন</Label>
+              <Label className="text-xs">Contribution Type</Label>
               <Select value={type} onValueChange={setType}>
                 <SelectTrigger className="text-xs h-9">
-                  <SelectValue placeholder="সকল ধরন" />
+                  <SelectValue placeholder="All Types" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">সকল ধরন (All Types)</SelectItem>
-                  <SelectItem value="REGULAR">নিয়মিত চাঁদা (Regular)</SelectItem>
-                  <SelectItem value="ADDITIONAL">অতিরিক্ত চাঁদা (Additional)</SelectItem>
-                  <SelectItem value="REFUND">চাঁদা ফেরত (Refund)</SelectItem>
-                  <SelectItem value="ADJUSTMENT">সমন্বয় (Adjustment)</SelectItem>
+                  <SelectItem value="ALL">All Types</SelectItem>
+                  <SelectItem value="REGULAR">Regular Contribution</SelectItem>
+                  <SelectItem value="ADDITIONAL">Additional Contribution</SelectItem>
+                  <SelectItem value="REFUND">Refund (Refund)</SelectItem>
+                  <SelectItem value="ADJUSTMENT">Adjustment</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             {/* Collector Filter */}
             <div className="space-y-1.5">
-              <Label className="text-xs">সংগ্রহকারী</Label>
+              <Label className="text-xs">Collector</Label>
               <Select value={collector} onValueChange={setCollector}>
                 <SelectTrigger className="text-xs h-9">
-                  <SelectValue placeholder="সকল সংগ্রহকারী" />
+                  <SelectValue placeholder="All Collectors" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">সকল সংগ্রহকারী</SelectItem>
+                  <SelectItem value="ALL">All Collectors</SelectItem>
                   {filterOptions.collectors.map((c) => (
                     <SelectItem key={c} value={c}>
                       {c}
@@ -466,16 +464,16 @@ export function ContributionLedgerView({
 
             {/* Payment Method Filter */}
             <div className="space-y-1.5">
-              <Label className="text-xs">পরিশোধের মাধ্যম</Label>
+              <Label className="text-xs">Payment Method</Label>
               <Select value={paymentMethod} onValueChange={setPaymentMethod}>
                 <SelectTrigger className="text-xs h-9">
-                  <SelectValue placeholder="সকল মাধ্যম" />
+                  <SelectValue placeholder="All Methods" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="ALL">সকল মাধ্যম</SelectItem>
-                  <SelectItem value="CASH">ক্যাশ (CASH)</SelectItem>
-                  <SelectItem value="BANK">ব্যাংক (BANK)</SelectItem>
-                  <SelectItem value="MOBILE_BANKING">মোবাইল ব্যাংকিং</SelectItem>
+                  <SelectItem value="ALL">All Methods</SelectItem>
+                  <SelectItem value="CASH">Cash (CASH)</SelectItem>
+                  <SelectItem value="BANK">Bank (BANK)</SelectItem>
+                  <SelectItem value="MOBILE_BANKING">Mobile Banking</SelectItem>
                   {filterOptions.paymentMethods
                     .filter((m) => !["CASH", "BANK", "MOBILE_BANKING"].includes(m))
                     .map((m) => (
@@ -497,17 +495,17 @@ export function ContributionLedgerView({
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
-                  <TableHead className="w-[100px]">তারিখ</TableHead>
-                  <TableHead>রসিদ নং (Receipt No)</TableHead>
-                  <TableHead>সদস্যের তথ্য (Member)</TableHead>
-                  <TableHead>মোবাইল</TableHead>
-                  <TableHead>ধরন (Type)</TableHead>
-                  <TableHead className="text-right">ডেবিট (Debit ৳)</TableHead>
-                  <TableHead className="text-right">ক্রেডিট (Credit ৳)</TableHead>
-                  <TableHead className="text-right font-bold">রানিং ব্যালেন্স (Balance ৳)</TableHead>
-                  <TableHead>মাধ্যম</TableHead>
-                  <TableHead>সংগ্রহকারী</TableHead>
-                  <TableHead>মন্তব্য</TableHead>
+                  <TableHead className="w-[100px]">Date</TableHead>
+                  <TableHead>Receipt No</TableHead>
+                  <TableHead>Member</TableHead>
+                  <TableHead>Mobile</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead className="text-right">Debit (৳)</TableHead>
+                  <TableHead className="text-right">Credit (৳)</TableHead>
+                  <TableHead className="text-right font-bold">Balance (৳)</TableHead>
+                  <TableHead>Method</TableHead>
+                  <TableHead>Collector</TableHead>
+                  <TableHead>Remarks</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -515,13 +513,13 @@ export function ContributionLedgerView({
                   <TableRow>
                     <TableCell colSpan={11} className="h-40 text-center text-muted-foreground">
                       <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2 text-primary" />
-                      লেজার তথ্য লোড করা হচ্ছে...
+                      Loading ledger data...
                     </TableCell>
                   </TableRow>
                 ) : items.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={11} className="h-32 text-center text-muted-foreground">
-                      কোনো চাঁদা লেজার রেকর্ড পাওয়া যায়নি।
+                      No contribution ledger records found.
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -530,7 +528,7 @@ export function ContributionLedgerView({
                     {previousBalance !== 0 && (
                       <TableRow className="bg-muted/30 font-medium text-xs">
                         <TableCell colSpan={7} className="italic text-muted-foreground">
-                          পূর্ববর্তী জের (Opening / Previous Balance before filter/page)
+                          Opening / Previous Balance
                         </TableCell>
                         <TableCell className="text-right font-bold font-mono">
                           ৳ {formatCurrency(previousBalance)}
@@ -574,22 +572,22 @@ export function ContributionLedgerView({
                             className="text-[10px] px-1.5 py-0.5"
                           >
                             {item.contributionType === "REGULAR"
-                              ? "নিয়মিত"
+                              ? "Regular"
                               : item.contributionType === "ADDITIONAL"
-                              ? "অতিরিক্ত"
+                              ? "Additional"
                               : item.contributionType === "REFUND"
-                              ? "ফেরত"
-                              : "সমন্বয়"}
+                              ? "Refund"
+                              : "Adjustment"}
                           </Badge>
                         </TableCell>
 
                         {/* Debit */}
-                        <TableCell className="text-right font-mono font-medium text-rose-600 dark:text-rose-400">
+                        <TableCell className="text-right font-mono font-medium text-rose-600">
                           {item.debit > 0 ? `৳ ${formatCurrency(item.debit)}` : "-"}
                         </TableCell>
 
                         {/* Credit */}
-                        <TableCell className="text-right font-mono font-medium text-emerald-600 dark:text-emerald-400">
+                        <TableCell className="text-right font-mono font-medium text-emerald-600">
                           {item.credit > 0 ? `৳ ${formatCurrency(item.credit)}` : "-"}
                         </TableCell>
 
@@ -615,7 +613,7 @@ export function ContributionLedgerView({
           {pagination.totalPages > 0 && (
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 border-t text-xs">
               <div className="flex items-center gap-2 text-muted-foreground">
-                <span>প্রদর্শন:</span>
+                <span>Rows per page:</span>
                 <Select value={String(pagination.limit)} onValueChange={handleLimitChange}>
                   <SelectTrigger className="h-8 w-16 text-xs">
                     <SelectValue />
@@ -628,8 +626,7 @@ export function ContributionLedgerView({
                   </SelectContent>
                 </Select>
                 <span>
-                  মোট {pagination.total} টি রেকর্ডের মধ্যে {(pagination.page - 1) * pagination.limit + 1} -{" "}
-                  {Math.min(pagination.page * pagination.limit, pagination.total)} টি দেখানো হচ্ছে
+                  Showing {(pagination.page - 1) * pagination.limit + 1} - {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} records
                 </span>
               </div>
 
@@ -642,11 +639,11 @@ export function ContributionLedgerView({
                   onClick={() => handlePageChange(pagination.page - 1)}
                 >
                   <ArrowLeft className="h-3.5 w-3.5 mr-1" />
-                  আগের পৃষ্ঠা
+                  Previous
                 </Button>
 
                 <span className="font-semibold text-foreground px-2">
-                  পৃষ্ঠা {pagination.page} এর {pagination.totalPages}
+                  Page {pagination.page} of {pagination.totalPages}
                 </span>
 
                 <Button
@@ -656,7 +653,7 @@ export function ContributionLedgerView({
                   disabled={pagination.page >= pagination.totalPages || loading}
                   onClick={() => handlePageChange(pagination.page + 1)}
                 >
-                  পরের পৃষ্ঠা
+                  Next
                   <ArrowRight className="h-3.5 w-3.5 ml-1" />
                 </Button>
               </div>

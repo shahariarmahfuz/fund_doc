@@ -3,22 +3,20 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { getAuthSession } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 
 export default async function PreferencesPage() {
   const session = await getAuthSession()
   let userPrefs = {}
 
   if (session?.user?.id) {
-    const user = await prisma.user.findUnique({
-      where: { id: session.user.id }
-    })
-    if (user?.preferences) {
-      try {
-        userPrefs = JSON.parse(user.preferences)
-      } catch (e) {
-        // ignore
+    try {
+      const user = await apiClient.users.getById(session.user.id)
+      if (user?.preferences) {
+        userPrefs = typeof user.preferences === "string" ? JSON.parse(user.preferences) : user.preferences
       }
+    } catch (e) {
+      // ignore
     }
   }
 

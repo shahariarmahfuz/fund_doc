@@ -6,7 +6,7 @@ export interface KpiCardProps extends Omit<React.HTMLAttributes<HTMLDivElement>,
   value: React.ReactNode
   subValue?: React.ReactNode
   icon: React.ElementType
-  badgeLabel: React.ReactNode
+  badgeLabel?: React.ReactNode
   badgeIcon?: React.ElementType
   badgeVariant?: "up" | "down" | "neutral" | "info"
   delayClass?: string
@@ -49,14 +49,16 @@ export function KpiCard({
           <div className="wm-dot"></div>
           <p className="wm-label">{title}</p>
         </div>
-        <div className={cn("wm-badge", badgeVariant)}>
-          {badgeVariant === "info" ? (
-            <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
-          ) : BadgeIcon ? (
-            <BadgeIcon className="w-3.5 h-3.5" />
-          ) : null}
-          {badgeLabel}
-        </div>
+        {badgeLabel != null && badgeLabel !== "" && (
+          <div className={cn("wm-badge", badgeVariant)}>
+            {badgeVariant === "info" ? (
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+            ) : BadgeIcon ? (
+              <BadgeIcon className="w-3.5 h-3.5" />
+            ) : null}
+            {badgeLabel}
+          </div>
+        )}
       </div>
       <div>
         <p className="wm-value">{value}</p>

@@ -12,7 +12,6 @@ import { MemberCombobox } from "@/components/member-combobox"
 import { formatCurrency, formatDate, formatMonth } from "@/lib/format"
 import { Printer, Download } from "lucide-react"
 import { getMemberLedger } from "../actions"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 type MemberLedgerViewProps = {
   members: {
@@ -24,8 +23,7 @@ type MemberLedgerViewProps = {
 }
 
 export function MemberLedgerView({ members }: MemberLedgerViewProps) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const currentMemberId = searchParams.get("memberId") || ""
@@ -96,7 +94,7 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
 
   // Recalculate summary based on filters? 
   // Actually, standard accounting usually shows the overall summary, or summary of the filtered period.
-  // The user says "মোট জমা, মোট উত্তোলন, বর্তমান ব্যালেন্স".
+  // Total Deposit, Total Withdrawal, Current Balance
   const totalDeposit = filteredLedger.reduce((sum: number, r: any) => sum + r.deposit, 0)
   const totalWithdrawal = filteredLedger.reduce((sum: number, r: any) => sum + r.withdrawal, 0)
   // Current balance should be the final balance of the filtered rows, or the member's absolute final balance?
@@ -107,22 +105,22 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
     <div className="space-y-6">
       <div className="flex flex-col md:flex-row md:items-end gap-4 bg-muted/30 p-4 rounded-lg border hide-print">
         <div className="flex-1 max-w-sm">
-          <Label className="mb-2 block">{t("ledger.k_ac0a3e")}</Label>
+          <Label className="mb-2 block">{"Select member"}</Label>
           <MemberCombobox 
             members={members}
             value={currentMemberId}
             onChange={handleMemberChange}
-            placeholder={t("ledger.k_70154e")}
+            placeholder={"Find members..."}
           />
         </div>
       </div>
 
-      {loading && <div className="text-center py-10">{t("ledger.k_d1187b")}</div>}
+      {loading && <div className="text-center py-10">{"Loading..."}</div>}
 
       {!loading && !currentMemberId && (
         <Card className="hide-print">
           <CardContent className="flex flex-col items-center justify-center h-48 text-muted-foreground">
-            <p>{t("ledger.k_d244f5")}</p>
+            <p>{"Please select a member"}</p>
           </CardContent>
         </Card>
       )}
@@ -131,10 +129,10 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
         <div className="space-y-6 animate-in fade-in duration-300 print:space-y-4">
           
           <div className="flex justify-between items-center hide-print">
-            <h2 className="text-xl font-bold">{t("ledger.k_985aa7")}</h2>
+            <h2 className="text-xl font-bold">{"Member Ledger"}</h2>
             <div className="flex space-x-2">
               <Button variant="outline" onClick={handlePrint}>
-                <Printer className="mr-2 h-4 w-4" /> {t("ledger.k_a0b40f")}</Button>
+                <Printer className="mr-2 h-4 w-4" /> {"Print"}</Button>
             </div>
           </div>
 
@@ -143,24 +141,24 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
             <CardContent className="p-6">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("ledger.k_510244")}</p>
+                  <p className="text-sm text-muted-foreground">{"Member Name"}</p>
                   <p className="font-semibold text-lg">{ledgerData.member.fullName}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("ledger.k_496d63")}</p>
+                  <p className="text-sm text-muted-foreground">{"Member ID"}</p>
                   <p className="font-mono font-medium">{ledgerData.member.memberId}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("ledger.k_17e2b1")}</p>
+                  <p className="text-sm text-muted-foreground">{"Groups"}</p>
                   <p className="font-medium">{ledgerData.member.groupName} ({ledgerData.member.groupCode})</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("ledger.k_ec2310")}</p>
+                  <p className="text-sm text-muted-foreground">{"Date of Joining"}</p>
                   <p className="font-medium">{formatDate(ledgerData.member.joinDate)}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("ledger.k_d94dd6")}</p>
-                  <p className="font-medium">{ledgerData.member.status === "ACTIVE" ? "সক্রিয়" : "নিষ্ক্রিয়"}</p>
+                  <p className="text-sm text-muted-foreground">{"current status"}</p>
+                  <p className="font-medium">{ledgerData.member.status === "ACTIVE" ? "Active" : "Inactive"}</p>
                 </div>
               </div>
             </CardContent>
@@ -170,19 +168,19 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
           <Card className="hide-print">
             <CardContent className="p-4 flex flex-wrap items-end gap-4">
               <div className="space-y-1">
-                <Label>{t("ledger.k_013102")}</Label>
+                <Label>{"start date"}</Label>
                 <Input type="date" value={fromDate} onChange={(e) => setFromDate(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label>{t("ledger.k_602b17")}</Label>
+                <Label>{"Last date"}</Label>
                 <Input type="date" value={toDate} onChange={(e) => setToDate(e.target.value)} />
               </div>
               <div className="space-y-1">
-                <Label>{t("ledger.k_568d0e")}</Label>
+                <Label>{"months"}</Label>
                 <Select value={month} onValueChange={setMonth}>
                   <SelectTrigger className="w-[150px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">{t("ledger.k_5c54fa")}</SelectItem>
+                    <SelectItem value="ALL">{"all months"}</SelectItem>
                     {Array.from({length: 12}, (_, i) => (
                       <SelectItem key={i+1} value={(i+1).toString()}>{formatMonth(i)}</SelectItem>
                     ))}
@@ -190,11 +188,11 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
                 </Select>
               </div>
               <div className="space-y-1">
-                <Label>{t("ledger.k_4083b2")}</Label>
+                <Label>{"year"}</Label>
                 <Select value={year} onValueChange={setYear}>
                   <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="ALL">{t("ledger.k_60a4e4")}</SelectItem>
+                    <SelectItem value="ALL">{"every year"}</SelectItem>
                     {Array.from({length: 5}, (_, i) => (
                       <SelectItem key={i} value={(currentYear - i).toString()}>
                         {currentYear - i}
@@ -204,28 +202,28 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
                 </Select>
               </div>
               <Button variant="ghost" onClick={() => { setFromDate(""); setToDate(""); setMonth("ALL"); setYear("ALL"); }}>
-                {t("ledger.k_3fc3b3")}</Button>
+                {"Reset"}</Button>
             </CardContent>
           </Card>
 
           {/* Summary Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card className="bg-emerald-50 dark:bg-emerald-950/20">
+            <Card className="bg-emerald-50">
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-emerald-800 dark:text-emerald-400">{t("ledger.k_0deac4")}</p>
-                <h3 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">৳{formatCurrency(totalDeposit)}</h3>
+                <p className="text-sm font-medium text-emerald-800">{"Total deposit"}</p>
+                <h3 className="text-2xl font-bold text-emerald-900">৳{formatCurrency(totalDeposit)}</h3>
               </CardContent>
             </Card>
-            <Card className="bg-rose-50 dark:bg-rose-950/20">
+            <Card className="bg-rose-50">
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-rose-800 dark:text-rose-400">{t("ledger.k_cb7c1c")}</p>
-                <h3 className="text-2xl font-bold text-rose-900 dark:text-rose-100">৳{formatCurrency(totalWithdrawal)}</h3>
+                <p className="text-sm font-medium text-rose-800">{"Total withdrawal"}</p>
+                <h3 className="text-2xl font-bold text-rose-900">৳{formatCurrency(totalWithdrawal)}</h3>
               </CardContent>
             </Card>
-            <Card className="bg-blue-50 dark:bg-blue-950/20">
+            <Card className="bg-blue-50">
               <CardContent className="p-6">
-                <p className="text-sm font-medium text-blue-800 dark:text-blue-400">{t("ledger.k_5f338e")}</p>
-                <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-100">৳{formatCurrency(currentBalance)}</h3>
+                <p className="text-sm font-medium text-blue-800">{"Current balance"}</p>
+                <h3 className="text-2xl font-bold text-blue-900">৳{formatCurrency(currentBalance)}</h3>
               </CardContent>
             </Card>
           </div>
@@ -236,12 +234,12 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
               <table className="w-full text-sm text-left">
                 <thead className="bg-muted/50 text-muted-foreground uppercase">
                   <tr>
-                    <th className="px-4 py-3 font-medium">{t("ledger.k_3e10c2")}</th>
-                    <th className="px-4 py-3 font-medium">{t("ledger.k_599a47")}</th>
-                    <th className="px-4 py-3 font-medium">{t("ledger.k_87daaf")}</th>
-                    <th className="px-4 py-3 font-medium text-right">{t("ledger.k_a1ae20")}</th>
-                    <th className="px-4 py-3 font-medium text-right">{t("ledger.k_21e0b1")}</th>
-                    <th className="px-4 py-3 font-medium text-right">{t("ledger.k_f807cf")}</th>
+                    <th className="px-4 py-3 font-medium">{"Date"}</th>
+                    <th className="px-4 py-3 font-medium">{"Voucher / Reference"}</th>
+                    <th className="px-4 py-3 font-medium">{"Description"}</th>
+                    <th className="px-4 py-3 font-medium text-right">{"submission"}</th>
+                    <th className="px-4 py-3 font-medium text-right">{"lifting"}</th>
+                    <th className="px-4 py-3 font-medium text-right">{"balance"}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y">
@@ -251,10 +249,10 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
                         <td className="px-4 py-3 whitespace-nowrap">{formatDate(row.date)}</td>
                         <td className="px-4 py-3 font-mono">{row.reference}</td>
                         <td className="px-4 py-3">{row.description}</td>
-                        <td className="px-4 py-3 text-right text-emerald-600 dark:text-emerald-400 font-medium">
+                        <td className="px-4 py-3 text-right text-emerald-600 font-medium">
                           {row.deposit > 0 ? `৳${formatCurrency(row.deposit)}` : "-"}
                         </td>
-                        <td className="px-4 py-3 text-right text-rose-600 dark:text-rose-400 font-medium">
+                        <td className="px-4 py-3 text-right text-rose-600 font-medium">
                           {row.withdrawal > 0 ? `৳${formatCurrency(row.withdrawal)}` : "-"}
                         </td>
                         <td className="px-4 py-3 text-right font-bold">
@@ -265,7 +263,7 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
                   ) : (
                     <tr>
                       <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                        {t("ledger.k_31c268")}</td>
+                        {"No transactions found"}</td>
                     </tr>
                   )}
                 </tbody>

@@ -1,12 +1,11 @@
 import { notFound } from "next/navigation"
 import { getMemberRequest } from "@/features/member-requests/actions"
+import { getGroup } from "@/features/groups/actions"
 import { authorizePage } from "@/lib/rbac"
-import { Trans } from "@/components/shared/trans"
 import { RequestActions } from "@/features/member-requests/components/request-actions"
 import { Badge } from "@/components/ui/badge"
 import { MemberProfileLayout, MemberProfileData } from "@/features/members/components/member-profile-layout"
 import { Card, CardContent } from "@/components/ui/card"
-import { prisma } from "@/lib/prisma"
 
 export default async function MemberRequestDetailPage({ params }: { params: Promise<{ id: string }> }) {
   await authorizePage("Members", "View")
@@ -24,7 +23,7 @@ export default async function MemberRequestDetailPage({ params }: { params: Prom
   let groupCode = null
   
   if (request.groupId) {
-    const group = await prisma.group.findUnique({ where: { id: request.groupId } })
+    const group = await getGroup(request.groupId)
     if (group) {
       groupName = group.name
       groupCode = group.code
@@ -55,10 +54,10 @@ export default async function MemberRequestDetailPage({ params }: { params: Prom
         'bg-blue-100 text-blue-800 border-blue-200'
       }`}
     >
-      {request.status === "PENDING" ? <Trans tKey="member-requests.status.pending" /> 
-      : request.status === "APPROVED" ? <Trans tKey="member-requests.status.approved" />
-      : request.status === "REJECTED" ? <Trans tKey="member-requests.status.rejected" />
-      : request.status === "NEEDS_CHANGES" ? <Trans tKey="member-requests.status.needsChanges" />
+      {request.status === "PENDING" ? "Pending Review" 
+      : request.status === "APPROVED" ? "Approved"
+      : request.status === "REJECTED" ? "Rejected"
+      : request.status === "NEEDS_CHANGES" ? "Changes Requested"
       : request.status}
     </Badge>
   )
@@ -66,19 +65,19 @@ export default async function MemberRequestDetailPage({ params }: { params: Prom
   const adminNotes = (
     <div className="space-y-4">
       {request.adminMessage && (
-        <Card className="border-blue-200 bg-blue-50 dark:bg-blue-950 dark:border-blue-900">
+        <Card className="border-blue-200 bg-blue-50">
           <CardContent className="pt-6">
-            <h3 className="font-semibold text-blue-800 dark:text-blue-300 mb-2"><Trans tKey="member-requests.status.admin_message" /></h3>
-            <p className="text-blue-700 dark:text-blue-400">{request.adminMessage}</p>
+            <h3 className="font-semibold text-blue-800 mb-2">Message from Admin</h3>
+            <p className="text-blue-700">{request.adminMessage}</p>
           </CardContent>
         </Card>
       )}
 
       {request.rejectionReason && (
-        <Card className="border-rose-200 bg-rose-50 dark:bg-rose-950 dark:border-rose-900">
+        <Card className="border-rose-200 bg-rose-50">
           <CardContent className="pt-6">
-            <h3 className="font-semibold text-rose-800 dark:text-rose-300 mb-2"><Trans tKey="member-requests.status.rejection_reason" /></h3>
-            <p className="text-rose-700 dark:text-rose-400">{request.rejectionReason}</p>
+            <h3 className="font-semibold text-rose-800 mb-2">Rejection Reason</h3>
+            <p className="text-rose-700">{request.rejectionReason}</p>
           </CardContent>
         </Card>
       )}
@@ -92,7 +91,7 @@ export default async function MemberRequestDetailPage({ params }: { params: Prom
   return (
     <MemberProfileLayout
       data={profileData}
-      titleNode={<><Trans tKey="member-requests.detail.title" /> {request.applicationNumber}</>}
+      titleNode={<>Application Details {request.applicationNumber}</>}
       backHref="/members/requests"
       statusNode={statusBadge}
       bottomActionNode={adminNotes}

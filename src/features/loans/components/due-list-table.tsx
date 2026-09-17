@@ -32,7 +32,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 const globalSearchFn: FilterFn<any> = (row, columnId, value, addMeta) => {
   const searchValue = value.toLowerCase()
@@ -43,49 +42,48 @@ const globalSearchFn: FilterFn<any> = (row, columnId, value, addMeta) => {
 }
 
 export function DueListTable({ data, initialDueStatusFilter = "ALL" }: { data: any[], initialDueStatusFilter?: string }) {
-    const { t } = useLanguage();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+      const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [sorting, setSorting] = useState<SortingState>([])
   const [globalFilter, setGlobalFilter] = useState("")
 
   const columns: ColumnDef<any>[] = [
     {
       accessorKey: "loanNumber",
-      header: t("loans.table.columns.loanNo") || "Loan #",
+      header: "Qard Hasan No",
     },
     {
       id: "beneficiary",
       accessorFn: row => row.beneficiary ? row.beneficiary.fullName : "Unknown",
-      header: t("loans.table.columns.beneficiary") || "Beneficiary",
+      header: "Beneficiary",
     },
     {
       id: "phone",
-      header: t("common.phone") || "Mobile",
+      header: "Phone",
       cell: ({ row }) => row.original.beneficiary?.phone || row.original.beneficiary?.mobile || "-"
     },
     {
       id: "group",
-      header: t("loans.form.group") || "Group",
+      header: "Group",
       cell: ({ row }) => row.original.beneficiary?.member?.group?.name || "-"
     },
     {
       accessorKey: "installmentType",
-      header: t("loans.form.installmentType") || "Inst. Type",
+      header: "Installment Type",
       cell: ({ row }) => row.getValue("installmentType") || "-"
     },
     {
       id: "nextDueDate",
-      header: t("loans.form.firstInstallmentDate") || "Next Due Date",
+      header: "First Installment Date",
       cell: ({ row }) => row.original.nextDueDate ? formatDate(row.original.nextDueDate) : "-",
     },
     {
       id: "remainingBalance",
-      header: t("loans.table.columns.balance") || "Remaining Balance",
+      header: "Remaining Balance",
       cell: ({ row }) => <span className="font-medium text-red-600">৳{row.original.remainingBalance}</span>,
     },
     {
       accessorKey: "dueStatus",
-      header: t("loans.table.columns.status") || "Status",
+      header: "Status",
       cell: ({ row }) => {
         const status = row.getValue("dueStatus") as string
         let variant: "default" | "secondary" | "destructive" | "outline" = "outline"
@@ -132,13 +130,13 @@ export function DueListTable({ data, initialDueStatusFilter = "ALL" }: { data: a
                     return (window.print());
                   }}>
             <Printer className="mr-2 h-4 w-4" />
-            {t("common.print") || "Print"}</Button>
+            {"Print"}</Button>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder={t("loans.table.search")}
+              placeholder={"Search Qard Hasan..."}
               value={globalFilter ?? ""}
               onChange={(e) => setGlobalFilter(e.target.value)}
               className="pl-8"
@@ -150,13 +148,13 @@ export function DueListTable({ data, initialDueStatusFilter = "ALL" }: { data: a
             onValueChange={(v) => table.getColumn("dueStatus")?.setFilterValue(v === "ALL" ? "" : v)}
           >
             <SelectTrigger>
-              <SelectValue placeholder={t("loans.table.columns.due")} />
+              <SelectValue placeholder={"Due Status"} />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="ALL">{"All Dues"}</SelectItem>
-              <SelectItem value="Due Today">{t("loans.table.dueStatus.dueToday")}</SelectItem>
-              <SelectItem value="Upcoming Due">{t("loans.table.dueStatus.upcomingDue")}</SelectItem>
-              <SelectItem value="Overdue">{t("loans.table.dueStatus.overdue")}</SelectItem>
+              <SelectItem value="Due Today">{"Due Today"}</SelectItem>
+              <SelectItem value="Upcoming Due">{"Upcoming Due"}</SelectItem>
+              <SelectItem value="Overdue">{"Overdue"}</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -193,7 +191,7 @@ export function DueListTable({ data, initialDueStatusFilter = "ALL" }: { data: a
              ) : (
                <TableRow>
                  <TableCell colSpan={columns.length} className="h-24 text-center">
-                   {t("loans.table.empty")}</TableCell>
+                   {"No Qard Hasan found."}</TableCell>
                </TableRow>
              )}
           </TableBody>
@@ -201,9 +199,9 @@ export function DueListTable({ data, initialDueStatusFilter = "ALL" }: { data: a
       </div>
       <div className="flex items-center justify-end space-x-2 no-print">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("loans.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("loans.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
 
       <style jsx global>{`

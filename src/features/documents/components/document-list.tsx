@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Download, Eye, FileText, Image as ImageIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface DocumentListProps {
   targetType: "MEMBER" | "BENEFICIARY" | "LOAN" | "GRANT" | "FOUNDATION" | "GROUP"
@@ -15,11 +14,10 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ targetType, entityId, documents, categories }: DocumentListProps) {
-    const { t } = useLanguage();
-  return (
+      return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">{t("documents.k_7169f1")}</h3>
+        <h3 className="text-lg font-medium">{"Related Documents"}</h3>
         <DocumentUploadDialog targetType={targetType} entityId={entityId} categories={categories} />
       </div>
 
@@ -27,7 +25,7 @@ export function DocumentList({ targetType, entityId, documents, categories }: Do
         <Card className="bg-muted/50">
           <CardContent className="flex flex-col items-center justify-center py-10">
             <FileText className="h-10 w-10 text-muted-foreground mb-4" />
-            <p className="text-muted-foreground">{t("documents.k_e89e05")}</p>
+            <p className="text-muted-foreground">{"No documents have been uploaded"}</p>
           </CardContent>
         </Card>
       ) : (
@@ -44,22 +42,22 @@ export function DocumentList({ targetType, entityId, documents, categories }: Do
                         </CardHeader>
                         <CardContent className="space-y-3">
                           <div className="flex flex-wrap gap-2">
-                            <Badge variant="outline">{doc.category?.name || "বিভাগ নেই"}</Badge>
+                            <Badge variant="outline">{doc.category?.name || "No Category"}</Badge>
                             <Badge variant="secondary">{(doc.sizeBytes / 1024 / 1024).toFixed(2)} MB</Badge>
                           </div>
                           
                           <p className="text-xs text-muted-foreground truncate" title={doc.description || ""}>
-                            {doc.description || "কোন বিবরণ নেই"}
+                            {doc.description || "No description provided"}
                           </p>
 
                           <div className="flex space-x-2 pt-2 border-t mt-2">
                             <Button variant="outline" size="sm" className="w-full" asChild>
                               <a href={doc.secureUrl || doc.url} target="_blank" rel="noreferrer">
-                                <Eye className="mr-2 h-4 w-4" /> {t("documents.k_cb4158")}</a>
+                                <Eye className="mr-2 h-4 w-4" /> {"see"}</a>
                             </Button>
                             <Button variant="outline" size="sm" className="w-full" asChild>
                               <a href={doc.secureUrl || doc.url} download={doc.originalFilename}>
-                                <Download className="mr-2 h-4 w-4" /> {t("documents.k_ae3515")}</a>
+                                <Download className="mr-2 h-4 w-4" /> {"Download"}</a>
                             </Button>
                           </div>
                         </CardContent>

@@ -6,7 +6,6 @@ import { formatDate, formatCurrency } from "@/lib/format"
 import { DonorProfileActions } from "@/features/donors/components/donor-profile-actions"
 import Image from "next/image"
 import Link from "next/link"
-import { Trans } from "@/components/shared/trans";
 
 export default async function DonorDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params
@@ -28,7 +27,7 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">{donor.fullName}</h1>
-          <p className="text-muted-foreground"><Trans tKey="donors.profile_page.title_id" /> {donor.donorId}</p>
+          <p className="text-muted-foreground">ID: {donor.donorId}</p>
         </div>
         <DonorProfileActions donorId={donor.id} />
       </div>
@@ -36,31 +35,31 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle><Trans tKey="donors.profile_page.general_info" /></CardTitle>
+            <CardTitle>General Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.status" /></span>
+              <span className="text-muted-foreground">Status</span>
               <span>
                 <Badge variant={donor.status === "ACTIVE" ? "default" : "secondary"}>
-                  {donor.status === "ACTIVE" ? <Trans tKey="donors.profile_page.active" /> : donor.status}
+                  {donor.status === "ACTIVE" ? "Active" : donor.status}
                 </Badge>
               </span>
               
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.mobile" /></span>
+              <span className="text-muted-foreground">Mobile Number</span>
               <span>{donor.mobile}</span>
 
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.nid" /></span>
-              <span>{donor.nationalId || <Trans tKey="donors.profile_page.not_applicable" />}</span>
+              <span className="text-muted-foreground">NID / Birth Cert</span>
+              <span>{donor.nationalId || "N/A"}</span>
 
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.address" /></span>
-              <span>{donor.address || <Trans tKey="donors.profile_page.not_applicable" />}</span>
+              <span className="text-muted-foreground">Address</span>
+              <span>{donor.address || "N/A"}</span>
 
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.joined" /></span>
+              <span className="text-muted-foreground">Joined</span>
               <span>{formatDate(donor.createdAt)}</span>
 
-              <span className="text-muted-foreground"><Trans tKey="donors.profile_page.notes" /></span>
-              <span>{donor.notes || <Trans tKey="donors.profile_page.no_notes" />}</span>
+              <span className="text-muted-foreground">Notes</span>
+              <span>{donor.notes || "No notes available"}</span>
             </div>
           </CardContent>
         </Card>
@@ -68,7 +67,7 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
         {donor.documents && donor.documents.length > 0 && (
           <Card>
             <CardHeader>
-              <CardTitle><Trans tKey="donors.profile_page.documents" /></CardTitle>
+              <CardTitle>Documents</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 gap-4">
@@ -81,7 +80,7 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
                       </div>
                     ) : (
                       <a href={doc.secureUrl} target="_blank" rel="noreferrer" className="text-blue-500 underline text-sm">
-                        <Trans tKey="donors.profile_page.view_document" /></a>
+                        View Document</a>
                     )}
                   </div>
                 ))}
@@ -94,17 +93,17 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle><Trans tKey="donors.profile_page.donation_summary" /></CardTitle>
+            <CardTitle>Donation Summary</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <p className="text-sm text-muted-foreground mb-1"><Trans tKey="donors.profile_page.total_donations" /></p>
+              <p className="text-sm text-muted-foreground mb-1">Total Donations</p>
               <p className="text-3xl font-bold text-emerald-600">৳{formatCurrency(totalDonations)}</p>
             </div>
             
             {Object.keys(groupTotals).length > 0 && (
               <div className="pt-4 border-t">
-                <p className="text-sm font-medium mb-3"><Trans tKey="donors.profile_page.donations_by_group" /></p>
+                <p className="text-sm font-medium mb-3">Donations by Group</p>
                 <div className="space-y-2">
                   {Object.entries(groupTotals).map(([group, amount]) => (
                     <div key={group} className="flex justify-between text-sm">
@@ -120,7 +119,7 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
 
         <Card>
           <CardHeader>
-            <CardTitle><Trans tKey="donors.profile_page.recent_transactions" /></CardTitle>
+            <CardTitle>Recent Transactions</CardTitle>
           </CardHeader>
           <CardContent>
             {ledger.length > 0 ? (
@@ -132,18 +131,18 @@ export default async function DonorDetailsPage({ params }: { params: Promise<{ i
                       <p className="text-xs text-muted-foreground">{formatDate(tx.date)}</p>
                     </div>
                     <div className="font-bold text-emerald-600">
-                      <Trans tKey="donors.profile_page.plus_sign" /> {formatCurrency(tx.deposit)}
+                      {"+"} {formatCurrency(tx.deposit)}
                     </div>
                   </div>
                 ))}
                 
                 <div className="pt-2 text-center">
                   <Link href={`/donors/ledger?donorId=${donor.id}`} className="text-sm text-primary hover:underline">
-                    <Trans tKey="donors.profile_page.view_all_ledger" /></Link>
+                    View All in Ledger</Link>
                 </div>
               </div>
             ) : (
-              <p className="text-sm text-muted-foreground text-center py-6"><Trans tKey="donors.profile_page.no_transactions" /></p>
+              <p className="text-sm text-muted-foreground text-center py-6">No transactions found.</p>
             )}
           </CardContent>
         </Card>

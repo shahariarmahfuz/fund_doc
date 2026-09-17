@@ -1,7 +1,6 @@
 import { LoginForm } from "./login-form"
 import { getAuthSession } from "@/lib/auth"
 import { redirect } from "next/navigation"
-import { enDictionaries } from "@/i18n/dictionaries"
 import { Metadata } from "next"
 
 export const metadata: Metadata = {

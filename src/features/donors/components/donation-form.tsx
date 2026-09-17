@@ -22,7 +22,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { receiveDonation } from "../actions"
 import { format } from "date-fns"
-import { useLanguage } from "@/i18n/LanguageProvider";
 import { MemberCombobox, type ComboboxMember } from "@/components/member-combobox"
 import { GroupCombobox } from "@/components/group-combobox"
 import { UserCheck, Users } from "lucide-react"
@@ -66,8 +65,7 @@ export function DonationForm({
   members?: ComboboxMember[],
   groups: { id: string, name: string, code?: string, isFoundationGroup?: boolean }[] 
 }) {
-  const { t } = useLanguage();
-  const router = useRouter()
+    const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<DonationFormValues>({
@@ -119,7 +117,7 @@ export function DonationForm({
     setIsSubmitting(false)
 
     if (res.success) {
-      toast.success(t("donors.k_a37172"))
+      toast.success("Donation has been successfully received")
       router.push("/donors/donations")
     } else if (res && 'error' in res) {
       toast.error(String(res.error))
@@ -131,7 +129,7 @@ export function DonationForm({
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl">
         <Card>
           <CardHeader>
-            <CardTitle>{t("donors.receive_donation_9b92b8")}</CardTitle>
+            <CardTitle>{"Receive Donation"}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* 1. Donation Source Field (Required) */}
@@ -141,7 +139,7 @@ export function DonationForm({
               render={({ field }) => (
                 <FormItem className="space-y-3">
                   <FormLabel className="font-semibold text-sm">
-                    {t("donors.donation_source")}
+                    {"Donation Source *"}
                   </FormLabel>
                   <FormControl>
                     <RadioGroup
@@ -162,7 +160,7 @@ export function DonationForm({
                         </FormControl>
                         <Label className="font-medium cursor-pointer flex items-center gap-2 w-full text-sm">
                           <Users className="w-4 h-4 text-primary" />
-                          <span>{t("donors.source_donor")}</span>
+                          <span>{"Non-member / Donor"}</span>
                         </Label>
                       </FormItem>
                       
@@ -172,7 +170,7 @@ export function DonationForm({
                         </FormControl>
                         <Label className="font-medium cursor-pointer flex items-center gap-2 w-full text-sm">
                           <UserCheck className="w-4 h-4 text-emerald-600" />
-                          <span>{t("donors.source_member")}</span>
+                          <span>{"Foundation Member"}</span>
                         </Label>
                       </FormItem>
                     </RadioGroup>
@@ -190,7 +188,7 @@ export function DonationForm({
                   name="memberId"
                   render={({ field }) => (
                     <FormItem className="col-span-1 md:col-span-2">
-                      <FormLabel>{t("donors.member_label")}</FormLabel>
+                      <FormLabel>{"Foundation Member *"}</FormLabel>
                       <FormControl>
                         <MemberCombobox
                           members={members}
@@ -204,9 +202,9 @@ export function DonationForm({
                       {selectedMember && (
                         <div className="mt-3 p-3 rounded-lg border bg-muted/30 flex items-center justify-between">
                           <div>
-                            <p className="text-xs font-semibold text-muted-foreground uppercase">{t("donors.selected_member_info")}</p>
+                            <p className="text-xs font-semibold text-muted-foreground uppercase">{"Selected Member Info"}</p>
                             <p className="font-bold text-sm text-foreground mt-0.5">{selectedMember.fullName || "-"}</p>
-                            <p className="text-xs text-muted-foreground">{t("donors.k_e6f2eb")} {selectedMember.memberId || "-"}</p>
+                            <p className="text-xs text-muted-foreground">{"ID:"} {selectedMember.memberId || "-"}</p>
                           </div>
                           {selectedMember.group?.name && (
                             <span className="text-xs font-medium bg-primary/10 text-primary px-2.5 py-1 rounded">
@@ -224,11 +222,11 @@ export function DonationForm({
                   name="donorId"
                   render={({ field }) => (
                     <FormItem className="col-span-1 md:col-span-2">
-                      <FormLabel>{t("donors.donor_462f00")}</FormLabel>
+                      <FormLabel>{"Donor *"}</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value || ""}>
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder={t("donors.k_1d5605")} />
+                            <SelectValue placeholder={"Select the donor"} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -250,7 +248,7 @@ export function DonationForm({
                 name="groupId"
                 render={({ field }) => (
                   <FormItem className="col-span-1 md:col-span-2">
-                    <FormLabel>{t("donors.foundation_group_ce625d")}</FormLabel>
+                    <FormLabel>{"Foundation Group"}</FormLabel>
                     <FormControl>
                       <GroupCombobox
                         groups={groups.map((g) => ({
@@ -261,7 +259,7 @@ export function DonationForm({
                         }))}
                         value={field.value}
                         onChange={field.onChange}
-                        placeholder={t("donors.k_4a6394")}
+                        placeholder={"Select the foundation group"}
                       />
                     </FormControl>
                     <FormMessage />
@@ -274,7 +272,7 @@ export function DonationForm({
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("donors.amount_5fb1f4")}</FormLabel>
+                    <FormLabel>{"Amount"}</FormLabel>
                     <FormControl>
                       <Input 
                         type="number" 
@@ -293,7 +291,7 @@ export function DonationForm({
                 name="date"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t("donors.date_fd1a4c")}</FormLabel>
+                    <FormLabel>{"Date"}</FormLabel>
                     <FormControl><Input type="date" {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -305,7 +303,7 @@ export function DonationForm({
                 name="remarks"
                 render={({ field }) => (
                   <FormItem className="col-span-1 md:col-span-2">
-                    <FormLabel>{t("donors.remarks_900bfa")}</FormLabel>
+                    <FormLabel>{"Remarks"}</FormLabel>
                     <FormControl><Textarea {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
@@ -317,9 +315,9 @@ export function DonationForm({
 
         <div className="flex justify-end gap-4">
           <Button type="button" variant="outline" onClick={() => router.back()}>
-            {t("donors.cancel_adfff0")}</Button>
+            {"Cancel"}</Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t("donors.donation_form.saving") : t("donors.donation_form.receive_donation")}
+            {isSubmitting ? "Saving..." : "Receive Donation"}
           </Button>
         </div>
       </form>

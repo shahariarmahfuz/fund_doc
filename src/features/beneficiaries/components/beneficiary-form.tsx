@@ -29,9 +29,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import { beneficiarySchema, type BeneficiaryFormValues } from "../schema";
 import { createBeneficiary, updateBeneficiary, deleteBeneficiaryDocument } from "../actions";
-import type { Beneficiary } from "@prisma/client";
+import type { Beneficiary } from "@/types/models";
 import { formatDate } from "@/lib/format";
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 const SectionCard = ({
   title,
@@ -44,8 +43,7 @@ const SectionCard = ({
   onToggle: () => void;
   children: React.ReactNode;
 }) => {
-      const { t } = useLanguage();
-      return ((
+            return ((
       <Collapsible open={isOpen} onOpenChange={onToggle}>
         <Card className="mb-6 shadow-sm border-muted">
           <CardHeader className="py-4 border-b bg-muted/10">
@@ -54,7 +52,7 @@ const SectionCard = ({
               <CollapsibleTrigger asChild>
                 <Button type="button" variant="ghost" size="sm" className="w-9 p-0 hover:bg-transparent">
                   {isOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  <span className="sr-only">{t("beneficiaries.form.toggle")}</span>
+                  <span className="sr-only">{"Toggle"}</span>
                 </Button>
               </CollapsibleTrigger>
             </div>
@@ -79,8 +77,7 @@ export function BeneficiaryForm({
   initialData?: Partial<BeneficiaryFormValues>,
   beneficiary?: any
 }) {
-    const { t } = useLanguage();
-  const router = useRouter();
+      const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     section1: true,
@@ -98,28 +95,33 @@ export function BeneficiaryForm({
     setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
   };
 
+  const baseDefaults: BeneficiaryFormValues = {
+    fullName: beneficiary?.fullName || "",
+    fatherOrHusbandName: beneficiary?.fatherOrHusbandName || "",
+    nationalId: beneficiary?.nationalId || "",
+    mobile: beneficiary?.mobile || "",
+    presentAddress: beneficiary?.presentAddress || "",
+    permanentAddress: beneficiary?.permanentAddress || "",
+    
+    emergencyContactName: beneficiary?.emergencyContactName || "",
+    emergencyContactRelation: beneficiary?.emergencyContactRelation || "",
+    emergencyContactMobile: beneficiary?.emergencyContactMobile || "",
+    
+    status: beneficiary?.status || "ACTIVE",
+    
+    idDocumentType: beneficiary?.idDocumentType || "NID",
+    photoBase64: "",
+    signatureBase64: "",
+    nidFrontBase64: "",
+    nidBackBase64: "",
+    birthCertificateBase64: "",
+  };
+
   const form = useForm<BeneficiaryFormValues>({
     resolver: zodResolver(beneficiarySchema),
-    defaultValues: initialData || {
-      fullName: beneficiary?.fullName || "",
-      fatherOrHusbandName: beneficiary?.fatherOrHusbandName || "",
-      nationalId: beneficiary?.nationalId || "",
-      mobile: beneficiary?.mobile || "",
-      presentAddress: beneficiary?.presentAddress || "",
-      permanentAddress: beneficiary?.permanentAddress || "",
-      
-      emergencyContactName: beneficiary?.emergencyContactName || "",
-      emergencyContactRelation: beneficiary?.emergencyContactRelation || "",
-      emergencyContactMobile: beneficiary?.emergencyContactMobile || "",
-      
-      status: beneficiary?.status || "ACTIVE",
-      
-      idDocumentType: beneficiary?.idDocumentType || "NID",
-      photoBase64: "",
-      signatureBase64: "",
-      nidFrontBase64: "",
-      nidBackBase64: "",
-      birthCertificateBase64: "",
+    defaultValues: {
+      ...baseDefaults,
+      ...(initialData || {}),
     },
   });
 
@@ -139,13 +141,13 @@ export function BeneficiaryForm({
     try {
       const res = mode === "edit" ? await updateBeneficiary(beneficiaryId!, data) : await createBeneficiary(data);
       if (res.success) {
-        toast.success(mode === "edit" ? t("beneficiaries.messages.update_success") : t("beneficiaries.messages.create_success"));
+        toast.success(mode === "edit" ? "Beneficiary updated successfully" : "Beneficiary created successfully");
         router.push("/beneficiaries");
       } else {
-        toast.error(res.error || t("beneficiaries.messages.save_error"));
+        toast.error(res.error || "Failed to save beneficiary");
       }
     } catch (error) {
-      toast.error(t("beneficiaries.messages.error_general"));
+      toast.error("An error occurred.");
     } finally {
       setIsSubmitting(false);
     }
@@ -166,7 +168,7 @@ export function BeneficiaryForm({
   };
 
   const handleDeleteDocument = async (title: string, fieldName: keyof BeneficiaryFormValues) => {
-    if (!window.confirm(t("beneficiaries.messages.confirm_delete_doc"))) return;
+    if (!window.confirm("Are you sure you want to delete this document?")) return;
     
     // Clear local form state
     form.setValue(fieldName, "");
@@ -176,13 +178,13 @@ export function BeneficiaryForm({
       try {
         const res = await deleteBeneficiaryDocument(beneficiaryId, title);
         if (res.success) {
-          toast.success(t("beneficiaries.messages.doc_deleted"));
+          toast.success("Document deleted successfully");
           router.refresh(); // Refresh page to get updated DB state
         } else {
-          toast.error(res.error || t("beneficiaries.messages.delete_doc_error"));
+          toast.error(res.error || "Failed to delete document");
         }
       } catch (e) {
-        toast.error(t("beneficiaries.messages.error_general"));
+        toast.error("An error occurred.");
       }
     }
   };
@@ -222,7 +224,7 @@ export function BeneficiaryForm({
             className="border-2 border-dashed rounded-lg p-8 flex flex-col items-center justify-center text-center cursor-pointer hover:bg-muted/50 transition-colors"
           >
             <UploadCloud className="h-10 w-10 text-muted-foreground mb-4" />
-            <p className="text-sm font-medium">{t("beneficiaries.form.upload_click")}</p>
+            <p className="text-sm font-medium">{"Click to upload"}</p>
             <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
           </div>
         ) : (
@@ -230,7 +232,7 @@ export function BeneficiaryForm({
             <div className="relative border rounded-lg overflow-hidden h-48 w-full group bg-muted/10">
               <Image 
                 src={watchVal || existingUrl!} 
-                alt={t("beneficiaries.form.preview")} 
+                alt={"Preview"} 
                 fill 
                 className="object-contain" 
               />
@@ -241,7 +243,7 @@ export function BeneficiaryForm({
                   size="sm"
                   onClick={() => inputRef.current?.click()}
                 >
-                  {t("beneficiaries.form.replace")}</Button>
+                  {"Replace"}</Button>
                 <Button
                   type="button"
                   variant="destructive"
@@ -250,12 +252,12 @@ export function BeneficiaryForm({
                     return (handleDeleteDocument(dbTitle, field));
                   }}
                 >
-                  {t("beneficiaries.form.delete")}</Button>
+                  {"Delete"}</Button>
               </div>
             </div>
             {!watchVal && existingUrl && docObj && (
               <div className="text-center text-xs text-muted-foreground">
-                {t("beneficiaries.form.uploaded_on")}{formatDate(docObj.createdAt)}
+                {"Uploaded on: "}{formatDate(docObj.createdAt)}
               </div>
             )}
           </div>
@@ -272,19 +274,19 @@ export function BeneficiaryForm({
           <Card className="bg-muted/30">
             <CardContent className="p-6 flex flex-wrap items-center justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{t("beneficiaries.form.beneficiary_id")}</p>
+                <p className="text-sm text-muted-foreground">{"Beneficiary ID"}</p>
                 <p className="font-mono font-medium">{beneficiary.beneficiaryId}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">{t("beneficiaries.form.created_at")}</p>
+                <p className="text-sm text-muted-foreground">{"Created At"}</p>
                 <p className="font-medium">{formatDate(beneficiary.createdAt)}</p>
               </div>
             </CardContent>
           </Card>
         )}
 
-        {/* SECTION 1: ব্যক্তিগত তথ্য */}
-        <SectionCard title={t("beneficiaries.form.personal_info")} isOpen={openSections.section1} onToggle={() => toggleSection("section1")}>
+        {/* SECTION 1: Personal Information */}
+        <SectionCard title={"Personal Information"} isOpen={openSections.section1} onToggle={() => toggleSection("section1")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
@@ -292,9 +294,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem className="col-span-1 md:col-span-2">
-                                <FormLabel>{t("beneficiaries.form.full_name")}</FormLabel>
+                                <FormLabel>{"Full Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.full_name_placeholder")} {...field} />
+                                  <Input placeholder={"Enter full name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -307,9 +309,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("beneficiaries.form.father_husband_name")}</FormLabel>
+                                <FormLabel>{"Father/Husband's Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.father_husband_name_placeholder")} {...field} />
+                                  <Input placeholder={"Enter father/husband's name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -322,9 +324,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("beneficiaries.form.nid")}</FormLabel>
+                                <FormLabel>{"National ID"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.nid_placeholder")} {...field} />
+                                  <Input placeholder={"Enter National ID"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -337,9 +339,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem className="col-span-1 md:col-span-2">
-                                <FormLabel>{t("beneficiaries.form.mobile")}</FormLabel>
+                                <FormLabel>{"Mobile"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.mobile_placeholder")} className="md:w-1/2" {...field} />
+                                  <Input placeholder={"Enter mobile number"} className="md:w-1/2" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -353,9 +355,9 @@ export function BeneficiaryForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("beneficiaries.form.present_address")}</FormLabel>
+                                    <FormLabel>{"Present Address"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("beneficiaries.form.present_address_placeholder")} className="resize-none" {...field} />
+                                      <Textarea placeholder={"Enter present address"} className="resize-none" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -370,9 +372,9 @@ export function BeneficiaryForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("beneficiaries.form.permanent_address")}</FormLabel>
+                                    <FormLabel>{"Permanent Address"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("beneficiaries.form.permanent_address_placeholder")} className="resize-none" {...field} />
+                                      <Textarea placeholder={"Enter permanent address"} className="resize-none" {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -383,8 +385,8 @@ export function BeneficiaryForm({
           </div>
         </SectionCard>
 
-        {/* SECTION 2: জরুরি যোগাযোগ */}
-        <SectionCard title={t("beneficiaries.form.emergency_contact")} isOpen={openSections.section2} onToggle={() => toggleSection("section2")}>
+        {/* SECTION 2: Emergency Contact */}
+        <SectionCard title={"Emergency Contact"} isOpen={openSections.section2} onToggle={() => toggleSection("section2")}>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <FormField
               control={form.control}
@@ -392,9 +394,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("beneficiaries.form.contact_name")}</FormLabel>
+                                <FormLabel>{"Name"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.contact_name_placeholder")} {...field} />
+                                  <Input placeholder={"Enter contact name"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -407,9 +409,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("beneficiaries.form.relation")}</FormLabel>
+                                <FormLabel>{"Relation"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.relation_placeholder")} {...field} />
+                                  <Input placeholder={"Enter relation"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -422,9 +424,9 @@ export function BeneficiaryForm({
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("beneficiaries.form.mobile")}</FormLabel>
+                                <FormLabel>{"Mobile"}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder={t("beneficiaries.form.mobile")} {...field} />
+                                  <Input placeholder={"Mobile"} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -434,13 +436,13 @@ export function BeneficiaryForm({
           </div>
         </SectionCard>
 
-        {/* SECTION 3: ডকুমেন্টস */}
-        <SectionCard title={t("beneficiaries.form.documents")} isOpen={openSections.section3} onToggle={() => toggleSection("section3")}>
+        {/* SECTION 3: Documents */}
+        <SectionCard title={"Documents"} isOpen={openSections.section3} onToggle={() => toggleSection("section3")}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             
             <UploadBox 
-              title={t("beneficiaries.form.photo")} 
-              subtext={t("beneficiaries.form.file_subtext")} 
+              title={"Beneficiary Photo"} 
+              subtext={"JPEG, PNG or JPG"} 
               inputRef={photoInputRef} 
               field="photoBase64" 
               dbTitle="Beneficiary Photo"
@@ -448,8 +450,8 @@ export function BeneficiaryForm({
             />
             
             <UploadBox 
-              title={t("beneficiaries.form.signature")} 
-              subtext={t("beneficiaries.form.file_subtext")} 
+              title={"Signature"} 
+              subtext={"JPEG, PNG or JPG"} 
               inputRef={signatureInputRef} 
               field="signatureBase64" 
               dbTitle="Signature"
@@ -463,14 +465,14 @@ export function BeneficiaryForm({
                 render={({ field }) => {
                   return ((
                                   <FormItem className="mb-6">
-                                    <FormLabel className="text-base font-semibold">{t("beneficiaries.form.id_doc_type")}</FormLabel>
+                                    <FormLabel className="text-base font-semibold">{"ID Document Type"}</FormLabel>
                                     <FormControl>
                                       <RadioGroup
                                         onValueChange={(val) => {
                                           field.onChange(val);
                                           // Optional: Clear corresponding unselected fields if user switches
                                         }}
-                                        value={field.value}
+                                        value={field.value || "NID"}
                                         className="flex space-x-6 mt-2"
                                       >
                                         <FormItem className="flex items-center space-x-2 space-y-0">
@@ -478,14 +480,14 @@ export function BeneficiaryForm({
                                             <RadioGroupItem value="NID" />
                                           </FormControl>
                                           <FormLabel className="font-normal cursor-pointer">
-                                            {t("beneficiaries.form.id_nid")}</FormLabel>
+                                            {"NID"}</FormLabel>
                                         </FormItem>
                                         <FormItem className="flex items-center space-x-2 space-y-0">
                                           <FormControl>
                                             <RadioGroupItem value="BIRTH_CERTIFICATE" />
                                           </FormControl>
                                           <FormLabel className="font-normal cursor-pointer">
-                                            {t("beneficiaries.form.id_birth_cert")}</FormLabel>
+                                            {"Birth Certificate"}</FormLabel>
                                         </FormItem>
                                       </RadioGroup>
                                     </FormControl>
@@ -498,16 +500,16 @@ export function BeneficiaryForm({
             {form.watch("idDocumentType") === "NID" ? (
               <>
                 <UploadBox 
-                  title={t("beneficiaries.form.nid_front")} 
-                  subtext={t("beneficiaries.form.file_subtext")} 
+                  title={"NID Front"} 
+                  subtext={"JPEG, PNG or JPG"} 
                   inputRef={nidFrontInputRef} 
                   field="nidFrontBase64" 
                   dbTitle="NID Front"
                   existingUrl={existingNidFront} 
                 />
                 <UploadBox 
-                  title={t("beneficiaries.form.nid_back")} 
-                  subtext={t("beneficiaries.form.file_subtext")} 
+                  title={"NID Back"} 
+                  subtext={"JPEG, PNG or JPG"} 
                   inputRef={nidBackInputRef} 
                   field="nidBackBase64" 
                   dbTitle="NID Back"
@@ -516,8 +518,8 @@ export function BeneficiaryForm({
               </>
             ) : (
               <UploadBox 
-                title={t("beneficiaries.form.id_birth_cert")} 
-                subtext={t("beneficiaries.form.file_subtext")} 
+                title={"Birth Certificate"} 
+                subtext={"JPEG, PNG or JPG"} 
                 inputRef={bcInputRef} 
                 field="birthCertificateBase64" 
                 dbTitle="Birth Certificate"
@@ -531,9 +533,9 @@ export function BeneficiaryForm({
         {/* ACTIONS */}
         <div className="flex justify-end space-x-4 pt-6 border-t">
           <Button variant="outline" type="button" onClick={() => router.push("/beneficiaries/manage")}>
-            {t("beneficiaries.form.cancel")}</Button>
+            {"Cancel"}</Button>
           <Button type="submit" disabled={isSubmitting}>
-            {isSubmitting ? t("beneficiaries.form.saving") : t("beneficiaries.form.save")}
+            {isSubmitting ? "Saving..." : "Save"}
           </Button>
         </div>
       </form>

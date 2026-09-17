@@ -8,15 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { toast } from "sonner";
 import { saveSystemSettings } from "@/features/settings/actions";
 import { Loader2, Image as ImageIcon, Trash2 } from "lucide-react";
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface FoundationBrandingFormProps {
   initialSettings: Record<string, string>;
 }
 
 export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFormProps) {
-    const { t } = useLanguage();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+      const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -45,7 +43,7 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
     }
     
     if (file.size > 2 * 1024 * 1024) {
-       toast.error(t("settings.file_size_must_be_le_76fc67"));
+       toast.error("File size must be less than 2MB");
        setUploadingField(null);
        return;
     }
@@ -67,7 +65,7 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
         throw new Error(result.error || "Failed to upload image");
       }
     } catch (error) {
-      toast.error(t("settings.failed_to_upload_ima_a3f404"));
+      toast.error("Failed to upload image");
     } finally {
       setUploadingField(null);
     }
@@ -93,7 +91,7 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
       });
 
       await saveSystemSettings(updatedData, "Branding");
-      toast.success(t("settings.foundation_branding__1507de"));
+      toast.success("Foundation branding updated successfully");
       
       // Forcefully update the main favicon dynamically so the browser tab reacts instantly
       if (updatedData.BRANDING_FAVICON) {
@@ -108,7 +106,7 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
       
       setTimeout(() => window.location.reload(), 1000); // Reload to fetch fresh layout metadata
     } catch (error) {
-      toast.error(t("settings.failed_to_update_bra_215c8b"));
+      toast.error("Failed to update branding settings");
     } finally {
       setIsSubmitting(false);
     }
@@ -117,41 +115,41 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("settings.foundation_branding_735309")}</CardTitle>
+        <CardTitle>{"Foundation Branding"}</CardTitle>
         <CardDescription>
-          {t("settings.customize_the_visual_332ed6")}</CardDescription>
+          {"Customize the visual identity of your foundation across the application."}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="BRANDING_FOUNDATION_NAME">{t("settings.foundation_name_a0ee1c")}</Label>
+              <Label htmlFor="BRANDING_FOUNDATION_NAME">{"Foundation Name"}</Label>
               <Input
                 id="BRANDING_FOUNDATION_NAME"
                 value={formData.BRANDING_FOUNDATION_NAME}
                 onChange={(e) => setFormData({ ...formData, BRANDING_FOUNDATION_NAME: e.target.value })}
-                placeholder={t("settings.e_g_acme_foundation_6f07c3")}
+                placeholder={"e.g. Acme Foundation"}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="BRANDING_SHORT_NAME">{t("settings.short_name_910049")}</Label>
+              <Label htmlFor="BRANDING_SHORT_NAME">{"Short Name"}</Label>
               <Input
                 id="BRANDING_SHORT_NAME"
                 value={formData.BRANDING_SHORT_NAME}
                 onChange={(e) => setFormData({ ...formData, BRANDING_SHORT_NAME: e.target.value })}
-                placeholder={t("settings.e_g_acme_0eb282")}
+                placeholder={"e.g. Acme"}
               />
             </div>
           </div>
 
           <div className="space-y-6 pt-4 border-t">
-            <h3 className="text-lg font-medium">{t("settings.logos_assets_7dd91a")}</h3>
+            <h3 className="text-lg font-medium">{"Logos & Assets"}</h3>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-10">
               <ImageUploadField 
                 id="BRANDING_LOGO" 
-                label={t("settings.primary_logo_77092a")} 
-                description={t("settings.used_in_main_navigat_a88a66")} 
+                label={"Primary Logo"} 
+                description={"Used in main navigation and default displays."} 
                 formData={formData}
                 uploadingField={uploadingField}
                 handleFileChange={handleFileChange}
@@ -159,8 +157,8 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
               />
               <ImageUploadField 
                 id="BRANDING_FAVICON" 
-                label={t("settings.favicon_49e953")} 
-                description={t("settings.small_icon_shown_in__98fda3")} 
+                label={"Favicon"} 
+                description={"Small icon shown in the browser tab (ideally 32x32px or 64x64px)."} 
                 formData={formData}
                 uploadingField={uploadingField}
                 handleFileChange={handleFileChange}
@@ -168,8 +166,8 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
               />
               <ImageUploadField 
                 id="BRANDING_LOGIN_LOGO" 
-                label={t("settings.login_page_logo_2837b1")} 
-                description={t("settings.prominent_logo_displ_7d0ec7")} 
+                label={"Login Page Logo"} 
+                description={"Prominent logo displayed on the authentication screens."} 
                 formData={formData}
                 uploadingField={uploadingField}
                 handleFileChange={handleFileChange}
@@ -177,8 +175,8 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
               />
               <ImageUploadField 
                 id="BRANDING_SIDEBAR_LOGO" 
-                label={t("settings.sidebar_logo_3e2086")} 
-                description={t("settings.logo_shown_at_the_to_0118db")} 
+                label={"Sidebar Logo"} 
+                description={"Logo shown at the top of the application sidebar."} 
                 formData={formData}
                 uploadingField={uploadingField}
                 handleFileChange={handleFileChange}
@@ -186,8 +184,8 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
               />
               <ImageUploadField 
                 id="BRANDING_HEADER_LOGO" 
-                label={t("settings.header_logo_7772ce")} 
-                description={t("settings.logo_shown_in_the_to_6ff157")} 
+                label={"Header Logo"} 
+                description={"Logo shown in the top header or mobile view."} 
                 formData={formData}
                 uploadingField={uploadingField}
                 handleFileChange={handleFileChange}
@@ -199,7 +197,7 @@ export function FoundationBrandingForm({ initialSettings }: FoundationBrandingFo
           <div className="flex justify-end pt-6 border-t">
             <Button type="submit" disabled={isSubmitting || uploadingField !== null}>
               {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t("settings.save_branding_option_3a0afe")}</Button>
+              {"Save Branding Options"}</Button>
           </div>
         </form>
       </CardContent>
@@ -224,8 +222,7 @@ function ImageUploadField({
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>, fieldName: any) => Promise<void>,
   setFormData: React.Dispatch<React.SetStateAction<any>>
 }) {
-  const { t } = useLanguage();
-  return (
+    return (
     <div className="flex flex-col space-y-3">
       <Label htmlFor={id} className="text-base font-medium">{label}</Label>
       <p className="text-xs text-muted-foreground">{description}</p>
@@ -259,7 +256,7 @@ function ImageUploadField({
               variant="destructive" 
               size="icon" 
               onClick={() => setFormData((prev: any) => ({ ...prev, [id]: "" }))}
-              title={t("settings.delete_logo_c117e2")}
+              title={"Delete Logo"}
             >
               <Trash2 className="h-4 w-4" />
             </Button>

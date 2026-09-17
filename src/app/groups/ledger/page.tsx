@@ -3,7 +3,6 @@ import { GroupLedgerTable } from "@/features/groups/components/group-ledger-tabl
 import { GroupSelector } from "@/features/groups/components/group-selector"
 import { Card, CardContent } from "@/components/ui/card"
 import { BookOpen, ChevronRight } from "lucide-react"
-import { Trans } from "@/components/shared/trans"
 import Link from "next/link"
 
 export default async function GroupLedgerPage({ searchParams }: { searchParams: Promise<{ groupId?: string }> }) {
@@ -15,15 +14,15 @@ export default async function GroupLedgerPage({ searchParams }: { searchParams: 
     <div className="space-y-4">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link href="/groups" className="hover:text-primary transition-colors">
-          <Trans tKey="groups.manage.breadcrumb.home" /></Link>
+          Groups</Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground"><Trans tKey="groups.ledger.pageTitle" /></span>
+        <span className="font-medium text-foreground">Group Ledger</span>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="groups.ledger.pageTitle" /></h1>
-          <p className="text-muted-foreground mt-1"><Trans tKey="groups.ledger.subtitle" /></p>
+          <h1 className="text-3xl font-bold tracking-tight">Group Ledger</h1>
+          <p className="text-muted-foreground mt-1">View complete ledger records for the selected group.</p>
         </div>
         <GroupSelector />
       </div>
@@ -32,8 +31,8 @@ export default async function GroupLedgerPage({ searchParams }: { searchParams: 
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64 space-y-4">
             <BookOpen className="h-12 w-12 text-muted-foreground" />
-            <div className="text-xl font-semibold"><Trans tKey="groups.ledger.emptyTitle" /></div>
-            <p className="text-muted-foreground"><Trans tKey="groups.ledger.emptySubtitle" /></p>
+            <div className="text-xl font-semibold">No Group Selected</div>
+            <p className="text-muted-foreground">Please select a group from the dropdown above to view its ledger.</p>
           </CardContent>
         </Card>
       ) : (

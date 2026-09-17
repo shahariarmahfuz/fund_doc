@@ -3,7 +3,6 @@ import { BarChart3, Download, Printer, FileSpreadsheet, FileText, PieChart } fro
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
-import { Trans } from "@/components/shared/trans";
 
 export default function ContributionReportsPage() {
   return (
@@ -38,7 +37,7 @@ export default function ContributionReportsPage() {
               <CardDescription>Total for current month</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold"><Trans tKey="app.0_00" /></div>
+              <div className="text-2xl font-bold">{"\u09f30.00"}</div>
               <p className="text-xs text-muted-foreground mt-1">0% from last month</p>
             </CardContent>
           </Card>
@@ -71,7 +70,7 @@ export default function ContributionReportsPage() {
               <CardDescription>Unpaid contributions</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-destructive"><Trans tKey="app.0_00" /></div>
+              <div className="text-2xl font-bold text-destructive">{"\u09f30.00"}</div>
               <p className="text-xs text-muted-foreground mt-1">0 members due</p>
             </CardContent>
           </Card>

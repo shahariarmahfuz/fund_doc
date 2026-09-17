@@ -5,7 +5,6 @@ import { BarChart3, Download, Printer, FileSpreadsheet, FileText, PieChart } fro
 
 import { getGroupLoanSummary } from "@/features/groups/actions"
 import { formatCurrency } from "@/lib/format"
-import { Trans } from "@/components/shared/trans";
 
 export default async function GroupReportsPage({ searchParams }: { searchParams: Promise<{ groupId?: string }> }) {
   const resolvedParams = await searchParams
@@ -67,7 +66,7 @@ export default async function GroupReportsPage({ searchParams }: { searchParams:
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Members:</span> <span>0</span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Active Loans:</span> <span>{loanSummary.activeLoans}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Active Qard Hasan:</span> <span>{loanSummary.activeLoans}</span></div>
                 <div className="flex justify-between text-sm"><span className="text-muted-foreground">Status:</span> <span>Active</span></div>
               </CardContent>
             </Card>
@@ -78,9 +77,9 @@ export default async function GroupReportsPage({ searchParams }: { searchParams:
                 <CardDescription>Current financial health</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Available Balance:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Assets:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Liabilities:</span> <span><Trans tKey="app.0_00" /></span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Available Balance:</span> <span>{"৳0.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Assets:</span> <span>{"৳0.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Total Liabilities:</span> <span>{"৳0.00"}</span></div>
               </CardContent>
             </Card>
 
@@ -90,9 +89,9 @@ export default async function GroupReportsPage({ searchParams }: { searchParams:
                 <CardDescription>Member savings</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Expected This Month:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Collected This Month:</span> <span><Trans tKey="app.0_00" /></span></div>
-                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Arrears:</span> <span><Trans tKey="app.0_00" /></span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Expected This Month:</span> <span>{"৳0.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Collected This Month:</span> <span>{"৳0.00"}</span></div>
+                <div className="flex justify-between text-sm"><span className="text-muted-foreground">Arrears:</span> <span>{"৳0.00"}</span></div>
               </CardContent>
             </Card>
           </div>
@@ -109,7 +108,7 @@ export default async function GroupReportsPage({ searchParams }: { searchParams:
                   <span className="font-bold text-lg">{loanSummary.activeLoans}</span>
                 </div>
                 <div className="flex justify-between text-sm items-center">
-                  <span className="text-muted-foreground font-medium">Total Money Lent by Group:</span> 
+                  <span className="text-muted-foreground font-medium">Total Qard Hasan Disbursed:</span> 
                   <span className="font-bold text-lg text-primary">৳{formatCurrency(loanSummary.totalLent)}</span>
                 </div>
                 <div className="flex justify-between text-sm items-center">
@@ -135,12 +134,12 @@ export default async function GroupReportsPage({ searchParams }: { searchParams:
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Sadakah Summary</CardTitle>
-              <CardDescription>Overview of received and utilized grants</CardDescription>
+              <CardTitle className="text-lg">Sadaqah Summary</CardTitle>
+              <CardDescription>Overview of received and utilized Sadaqah</CardDescription>
             </CardHeader>
             <CardContent>
                <div className="flex items-center justify-center h-24 text-muted-foreground text-sm">
-                 No Sadakah data available yet.
+                 No Sadaqah data available yet.
                </div>
             </CardContent>
           </Card>

@@ -16,16 +16,10 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { createContribution } from "../actions"
 import { contributionSchema, type ContributionFormValues } from "../schema"
 import { MemberCombobox } from "@/components/member-combobox"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
-const bengaliMonths = [
-  "জানুয়ারি", "ফেব্রুয়ারি", "মার্চ", "এপ্রিল", "মে", "জুন",
-  "জুলাই", "আগস্ট", "সেপ্টেম্বর", "অক্টোবর", "নভেম্বর", "ডিসেম্বর"
-];
 
 export function ContributionForm({ members }: { members: { id: string; memberId: string; fullName: string | null; group: { name: string; code: string } | null }[] }) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const [loading, setLoading] = useState(false)
 
   const defaultValues: Partial<ContributionFormValues> = {
@@ -57,10 +51,10 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
     setLoading(true)
     const res = await createContribution(data)
     if (res.success) {
-      toast.success(t("contributions.form.successMessage"))
+      toast.success("Contribution successfully saved")
       router.push("/contributions")
     } else {
-      toast.error(res.error || t("contributions.form.errorMessage"))
+      toast.error(res.error || "Failed to save contribution")
     }
     setLoading(false)
   }
@@ -68,8 +62,8 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
   return (
     <Card className="mb-6 shadow-sm border-muted max-w-5xl mx-auto">
       <CardHeader className="py-4 border-b bg-muted/10">
-        <CardTitle className="text-lg font-semibold">{t("contributions.form.title")}</CardTitle>
-        <CardDescription>{t("contributions.form.description")}</CardDescription>
+        <CardTitle className="text-lg font-semibold">{"New Contribution"}</CardTitle>
+        <CardDescription>{"Record a new monthly or additional contribution"}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
@@ -82,7 +76,7 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem className="md:col-span-2">
-                                    <FormLabel>{t("contributions.form.member")}</FormLabel>
+                                    <FormLabel>{"Select Member *"}</FormLabel>
                                     <FormControl>
                                       <MemberCombobox
                                         members={members}
@@ -102,20 +96,20 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.month")}</FormLabel>
+                                    <FormLabel>{"Month *"}</FormLabel>
                                     <Select 
                                       onValueChange={v => field.onChange(parseInt(v) || 0)} 
                                       defaultValue={field.value?.toString()}
                                     >
                                       <FormControl>
                                         <SelectTrigger>
-                                          <SelectValue placeholder={t("contributions.form.monthPlaceholder")} />
+                                          <SelectValue placeholder={"Select Month"} />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
                                         {Array.from({length: 12}, (_, i) => i + 1).map(m => (
                                           <SelectItem key={m} value={m.toString()}>
-                                            {(() => { const arr = t("contributions.months"); return Array.isArray(arr) ? arr[m - 1] : t(`contributions.months.${m - 1}`); })()}
+                                            {(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][m - 1])}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>
@@ -131,7 +125,7 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.year")}</FormLabel>
+                                    <FormLabel>{"Year *"}</FormLabel>
                                     <FormControl>
                                       <Input type="number" {...field} value={field.value ?? ""} onChange={e => {
                                         const val = parseInt(e.target.value);
@@ -150,7 +144,7 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.amount")}</FormLabel>
+                                    <FormLabel>{"Amount *"}</FormLabel>
                                     <FormControl>
                                       <Input type="number" step="0.01" {...field} value={field.value ?? ""} onChange={e => {
                                         const val = parseFloat(e.target.value);
@@ -169,7 +163,7 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.paymentDate")}</FormLabel>
+                                    <FormLabel>{"Payment Date *"}</FormLabel>
                                     <FormControl>
                                       <Input type="date" {...field} />
                                     </FormControl>
@@ -185,17 +179,17 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.paymentMethod")}</FormLabel>
+                                    <FormLabel>{"Payment Method *"}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
-                                          <SelectValue placeholder={t("contributions.form.paymentMethodPlaceholder")} />
+                                          <SelectValue placeholder={"Select method"} />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="CASH">{t("contributions.form.methods.cash")}</SelectItem>
-                                        <SelectItem value="BANK">{t("contributions.form.methods.bank")}</SelectItem>
-                                        <SelectItem value="MOBILE_MONEY">{t("contributions.form.methods.mobile")}</SelectItem>
+                                        <SelectItem value="CASH">{"Cash"}</SelectItem>
+                                        <SelectItem value="BANK">{"Bank Transfer"}</SelectItem>
+                                        <SelectItem value="MOBILE_MONEY">{"Mobile Money (bKash/Nagad)"}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -210,9 +204,9 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.reference")}</FormLabel>
+                                    <FormLabel>{"Reference / Receipt No (Optional)"}</FormLabel>
                                     <FormControl>
-                                      <Input placeholder={t("contributions.form.referencePlaceholder")} {...field} />
+                                      <Input placeholder={"e.g. TrxID or Receipt #"} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -226,16 +220,16 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("contributions.form.status")}</FormLabel>
+                                    <FormLabel>{"Status *"}</FormLabel>
                                     <Select onValueChange={field.onChange} defaultValue={field.value}>
                                       <FormControl>
                                         <SelectTrigger>
-                                          <SelectValue placeholder={t("contributions.form.statusPlaceholder")} />
+                                          <SelectValue placeholder={"Select status"} />
                                         </SelectTrigger>
                                       </FormControl>
                                       <SelectContent>
-                                        <SelectItem value="PAID">{t("contributions.form.statuses.paid")}</SelectItem>
-                                        <SelectItem value="PENDING">{t("contributions.form.statuses.pending")}</SelectItem>
+                                        <SelectItem value="PAID">{"Paid"}</SelectItem>
+                                        <SelectItem value="PENDING">{"Pending"}</SelectItem>
                                       </SelectContent>
                                     </Select>
                                     <FormMessage />
@@ -251,9 +245,9 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
               render={({ field }) => {
                 return ((
                               <FormItem>
-                                <FormLabel>{t("contributions.form.notes")}</FormLabel>
+                                <FormLabel>{"Remarks / Notes"}</FormLabel>
                                 <FormControl>
-                                  <Textarea placeholder={t("contributions.form.notesPlaceholder")} className="resize-none" {...field} />
+                                  <Textarea placeholder={"Any additional notes"} className="resize-none" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -275,9 +269,9 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
                                 </FormControl>
                                 <div className="space-y-1 leading-none">
                                   <FormLabel>
-                                    {t("contributions.form.isAdditional")}</FormLabel>
+                                    {"Additional Payment"}</FormLabel>
                                   <CardDescription>
-                                    {t("contributions.form.isAdditionalDescription")}</CardDescription>
+                                    {"Check this if this is an extra payment, not a regular monthly due"}</CardDescription>
                                 </div>
                               </FormItem>
                             ));
@@ -286,9 +280,9 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
 
             <div className="flex justify-end space-x-4 pt-6 border-t">
               <Button type="button" variant="outline" onClick={() => router.push("/contributions")}>
-                {t("contributions.form.cancel")}</Button>
+                {"Cancel"}</Button>
               <Button type="submit" disabled={loading}>
-                {loading ? t("contributions.form.saving") : t("contributions.form.save")}
+                {loading ? "Saving..." : "Save Contribution"}
               </Button>
             </div>
           </form>

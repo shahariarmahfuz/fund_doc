@@ -42,8 +42,8 @@ export function GroupCombobox({
   groups,
   value,
   onChange,
-  placeholder = "গ্রুপ নির্বাচন করুন...",
-  emptyText = "কোন গ্রুপ পাওয়া যায়নি",
+  placeholder = "Select group...",
+  emptyText = "No group found",
   disabled = false,
   className,
 }: GroupComboboxProps) {
@@ -86,7 +86,7 @@ export function GroupCombobox({
            const searchableStr = `${group.code} ${group.name} ${group.isFoundationGroup ? 'foundation central' : ''}`.toLowerCase()
            return searchableStr.includes(searchLower) ? 1 : 0
         }}>
-          <CommandInput placeholder="খুঁজুন (নাম বা কোড)..." />
+          <CommandInput placeholder="Search (name or code)..." />
           <CommandList>
             <CommandEmpty>{emptyText}</CommandEmpty>
             <CommandGroup>

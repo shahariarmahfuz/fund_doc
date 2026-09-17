@@ -20,14 +20,12 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 import { Switch } from "@/components/ui/switch"
 import { FormDescription } from "@/components/ui/form"
 
 export function GroupForm() {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm<GroupFormValues>({
@@ -56,7 +54,7 @@ export function GroupForm() {
     setIsSubmitting(false)
 
     if (res.success) {
-      toast.success(t("groups.form.success"))
+      toast.success("Group created successfully")
       router.push("/groups/manage")
     } else {
       toast.error(res.error)
@@ -66,15 +64,15 @@ export function GroupForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{t("groups.form.sections.groupInfo")}</CardTitle>
-        <CardDescription>{t("groups.new.subtitle")}</CardDescription>
+        <CardTitle>{"Group Information"}</CardTitle>
+        <CardDescription>{"Create a new group in the organization."}</CardDescription>
       </CardHeader>
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             
             <div className="space-y-4">
-              <h3 className="text-lg font-medium">{t("groups.form.sections.basicInfo")}</h3>
+              <h3 className="text-lg font-medium">{"Basic Information"}</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -82,9 +80,9 @@ export function GroupForm() {
                   render={({ field }) => {
                     return ((
                                       <FormItem>
-                                        <FormLabel>{t("groups.form.groupName")}<span className="text-destructive">*</span></FormLabel>
+                                        <FormLabel>{"Group Name"}<span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
-                                          <Input placeholder={t("groups.form.placeholders.groupName")} {...field} />
+                                          <Input placeholder={"Enter group name"} {...field} />
                                         </FormControl>
                                         <FormMessage />
                                       </FormItem>
@@ -97,7 +95,7 @@ export function GroupForm() {
                   render={({ field }) => {
                     return ((
                                       <FormItem>
-                                        <FormLabel>{t("groups.form.groupCode")}<span className="text-destructive">*</span></FormLabel>
+                                        <FormLabel>{"Group Code"}<span className="text-destructive">*</span></FormLabel>
                                         <FormControl>
                                           <Input placeholder={"G-001"} {...field} />
                                         </FormControl>
@@ -112,7 +110,7 @@ export function GroupForm() {
                   render={({ field }) => {
                     return ((
                                       <FormItem>
-                                        <FormLabel>{t("groups.form.shortName")}</FormLabel>
+                                        <FormLabel>{"Short Name"}</FormLabel>
                                         <FormControl>
                                           <Input placeholder={""} {...field} />
                                         </FormControl>
@@ -127,7 +125,7 @@ export function GroupForm() {
                   render={({ field }) => {
                     return ((
                                       <FormItem>
-                                        <FormLabel>{t("groups.form.status")}</FormLabel>
+                                        <FormLabel>{"Status"}</FormLabel>
                                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                                           <FormControl>
                                             <SelectTrigger>
@@ -135,8 +133,8 @@ export function GroupForm() {
                                             </SelectTrigger>
                                           </FormControl>
                                           <SelectContent>
-                                            <SelectItem value="ACTIVE">{t("groups.table.status.active")}</SelectItem>
-                                            <SelectItem value="INACTIVE">{t("groups.table.status.inactive")}</SelectItem>
+                                            <SelectItem value="ACTIVE">{"Active"}</SelectItem>
+                                            <SelectItem value="INACTIVE">{"Inactive"}</SelectItem>
                                           </SelectContent>
                                         </Select>
                                         <FormMessage />
@@ -152,7 +150,7 @@ export function GroupForm() {
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4 col-span-1 md:col-span-2">
                       <div className="space-y-0.5">
                         <FormLabel className="text-base font-semibold">
-                          Allow Member Signup (সদস্য নিবন্ধনের অনুমতি)
+                          Allow Member Signup
                         </FormLabel>
                         <FormDescription className="text-xs text-muted-foreground">
                           If turned OFF, this group will be hidden from public and admin registration forms.
@@ -175,9 +173,9 @@ export function GroupForm() {
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("groups.form.description")}</FormLabel>
+                                    <FormLabel>{"Description"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("groups.form.placeholders.description")} {...field} />
+                                      <Textarea placeholder={"Enter group description..."} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -187,7 +185,7 @@ export function GroupForm() {
             </div>
 
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-medium">{t("groups.form.sections.financialInfo")}</h3>
+              <h3 className="text-lg font-medium">{"Financial Information"}</h3>
               <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
                 <FormField
                   control={form.control}
@@ -195,7 +193,7 @@ export function GroupForm() {
                   render={({ field }) => {
                     return ((
                                       <FormItem>
-                                        <FormLabel>{t("groups.form.currentFund")}</FormLabel>
+                                        <FormLabel>{"Current Fund"}</FormLabel>
                                         <FormControl>
                                           <Input type="number" min="0" placeholder="0" {...field} />
                                         </FormControl>
@@ -208,16 +206,16 @@ export function GroupForm() {
             </div>
 
             <div className="space-y-4 pt-4 border-t">
-              <h3 className="text-lg font-medium">{t("groups.form.sections.additionalInfo")}</h3>
+              <h3 className="text-lg font-medium">{"Additional Information"}</h3>
               <FormField
                 control={form.control}
                 name="remarks"
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("groups.form.remarks")}</FormLabel>
+                                    <FormLabel>{"Remarks"}</FormLabel>
                                     <FormControl>
-                                      <Textarea placeholder={t("groups.form.placeholders.remarks")} {...field} />
+                                      <Textarea placeholder={"Enter remarks..."} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -228,9 +226,9 @@ export function GroupForm() {
 
             <div className="flex justify-end space-x-4 pt-6">
               <Button variant="outline" type="button" onClick={() => router.push("/groups/manage")}>
-                {t("groups.form.cancel")}</Button>
+                {"Cancel"}</Button>
               <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? t("groups.form.saving") : t("groups.form.save")}
+                {isSubmitting ? "Saving..." : "Save Group"}
               </Button>
             </div>
           </form>

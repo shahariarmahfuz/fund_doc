@@ -24,11 +24,9 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Download, Eye, FileText, Image as ImageIcon } from "lucide-react"
 import Link from "next/link"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function DocumentsTable({ data }: { data: any[] }) {
-    const { t } = useLanguage();
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
+      const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const columns: ColumnDef<any>[] = [
     {
@@ -76,12 +74,12 @@ export function DocumentsTable({ data }: { data: any[] }) {
       cell: ({ row }) => {
         return ((
               <div className="flex space-x-2">
-                <Button variant="ghost" size="icon" asChild title={t("documents.view_4351cf")}>
+                <Button variant="ghost" size="icon" asChild title={"View"}>
                   <a href={row.original.url} target="_blank" rel="noreferrer">
                     <Eye className="h-4 w-4" />
                   </a>
                 </Button>
-                <Button variant="ghost" size="icon" asChild title={t("documents.download_801ab2")}>
+                <Button variant="ghost" size="icon" asChild title={"Download"}>
                   <a href={row.original.url} download={row.original.originalFilename}>
                     <Download className="h-4 w-4" />
                   </a>
@@ -108,7 +106,7 @@ export function DocumentsTable({ data }: { data: any[] }) {
     <div>
       <div className="flex items-center space-x-2 py-2">
         <Input
-          placeholder={t("documents.filter_by_title_453e81")}
+          placeholder={"Filter by title..."}
           value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("title")?.setFilterValue(event.target.value)
@@ -147,7 +145,7 @@ export function DocumentsTable({ data }: { data: any[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("documents.no_documents_found_9db858")}</TableCell>
+                  {"No documents found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -155,9 +153,9 @@ export function DocumentsTable({ data }: { data: any[] }) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("documents.previous_dd1f77")}</Button>
+          {"Previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("documents.next_10ac3d")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

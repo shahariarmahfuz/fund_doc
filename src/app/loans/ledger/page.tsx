@@ -1,38 +1,43 @@
-import { Trans } from "@/components/shared/trans";
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { LoanLedgerTable } from "@/features/loans/components/loan-ledger-table"
 
-export default async function LoanLedgerPage({ searchParams }: { searchParams: { loanId?: string } }) {
-  const { loanId } = searchParams
+export default async function LoanLedgerPage({ searchParams }: { searchParams: Promise<{ loanId?: string }> }) {
+  const resolvedParams = await searchParams
+  const { loanId } = resolvedParams
 
   let loanNumberFilter: string | undefined = undefined
-  let specificLoan = null
+  let specificLoan: any = null
 
   if (loanId) {
-    specificLoan = await prisma.loan.findUnique({
-      where: { id: loanId },
-      include: { beneficiary: true }
-    })
-    if (specificLoan) {
-      loanNumberFilter = specificLoan.loanNumber
+    try {
+      specificLoan = await apiClient.loans.getById(loanId)
+      if (specificLoan) {
+        loanNumberFilter = specificLoan.loanNumber
+      }
+    } catch (err) {
+      console.error("Error fetching loan:", err)
     }
   }
 
-  const transactions = await prisma.ledgerTransaction.findMany({
-    where: {
-      type: { in: ["LOAN", "REPAYMENT"] },
-      ...(loanNumberFilter ? { referenceId: loanNumberFilter } : {})
-    },
-    orderBy: { date: 'asc' }, // Ascending to calculate running balance
-    include: {
-      entries: {
-        include: { fund: { include: { group: true } } }
-      }
-    }
-  })
+  let transactions: any[] = []
+  let loans: any[] = []
+  try {
+    const [txs, allLoans] = await Promise.all([
+      apiClient.ledger.getTransactions({ type: "LOAN,REPAYMENT" }),
+      apiClient.loans.getAll()
+    ])
+    transactions = txs || []
+    loans = allLoans || []
+  } catch (err) {
+    console.error("Error fetching loans ledger data:", err)
+  }
 
-  // Fetch all loans to map beneficiaries if we are viewing all loans
-  const loans = await prisma.loan.findMany({ include: { beneficiary: true } })
+  if (loanNumberFilter) {
+    transactions = transactions.filter(t => t.referenceId === loanNumberFilter)
+  }
+
+  transactions.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+
   const loanMap = new Map(loans.map(l => [l.loanNumber, l]))
 
   let runningBalance = 0
@@ -45,9 +50,9 @@ export default async function LoanLedgerPage({ searchParams }: { searchParams: {
     let credit = 0
 
     if (t.type === "LOAN") {
-      debit = t.entries.filter(e => e.isCredit).reduce((sum, e) => sum + e.amount, 0)
+      debit = t.entries.filter((e: any) => e.isCredit).reduce((sum: number, e: any) => sum + e.amount, 0)
     } else if (t.type === "REPAYMENT") {
-      credit = t.entries.filter(e => !e.isCredit).reduce((sum, e) => sum + e.amount, 0)
+      credit = t.entries.filter((e: any) => !e.isCredit).reduce((sum: number, e: any) => sum + e.amount, 0)
     }
 
     runningBalance += debit
@@ -62,8 +67,6 @@ export default async function LoanLedgerPage({ searchParams }: { searchParams: {
     })
   }
 
-  // Sort descending for display if viewing all, but for a specific loan ledger it's usually ascending or descending with balance. 
-  // Let's reverse it so newest is on top.
   enhancedTransactions.reverse()
 
   return (
@@ -72,9 +75,9 @@ export default async function LoanLedgerPage({ searchParams }: { searchParams: {
         <div className="mx-auto max-w-6xl space-y-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold tracking-tight"><Trans tKey="loans.ledger.pageTitle" />{specificLoan ? ` - ${specificLoan.loanNumber}` : ""}</h1>
+              <h1 className="text-2xl font-bold tracking-tight">Qard Hasan Ledger{specificLoan ? ` - ${specificLoan.loanNumber}` : ""}</h1>
               <p className="text-muted-foreground">
-                {specificLoan ? `Ledger for ${specificLoan.beneficiary?.fullName}. Total Loan: ৳${specificLoan.amount}, Remaining: ৳${specificLoan.remainingBalance}` : <Trans tKey="loans.ledger.subtitle" />}
+                {specificLoan ? `Ledger for ${specificLoan.beneficiary?.fullName}. Total Qard Hasan: ৳${specificLoan.amount}, Remaining: ৳${specificLoan.remainingBalance}` : "View all Qard Hasan disbursement and repayment ledger transactions."}
               </p>
             </div>
           </div>

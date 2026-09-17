@@ -1,6 +1,5 @@
 import { getMemberRequests } from "@/features/member-requests/actions"
 import { authorizePage } from "@/lib/rbac"
-import { Trans } from "@/components/shared/trans"
 import { RequestsTable } from "@/features/member-requests/components/requests-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Users, Clock, CheckCircle2, XCircle } from "lucide-react"
@@ -20,15 +19,15 @@ export default async function MemberRequestsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="member-requests.title" /></h1>
-          <p className="text-muted-foreground"><Trans tKey="member-requests.description" /></p>
+          <h1 className="text-3xl font-bold tracking-tight">Member Requests</h1>
+          <p className="text-muted-foreground">Review and manage membership applications.</p>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="member-requests.stats.total" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -37,7 +36,7 @@ export default async function MemberRequestsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="member-requests.stats.pending" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Pending</CardTitle>
             <Clock className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
@@ -46,7 +45,7 @@ export default async function MemberRequestsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="member-requests.stats.approved" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Approved</CardTitle>
             <CheckCircle2 className="h-4 w-4 text-emerald-500" />
           </CardHeader>
           <CardContent>
@@ -55,7 +54,7 @@ export default async function MemberRequestsPage() {
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium"><Trans tKey="member-requests.stats.rejected" /></CardTitle>
+            <CardTitle className="text-sm font-medium">Rejected</CardTitle>
             <XCircle className="h-4 w-4 text-rose-500" />
           </CardHeader>
           <CardContent>

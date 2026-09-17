@@ -54,15 +54,15 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
     try {
       const res = await createContributionRefund(data)
       if (res.success) {
-        toast.success("চাঁদা ফেরত সফলভাবে রেকর্ড করা হয়েছে")
+        toast.success("Contribution refund recorded successfully")
         reset()
         onOpenChange(false)
         if (onSuccess) onSuccess()
       } else {
-        toast.error((res as any).error || "ফেরত প্রক্রিয়া করতে ব্যর্থ হয়েছে")
+        toast.error((res as any).error || "Failed to process refund")
       }
     } catch (err: any) {
-      toast.error(err.message || "ত্রুটি ঘটেছে")
+      toast.error(err.message || "An error occurred")
     } finally {
       setLoading(false)
     }
@@ -74,28 +74,28 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-destructive">
             <RotateCcw className="h-5 w-5" />
-            চাঁদা ফেরত রেকর্ড করুন (Contribution Refund)
+            Record Contribution Refund
           </DialogTitle>
           <DialogDescription>
-            সদস্যকে চাঁদা ফেরত প্রদান করলে এখান থেকে রেকর্ড যুক্ত করুন। এটি লেজারে ডেবিট (Debit) হিসেবে অন্তর্ভুক্ত হবে।
+            Record a refund returned to a member. This will be recorded as a debit entry in the ledger.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
           {/* Member Selection */}
           <div className="space-y-2">
-            <Label htmlFor="memberId">সদস্য নির্বাচন করুন *</Label>
+            <Label htmlFor="memberId">Select Member *</Label>
             <Select
               value={watch("memberId")}
               onValueChange={(val) => setValue("memberId", val, { shouldValidate: true })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="সদস্য খুঁজুন/নির্বাচন করুন" />
+                <SelectValue placeholder="Search or select member" />
               </SelectTrigger>
               <SelectContent className="max-h-60">
                 {members.map((m) => (
                   <SelectItem key={m.id} value={m.id}>
-                    {m.memberId} - {m.fullName || "সদস্য"}
+                    {m.memberId} - {m.fullName || "Member"}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -105,7 +105,7 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
 
           {/* Amount */}
           <div className="space-y-2">
-            <Label htmlFor="amount">ফেরতের পরিমাণ (টাকা) *</Label>
+            <Label htmlFor="amount">Refund Amount *</Label>
             <Input
               type="number"
               id="amount"
@@ -118,13 +118,13 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
           {/* Date & Payment Method */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
-              <Label htmlFor="paymentDate">তারিখ *</Label>
+              <Label htmlFor="paymentDate">Date *</Label>
               <Input type="date" id="paymentDate" {...register("paymentDate")} />
               {errors.paymentDate && <p className="text-xs text-destructive">{errors.paymentDate.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="paymentMethod">মাধ্যম *</Label>
+              <Label htmlFor="paymentMethod">Payment Method *</Label>
               <Select
                 value={watch("paymentMethod")}
                 onValueChange={(val) => setValue("paymentMethod", val, { shouldValidate: true })}
@@ -133,10 +133,10 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="CASH">ক্যাশ (CASH)</SelectItem>
-                  <SelectItem value="BANK">ব্যাংক স্থানান্তর (BANK)</SelectItem>
-                  <SelectItem value="MOBILE_BANKING">মোবাইল ব্যাংকিং (bKash/Nagad)</SelectItem>
-                  <SelectItem value="OTHER">অন্যান্য</SelectItem>
+                  <SelectItem value="CASH">Cash</SelectItem>
+                  <SelectItem value="BANK">Bank Transfer</SelectItem>
+                  <SelectItem value="MOBILE_BANKING">Mobile Banking</SelectItem>
+                  <SelectItem value="OTHER">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -144,20 +144,20 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
 
           {/* Reference Number */}
           <div className="space-y-2">
-            <Label htmlFor="referenceNumber">রেফারেন্স/রসিদ নং (ঐচ্ছিক)</Label>
+            <Label htmlFor="referenceNumber">Reference / Voucher No (Optional)</Label>
             <Input
               id="referenceNumber"
-              placeholder="উদা: RFD-2026-001"
+              placeholder="e.g. RFD-2026-001"
               {...register("referenceNumber")}
             />
           </div>
 
           {/* Notes / Reason */}
           <div className="space-y-2">
-            <Label htmlFor="notes">ফেরতের কারণ / বিবরণ *</Label>
+            <Label htmlFor="notes">Refund Reason / Notes *</Label>
             <Input
               id="notes"
-              placeholder="উদা: ভুল পরিশোধের জন্য ফেরত প্রদান"
+              placeholder="e.g. Refund for duplicate payment"
               {...register("notes")}
             />
             {errors.notes && <p className="text-xs text-destructive">{errors.notes.message}</p>}
@@ -165,10 +165,10 @@ export function AddRefundDialog({ open, onOpenChange, members, onSuccess }: AddR
 
           <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
-              বাতিল
+              Cancel
             </Button>
             <Button type="submit" variant="destructive" disabled={loading}>
-              {loading ? "সংরক্ষণ হচ্ছে..." : "ফেরত সংরক্ষণ করুন"}
+              {loading ? "Saving..." : "Save Refund"}
             </Button>
           </DialogFooter>
         </form>

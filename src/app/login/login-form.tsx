@@ -22,17 +22,15 @@ import {
 } from "@/components/ui/form"
 
 const formSchema = z.object({
-  username: z.string().min(1, "ব্যবহারকারীর নাম বা ইমেইল আবশ্যক।"),
-  password: z.string().min(1, "পাসওয়ার্ড আবশ্যক।"),
+  username: z.string().min(1, "Username or email is required"),
+  password: z.string().min(1, "Password is required"),
   rememberMe: z.boolean(),
 })
 
 import { useBranding } from "@/components/providers/branding-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function LoginForm() {
-    const { t } = useLanguage();
-  const [isLoading, setIsLoading] = useState(false)
+      const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const branding = useBranding()
 
@@ -59,24 +57,24 @@ export function LoginForm() {
       if (res?.error) {
         toast.error(res.error)
       } else if (res?.ok) {
-        toast.success(t("app.k_09292c"))
+        toast.success("Login successfully")
         router.push("/dashboard")
         router.refresh()
       }
     } catch (err) {
-      toast.error(t("app.k_b4d33b"))
+      toast.error("An error occurred while logging in")
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="flex min-h-dvh w-full items-center justify-center bg-gray-50 dark:bg-zinc-950 p-4 sm:p-6">
+    <div className="flex min-h-dvh w-full items-center justify-center bg-gray-50 p-4 sm:p-6">
       <Card className="w-[400px]">
         <CardHeader className="space-y-2 text-center">
           <div className="flex justify-center mb-4">
             {branding.loginLogo || branding.logo ? (
-              <img src={branding.loginLogo || branding.logo!} alt={t("app.logo_8c2857")} className="h-16 w-auto object-contain" />
+              <img src={branding.loginLogo || branding.logo!} alt={"Logo"} className="h-16 w-auto object-contain" />
             ) : (
               <div className="h-12 w-12 rounded-full bg-blue-600 flex items-center justify-center">
                 <Building className="h-6 w-6 text-white" />
@@ -84,7 +82,7 @@ export function LoginForm() {
             )}
           </div>
           <CardTitle className="text-2xl font-bold">{branding.foundationName || "Foundation ERP"}</CardTitle>
-          <CardDescription>{t("app.k_641311")}</CardDescription>
+          <CardDescription>{"Sign in to your account"}</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -98,9 +96,9 @@ export function LoginForm() {
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("app.k_830f32")}</FormLabel>
+                                    <FormLabel>{"Username or email"}</FormLabel>
                                     <FormControl>
-                                      <Input placeholder={t("app.k_a5731a")} disabled={isLoading} {...field} />
+                                      <Input placeholder={"Enter username or email"} disabled={isLoading} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -113,9 +111,9 @@ export function LoginForm() {
                 render={({ field }) => {
                   return ((
                                   <FormItem>
-                                    <FormLabel>{t("app.k_3eb963")}</FormLabel>
+                                    <FormLabel>{"password"}</FormLabel>
                                     <FormControl>
-                                      <Input type="password" placeholder={t("app.k_c86221")} disabled={isLoading} {...field} />
+                                      <Input type="password" placeholder={"Enter the password"} disabled={isLoading} {...field} />
                                     </FormControl>
                                     <FormMessage />
                                   </FormItem>
@@ -136,7 +134,7 @@ export function LoginForm() {
                                       />
                                     </FormControl>
                                     <div className="space-y-1 leading-none">
-                                      <FormLabel>{t("app.remember_me_b881a3")}</FormLabel>
+                                      <FormLabel>{"Remember me"}</FormLabel>
                                     </div>
                                   </FormItem>
                                 ));
@@ -144,7 +142,7 @@ export function LoginForm() {
               />
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isLoading ? "লগইন হচ্ছে..." : "লগইন করুন"}
+                {isLoading ? "Logging in..." : "Login"}
               </Button>
             </form>
           </Form>

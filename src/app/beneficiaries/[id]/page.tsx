@@ -1,10 +1,9 @@
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowLeft } from "lucide-react"
 import { BeneficiaryProfileActions } from "@/features/beneficiaries/components/beneficiary-profile-actions"
-import { Trans } from "@/components/shared/trans";
 
 const DocumentCard = ({ title, url }: { title: React.ReactNode, url?: string | null }) => (
   <div className="border rounded-md p-3">
@@ -12,35 +11,30 @@ const DocumentCard = ({ title, url }: { title: React.ReactNode, url?: string | n
     {url ? (
       <a href={url} target="_blank" rel="noopener noreferrer" className="block relative h-40 w-full overflow-hidden hover:opacity-90">
         {url.endsWith('.pdf') ? (
-          <div className="flex h-full items-center justify-center bg-muted/10 text-primary underline"><Trans tKey="app.pdf" /></div>
+          <div className="flex h-full items-center justify-center bg-muted/10 text-primary underline">PDF</div>
         ) : (
           <Image src={url} alt="Document" fill className="object-contain bg-muted/10" />
         )}
       </a>
     ) : (
       <div className="h-40 flex items-center justify-center text-sm text-muted-foreground italic">
-        <Trans tKey="beneficiaries.form.personal_info" /></div>
+        Personal Information</div>
     )}
   </div>
 );
 
 export default async function BeneficiaryDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = await params;
-  const beneficiary = await prisma.beneficiary.findUnique({
-    where: { id: resolvedParams.id },
-    include: { 
-      member: true, 
-      documents: true,
-      beneficiaryPayments: {
-        include: { campaign: true },
-        orderBy: { date: 'desc' }
-      }
-    }
-  })
+  let beneficiary: any = null;
+  try {
+    beneficiary = await apiClient.beneficiaries.getById(resolvedParams.id);
+  } catch (err) {
+    console.error("Failed to fetch beneficiary:", err);
+  }
 
   if (!beneficiary) return notFound()
 
-  const getDoc = (title: string) => beneficiary.documents?.find(d => d.title === title)?.secureUrl;
+  const getDoc = (title: string) => beneficiary.documents?.find((d: any) => d.title === title)?.secureUrl;
   
   const photoDoc = getDoc("Beneficiary Photo") || beneficiary.beneficiaryPhoto;
   const signatureDoc = getDoc("Signature");
@@ -56,7 +50,7 @@ export default async function BeneficiaryDetailsPage({ params }: { params: Promi
           <Link href="/beneficiaries/manage" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-5 w-5" />
           </Link>
-          <h1 className="text-xl font-bold"><Trans tKey="beneficiaries.form.full_name" /></h1>
+          <h1 className="text-xl font-bold">Full Name</h1>
         </div>
         <BeneficiaryProfileActions id={beneficiary.id} />
       </div>
@@ -67,46 +61,46 @@ export default async function BeneficiaryDetailsPage({ params }: { params: Promi
           
           {/* SECTION 1 */}
           <section>
-            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3"><Trans tKey="beneficiaries.form.father_husband_name" /></h2>
+            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3">{"Father/Husband's Name"}</h2>
             <table className="w-full text-sm border-collapse">
               <tbody>
-                <tr className="border-b"><td className="py-2 w-1/3 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.nid" /></td><td className="py-2 font-medium">{beneficiary.fullName || beneficiary.beneficiaryId} </td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.mobile" /></td><td className="py-2">{beneficiary.fatherOrHusbandName || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.present_address" /></td><td className="py-2">{beneficiary.nationalId || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.permanent_address" /></td><td className="py-2">{beneficiary.mobile || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.emergency_contact" /></td><td className="py-2">{beneficiary.presentAddress || beneficiary.address || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.contact_name" /></td><td className="py-2">{beneficiary.permanentAddress || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 w-1/3 text-muted-foreground font-medium">National ID</td><td className="py-2 font-medium">{beneficiary.fullName || beneficiary.beneficiaryId} </td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Mobile</td><td className="py-2">{beneficiary.fatherOrHusbandName || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Present Address</td><td className="py-2">{beneficiary.nationalId || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Permanent Address</td><td className="py-2">{beneficiary.mobile || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Emergency Contact</td><td className="py-2">{beneficiary.presentAddress || beneficiary.address || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Name</td><td className="py-2">{beneficiary.permanentAddress || '-'}</td></tr>
               </tbody>
             </table>
           </section>
 
           {/* SECTION 2 */}
           <section>
-            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3 mt-6"><Trans tKey="beneficiaries.form.relation" /></h2>
+            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3 mt-6">Relation</h2>
             <table className="w-full text-sm border-collapse">
               <tbody>
-                <tr className="border-b"><td className="py-2 w-1/3 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.mobile" /></td><td className="py-2">{beneficiary.emergencyContactName || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.documents" /></td><td className="py-2">{beneficiary.emergencyContactRelation || '-'}</td></tr>
-                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium"><Trans tKey="beneficiaries.form.no_photo" /></td><td className="py-2">{beneficiary.emergencyContactMobile || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 w-1/3 text-muted-foreground font-medium">Mobile</td><td className="py-2">{beneficiary.emergencyContactName || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">Documents</td><td className="py-2">{beneficiary.emergencyContactRelation || '-'}</td></tr>
+                <tr className="border-b"><td className="py-2 text-muted-foreground font-medium">No Photo</td><td className="py-2">{beneficiary.emergencyContactMobile || '-'}</td></tr>
               </tbody>
             </table>
           </section>
 
           {/* SECTION 3 */}
           <section className="print:break-before-page">
-            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3 mt-6"><Trans tKey="beneficiaries.form.beneficiary_id" /></h2>
+            <h2 className="text-lg font-bold bg-muted/30 px-3 py-1.5 border-l-4 border-primary mb-3 mt-6">Beneficiary ID</h2>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <DocumentCard title={<Trans tKey="beneficiaries.form.photo" />} url={photoDoc} />
-              <DocumentCard title={<Trans tKey="beneficiaries.form.signature" />} url={signatureDoc} />
+              <DocumentCard title="Beneficiary Photo" url={photoDoc} />
+              <DocumentCard title="Signature" url={signatureDoc} />
               
               {beneficiary.idDocumentType === "NID" ? (
                 <>
-                  <DocumentCard title={<Trans tKey="beneficiaries.form.nid_front" />} url={nidFrontDoc} />
-                  <DocumentCard title={<Trans tKey="beneficiaries.form.nid_back" />} url={nidBackDoc} />
+                  <DocumentCard title="NID Front" url={nidFrontDoc} />
+                  <DocumentCard title="NID Back" url={nidBackDoc} />
                 </>
               ) : (
-                <DocumentCard title={<Trans tKey="beneficiaries.form.id_birth_cert" />} url={bcDoc} />
+                <DocumentCard title="Birth Certificate" url={bcDoc} />
               )}
             </div>
           </section>
@@ -125,11 +119,11 @@ export default async function BeneficiaryDetailsPage({ params }: { params: Promi
               </thead>
               <tbody>
                 {beneficiary.beneficiaryPayments?.length ? (
-                  beneficiary.beneficiaryPayments.map(p => (
+                  beneficiary.beneficiaryPayments.map((p: any) => (
                     <tr key={p.id} className="border-b">
                       <td className="py-2 px-3">{new Date(p.date).toLocaleDateString()}</td>
                       <td className="py-2 px-3 font-medium">
-                        <Link href={`/campaigns/${p.campaignId}`} className="text-primary hover:underline">{p.campaign.name}</Link>
+                        {p.reason || "Assistance"}
                       </td>
                       <td className="py-2 px-3 font-bold text-red-600">৳{p.amount}</td>
                       <td className="py-2 px-3 text-muted-foreground">{p.reason}</td>
@@ -152,20 +146,20 @@ export default async function BeneficiaryDetailsPage({ params }: { params: Promi
               {photoDoc ? (
                 <Image src={photoDoc} alt="Photo" fill className="object-cover" />
               ) : (
-                <span className="text-sm text-muted-foreground"><Trans tKey="beneficiaries.table.status" /></span>
+                <span className="text-sm text-muted-foreground">Status</span>
               )}
             </div>
           </div>
           
           <div className="mt-6 w-full max-w-[200px] text-center border p-4 bg-muted/5 space-y-3">
             <div>
-              <p className="text-xs text-muted-foreground"><Trans tKey="beneficiaries.form.beneficiary_id" /></p>
+              <p className="text-xs text-muted-foreground">Beneficiary ID</p>
               <p className="font-bold text-lg">{beneficiary.beneficiaryId}</p>
             </div>
             <div className="border-t pt-2">
-              <p className="text-xs text-muted-foreground"><Trans tKey="beneficiaries.table.status" /></p>
+              <p className="text-xs text-muted-foreground">Status</p>
               <p className={`font-semibold ${beneficiary.status === "ACTIVE" ? "text-green-600" : "text-red-600"}`}>
-                {beneficiary.status === "ACTIVE" ? <Trans tKey="beneficiaries.status.active" /> : <Trans tKey="beneficiaries.status.inactive" />}
+                {beneficiary.status === "ACTIVE" ? "Active" : "Inactive"}
               </p>
             </div>
           </div>

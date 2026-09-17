@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { HeartHandshake, History } from "lucide-react"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
-import { Trans } from "@/components/shared/trans"
 
 export default async function BeneficiaryAssistanceHistoryPage({ searchParams }: { searchParams: Promise<{ beneficiaryId?: string }> }) {
   const resolvedParams = await searchParams
@@ -13,16 +12,16 @@ export default async function BeneficiaryAssistanceHistoryPage({ searchParams }:
     <div className="space-y-4">
       <div className="flex items-center space-x-2 text-sm text-muted-foreground">
         <Link href="/beneficiaries" className="hover:text-primary transition-colors">
-          <Trans tKey="beneficiaries.breadcrumbs.index" />
+          Beneficiaries
         </Link>
         <ChevronRight className="h-4 w-4" />
-        <span className="font-medium text-foreground"><Trans tKey="beneficiaries.breadcrumbs.assistance_history" /></span>
+        <span className="font-medium text-foreground">Assistance History</span>
       </div>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight"><Trans tKey="beneficiaries.assistance_history_page.title" /></h1>
-          <p className="text-muted-foreground"><Trans tKey="beneficiaries.assistance_history_page.subtitle" /></p>
+          <h1 className="text-3xl font-bold tracking-tight">Assistance History</h1>
+          <p className="text-muted-foreground">Historical records of Sadaqah and assistance given to the beneficiary.</p>
         </div>
         <BeneficiarySelector />
       </div>
@@ -31,16 +30,16 @@ export default async function BeneficiaryAssistanceHistoryPage({ searchParams }:
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64 space-y-4">
             <HeartHandshake className="h-12 w-12 text-muted-foreground" />
-            <div className="text-xl font-semibold"><Trans tKey="beneficiaries.assistance_history_page.no_beneficiary_title" /></div>
-            <p className="text-muted-foreground"><Trans tKey="beneficiaries.assistance_history_page.no_beneficiary_desc" /></p>
+            <div className="text-xl font-semibold">No Beneficiary Selected</div>
+            <p className="text-muted-foreground">Please select a beneficiary to view their assistance history.</p>
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64 space-y-4 pt-6">
             <History className="h-12 w-12 text-muted-foreground" />
-            <div className="text-xl font-semibold"><Trans tKey="beneficiaries.assistance_history_page.no_records_title" /></div>
-            <p className="text-muted-foreground"><Trans tKey="beneficiaries.assistance_history_page.no_records_desc" /></p>
+            <div className="text-xl font-semibold">No Assistance Records</div>
+            <p className="text-muted-foreground">This beneficiary has not received any Sadaqah or assistance yet.</p>
           </CardContent>
         </Card>
       )}

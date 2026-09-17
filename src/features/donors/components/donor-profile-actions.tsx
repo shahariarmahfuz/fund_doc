@@ -6,21 +6,19 @@ import Link from "next/link"
 import { deleteDonor } from "../actions"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function DonorProfileActions({ donorId }: { donorId: string }) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
 
   const handlePrint = () => {
     window.print()
   }
 
   const handleDelete = async () => {
-    if (confirm(t("donors.table.confirm_delete"))) {
+    if (confirm("Are you sure you want to delete this donor?")) {
       const res = await deleteDonor(donorId)
       if (res.success) {
-        toast.success(t("donors.k_9a80d2"))
+        toast.success("Deleted successfully")
         router.push("/donors")
       } else {
         toast.error(res.error)
@@ -31,17 +29,17 @@ export function DonorProfileActions({ donorId }: { donorId: string }) {
   return (
     <div className="flex items-center gap-2 hide-print">
       <Button variant="outline" onClick={handlePrint} size="sm">
-        <Printer className="mr-2 h-4 w-4" /> {t("donors.k_a0b40f")}</Button>
+        <Printer className="mr-2 h-4 w-4" /> {"Print"}</Button>
       <Button variant="outline" asChild size="sm">
         <Link href={`/donors/ledger?donorId=${donorId}`}>
-          <BookOpen className="mr-2 h-4 w-4" /> {t("donors.k_800938")}</Link>
+          <BookOpen className="mr-2 h-4 w-4" /> {"Laser"}</Link>
       </Button>
       <Button variant="outline" asChild size="sm">
         <Link href={`/donors/${donorId}/edit`}>
-          <Edit className="mr-2 h-4 w-4" /> {t("donors.k_8cdd29")}</Link>
+          <Edit className="mr-2 h-4 w-4" /> {"Edit"}</Link>
       </Button>
       <Button variant="destructive" onClick={handleDelete} size="sm">
-        <Trash className="mr-2 h-4 w-4" /> {t("donors.k_047838")}</Button>
+        <Trash className="mr-2 h-4 w-4" /> {"delete"}</Button>
     </div>
   )
 }

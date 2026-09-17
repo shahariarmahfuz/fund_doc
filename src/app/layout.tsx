@@ -1,8 +1,7 @@
 import type { Metadata } from "next"
 import Script from "next/script"
-import { Noto_Sans_Bengali } from "next/font/google"
+import { Inter } from "next/font/google"
 import "./globals.css"
-import { ThemeProvider } from "@/components/theme-provider"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
 import { SidebarProvider } from "@/components/layout/sidebar-provider"
@@ -14,9 +13,8 @@ import { RbacProvider } from "@/components/providers/rbac-provider"
 import { getUserPermissions, getUserPreferences } from "@/lib/rbac"
 import { Toaster } from "sonner"
 
-const notoSansBengali = Noto_Sans_Bengali({
-  subsets: ["bengali"],
-  weight: ["400", "500", "600", "700"],
+const inter = Inter({
+  subsets: ["latin"],
 })
 
 import { getBrandingSettings } from "@/lib/branding"
@@ -58,7 +56,6 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 import { BrandingProvider } from "@/components/providers/branding-provider"
-import { LanguageProvider } from "@/i18n/LanguageProvider"
 
 
 export default async function RootLayout({
@@ -92,7 +89,7 @@ export default async function RootLayout({
       <head>
         <link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.6/index.min.css" rel="stylesheet" />
       </head>
-      <body className={`${notoSansBengali.className} h-dvh w-full overflow-hidden flex`} suppressHydrationWarning>
+      <body className={`${inter.className} h-dvh w-full overflow-hidden flex`} suppressHydrationWarning>
         <Script
           id="app-settings"
           dangerouslySetInnerHTML={{
@@ -100,15 +97,8 @@ export default async function RootLayout({
           }}
         />
         <BrandingProvider branding={branding}>
-          <LanguageProvider>
-            <AuthProvider>
-              <RbacProvider permissions={permissions}>
-              <ThemeProvider
-                attribute="class"
-              defaultTheme="system"
-              enableSystem
-              disableTransitionOnChange
-            >
+          <AuthProvider>
+            <RbacProvider permissions={permissions}>
               <SidebarProvider>
                 {isLoggedIn && <Sidebar />}
                 <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
@@ -119,10 +109,8 @@ export default async function RootLayout({
                 </div>
               </SidebarProvider>
               <Toaster />
-            </ThemeProvider>
-              </RbacProvider>
-            </AuthProvider>
-          </LanguageProvider>
+            </RbacProvider>
+          </AuthProvider>
         </BrandingProvider>
       </body>
     </html>

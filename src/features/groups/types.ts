@@ -1,4 +1,4 @@
-import type { Group } from "@prisma/client"
+import type { Group } from "@/types/models"
 
 export type GroupWithCount = Group & {
   _count: {

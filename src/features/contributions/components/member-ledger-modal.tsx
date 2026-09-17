@@ -108,10 +108,10 @@ export function MemberLedgerModal({
             </div>
             <div>
               <DialogTitle className="text-xl font-bold">
-                {data?.member?.fullName || "সদস্য চাঁদা লেজার"} ({data?.member?.memberId || ""})
+                {data?.member?.fullName || "Member Contribution Ledger"} ({data?.member?.memberId || ""})
               </DialogTitle>
               <p className="text-xs text-muted-foreground">
-                গ্রুপ: <span className="font-semibold text-foreground">{data?.member?.groupName}</span> | মোবাইল: {data?.member?.mobile}
+                Group: <span className="font-semibold text-foreground">{data?.member?.groupName}</span> | Mobile: {data?.member?.mobile}
               </p>
             </div>
           </div>
@@ -119,11 +119,11 @@ export function MemberLedgerModal({
           <div className="flex items-center gap-2 print:hidden">
             <Button variant="outline" size="sm" onClick={handleExportCSV} disabled={loading || !data?.items?.length}>
               <Download className="h-4 w-4 mr-1.5" />
-              CSV এক্সপোর্ট
+              Export CSV
             </Button>
             <Button variant="default" size="sm" onClick={handlePrint} disabled={loading || !data?.items?.length}>
               <Printer className="h-4 w-4 mr-1.5" />
-              প্রিন্ট লেজার
+              Print Ledger
             </Button>
           </div>
         </DialogHeader>
@@ -132,7 +132,7 @@ export function MemberLedgerModal({
         <div className="flex flex-wrap items-center justify-between gap-3 py-3 bg-muted/40 p-3 rounded-lg print:hidden">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 text-muted-foreground" />
-            <span className="text-xs font-semibold">তারিখ নির্বাচন:</span>
+            <span className="text-xs font-semibold">Select Date:</span>
           </div>
 
           <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export function MemberLedgerModal({
                 setPage(1)
               }}
             />
-            <span className="text-xs text-muted-foreground">থেকে</span>
+            <span className="text-xs text-muted-foreground">to</span>
             <Input
               type="date"
               className="h-8 text-xs w-36"
@@ -167,7 +167,7 @@ export function MemberLedgerModal({
                 }}
               >
                 <X className="h-3.5 w-3.5 mr-1" />
-                ফিল্টার রিসেট
+                Reset Filter
               </Button>
             )}
           </div>
@@ -176,35 +176,35 @@ export function MemberLedgerModal({
         {/* Member Summary Cards */}
         {data?.summary && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 print:hidden">
-            <Card className="bg-slate-50 dark:bg-slate-900 border-slate-200">
+            <Card className="bg-slate-50 border-slate-200">
               <CardContent className="p-3 text-center">
-                <span className="text-[11px] text-muted-foreground block">পূর্ববর্তী ব্যালেন্স (Previous)</span>
+                <span className="text-[11px] text-muted-foreground block">Previous Balance</span>
                 <span className="font-bold text-base text-foreground">৳ {formatCurrency(data.summary.previousBalance)}</span>
               </CardContent>
             </Card>
 
-            <Card className="bg-emerald-50/50 dark:bg-emerald-950/20 border-emerald-200">
+            <Card className="bg-emerald-50/50 border-emerald-200">
               <CardContent className="p-3 text-center">
-                <span className="text-[11px] text-muted-foreground block">মোট জমা (Total Credits)</span>
-                <span className="font-bold text-base text-emerald-600 dark:text-emerald-400">
+                <span className="text-[11px] text-muted-foreground block">Total Deposits</span>
+                <span className="font-bold text-base text-emerald-600">
                   ৳ {formatCurrency(data.summary.totalContributions)}
                 </span>
               </CardContent>
             </Card>
 
-            <Card className="bg-rose-50/50 dark:bg-rose-950/20 border-rose-200">
+            <Card className="bg-rose-50/50 border-rose-200">
               <CardContent className="p-3 text-center">
-                <span className="text-[11px] text-muted-foreground block">মোট ফেরত (Total Refunds)</span>
-                <span className="font-bold text-base text-rose-600 dark:text-rose-400">
+                <span className="text-[11px] text-muted-foreground block">Total Refunds</span>
+                <span className="font-bold text-base text-rose-600">
                   ৳ {formatCurrency(data.summary.totalRefunds)}
                 </span>
               </CardContent>
             </Card>
 
-            <Card className="bg-blue-50/50 dark:bg-blue-950/20 border-blue-200">
+            <Card className="bg-blue-50/50 border-blue-200">
               <CardContent className="p-3 text-center">
-                <span className="text-[11px] text-muted-foreground block">সর্বশেষ নিট ব্যালেন্স (Closing)</span>
-                <span className="font-bold text-base text-blue-600 dark:text-blue-400">
+                <span className="text-[11px] text-muted-foreground block">Closing Balance</span>
+                <span className="font-bold text-base text-blue-600">
                   ৳ {formatCurrency(data.summary.closingBalance)}
                 </span>
               </CardContent>
@@ -217,29 +217,29 @@ export function MemberLedgerModal({
           <Table>
             <TableHeader className="bg-muted/50">
               <TableRow>
-                <TableHead className="w-[100px]">তারিখ</TableHead>
-                <TableHead>রসিদ নং</TableHead>
-                <TableHead>ধরন</TableHead>
-                <TableHead className="text-right">ডেবিট (Debit)</TableHead>
-                <TableHead className="text-right">ক্রেডিট (Credit)</TableHead>
-                <TableHead className="text-right">রানিং ব্যালেন্স</TableHead>
-                <TableHead>মাধ্যম</TableHead>
-                <TableHead>সংগ্রহকারী</TableHead>
-                <TableHead>মন্তব্য</TableHead>
+                <TableHead className="w-[100px]">Date</TableHead>
+                <TableHead>Receipt No</TableHead>
+                <TableHead>Type</TableHead>
+                <TableHead className="text-right">Debit (৳)</TableHead>
+                <TableHead className="text-right">Credit (৳)</TableHead>
+                <TableHead className="text-right">Balance (৳)</TableHead>
+                <TableHead>Method</TableHead>
+                <TableHead>Collector</TableHead>
+                <TableHead>Remarks</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="h-32 text-center text-muted-foreground">
-                    <RefreshCw className="h-6 w-6 animate-spin mx-auto mb-2" />
-                    লেজার তথ্য লোড হচ্ছে...
-                  </TableCell>
+                    <TableCell colSpan={9} className="h-32 text-center text-muted-foreground">
+                      <RefreshCw className="h-5 w-5 animate-spin mx-auto mb-2 text-primary" />
+                      Loading ledger data...
+                    </TableCell>
                 </TableRow>
               ) : !data?.items?.length ? (
                 <TableRow>
                   <TableCell colSpan={9} className="h-24 text-center text-muted-foreground">
-                    এই সদস্যের কোনো চাঁদা লেনদেন রেকর্ড পাওয়া যায়নি।
+                    No contribution records found for this member.
                   </TableCell>
                 </TableRow>
               ) : (
@@ -247,7 +247,7 @@ export function MemberLedgerModal({
                   {data.summary.previousBalance !== 0 && (
                     <TableRow className="bg-muted/30 font-medium">
                       <TableCell colSpan={5} className="text-xs">
-                        পূর্ববর্তী জের (Opening / Previous Balance)
+                        Opening / Previous Balance
                       </TableCell>
                       <TableCell className="text-right font-bold text-xs font-mono">
                         ৳ {formatCurrency(data.summary.previousBalance)}
@@ -274,12 +274,12 @@ export function MemberLedgerModal({
                           className="text-[10px] px-1.5 py-0.5"
                         >
                           {item.contributionType === "REGULAR"
-                            ? "নিয়মিত"
+                            ? "Regular"
                             : item.contributionType === "ADDITIONAL"
-                            ? "অতিরিক্ত"
+                            ? "Additional"
                             : item.contributionType === "REFUND"
-                            ? "ফেরত"
-                            : "সমন্বয়"}
+                            ? "Refund"
+                            : "Adjustment"}
                         </Badge>
                       </TableCell>
                       <TableCell className="text-right text-rose-600 font-mono font-medium">
@@ -308,7 +308,7 @@ export function MemberLedgerModal({
         {data?.pagination && data.pagination.totalPages > 1 && (
           <div className="flex items-center justify-between pt-2 text-xs text-muted-foreground print:hidden">
             <div>
-              পৃষ্ঠা {data.pagination.page} এর {data.pagination.totalPages} (মোট {data.pagination.total} টি রেকর্ড)
+              Page {data.pagination.page} of {data.pagination.totalPages} ({data.pagination.total} total records)
             </div>
             <div className="flex items-center gap-2">
               <Button
@@ -318,7 +318,7 @@ export function MemberLedgerModal({
                 disabled={page <= 1 || loading}
                 onClick={() => setPage((p) => p - 1)}
               >
-                <ArrowLeft className="h-3.5 w-3.5 mr-1" /> আগেরটি
+                <ArrowLeft className="h-3.5 w-3.5 mr-1" /> Previous
               </Button>
               <Button
                 variant="outline"
@@ -327,7 +327,7 @@ export function MemberLedgerModal({
                 disabled={page >= data.pagination.totalPages || loading}
                 onClick={() => setPage((p) => p + 1)}
               >
-                পরেরটি <ArrowRight className="h-3.5 w-3.5 ml-1" />
+                Next <ArrowRight className="h-3.5 w-3.5 ml-1" />
               </Button>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 import { getAuthSession } from "@/lib/auth"
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { redirect } from "next/navigation"
 
 export default async function SettingsProfilePage() {
@@ -15,9 +15,12 @@ export default async function SettingsProfilePage() {
     redirect("/login")
   }
 
-  const dbUser = await prisma.user.findUnique({
-    where: { id: session.user.id },
-  })
+  let dbUser: any = null
+  try {
+    dbUser = await apiClient.users.getById(session.user.id)
+  } catch (err) {
+    console.error("Error fetching user profile:", err)
+  }
 
   if (!dbUser) {
     redirect("/login")

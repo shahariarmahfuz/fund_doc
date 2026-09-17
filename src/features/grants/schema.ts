@@ -1,23 +1,25 @@
 import { z } from "zod"
 
 export const grantAllocationSchema = z.object({
-  groupId: z.string().min(1, "গ্রুপ নির্বাচন করুন"),
-  amount: z.coerce.number().positive("পরিমাণ অবশ্যই ধনাত্মক হতে হবে"),
+  groupId: z.string().min(1, "Please select a group"),
+  amount: z.coerce.number().positive("Amount must be positive"),
 })
 
 export const grantSchema = z.object({
-  beneficiaryId: z.string().min(1, "সুবিধাভোগী নির্বাচন করুন"),
-  grantDate: z.string().min(1, "তারিখ প্রদান করুন"),
-  amount: z.coerce.number().positive("অনুদানের পরিমাণ অবশ্যই ধনাত্মক হতে হবে"),
-  grantReason: z.string().min(1, "অনুদানের কারণ প্রদান করুন"),
+  beneficiaryId: z.string().min(1, "Please select a beneficiary"),
+  grantDate: z.string().min(1, "Date is required"),
+  amount: z.coerce.number().positive("Sadaqah amount must be positive"),
+  grantReason: z.string().min(1, "Reason for Sadaqah is required"),
   comment: z.string().optional(),
-  allocations: z.array(grantAllocationSchema).min(1, "অন্তত একটি ফান্ডিং গ্রুপ নির্বাচন করুন"),
+  allocations: z.array(grantAllocationSchema).min(1, "Select at least one funding group"),
 }).refine(data => {
   const totalAllocated = data.allocations.reduce((sum, a) => sum + a.amount, 0)
   return totalAllocated === data.amount
 }, {
-  message: "ফান্ডিং গ্রুপের মোট পরিমাণ অনুদানের পরিমাণের সমান হতে হবে",
+  message: "Total allocations must match the Sadaqah amount",
   path: ["allocations"]
 })
 
 export type GrantFormValues = z.infer<typeof grantSchema>
+export const sadaqahSchema = grantSchema
+export type SadaqahFormValues = GrantFormValues

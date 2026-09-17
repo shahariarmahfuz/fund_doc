@@ -22,11 +22,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function AuditTable({ data }: { data: any[] }) {
-    const { t } = useLanguage();
-  const [globalFilter, setGlobalFilter] = useState("")
+      const [globalFilter, setGlobalFilter] = useState("")
 
   const columns: ColumnDef<any>[] = [
     {
@@ -72,7 +70,7 @@ export function AuditTable({ data }: { data: any[] }) {
     <div>
       <div className="flex items-center justify-between py-2">
         <Input
-          placeholder={t("audit-logs.search_audit_logs_ed1659")}
+          placeholder={"Search audit logs..."}
           value={globalFilter ?? ""}
           onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
@@ -109,7 +107,7 @@ export function AuditTable({ data }: { data: any[] }) {
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("audit-logs.no_records_found_6b3887")}</TableCell>
+                  {"No records found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -117,9 +115,9 @@ export function AuditTable({ data }: { data: any[] }) {
       </div>
       <div className="flex items-center justify-end space-x-2 py-2">
         <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-          {t("audit-logs.previous_dd1f77")}</Button>
+          {"Previous"}</Button>
         <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-          {t("audit-logs.next_10ac3d")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

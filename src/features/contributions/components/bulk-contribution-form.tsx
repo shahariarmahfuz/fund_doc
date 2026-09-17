@@ -15,7 +15,6 @@ import { Badge } from "@/components/ui/badge"
 import { createBulkContribution, getMemberPaidMonths } from "../actions"
 import { bulkContributionSchema, type BulkContributionFormValues } from "../schema"
 import { MemberCombobox } from "@/components/member-combobox"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 import { InfoIcon, CheckCircle2, AlertTriangle } from "lucide-react"
 
@@ -26,8 +25,7 @@ export function BulkContributionForm({
   members: { id: string; memberId: string; fullName: string | null; group: { name: string; code: string } | null }[]
   defaultMonthlyFee?: number
 }) {
-    const { t } = useLanguage();
-    const router = useRouter()
+        const router = useRouter()
     const [loading, setLoading] = useState(false)
     const [paidMonths, setPaidMonths] = useState<Set<string>>(new Set());
     const [paymentMode, setPaymentMode] = useState<"SINGLE" | "MULTIPLE">("SINGLE");
@@ -119,20 +117,20 @@ export function BulkContributionForm({
 
     async function onSubmit(data: BulkContributionFormValues) {
       if (calculation.newRecords.length === 0) {
-        toast.error(t("contributions.bulk.noNewRecords") || "No new records to create. All selected months are already paid.");
+        toast.error("No new records to create. All selected months are already paid.");
         return;
       }
       setLoading(true)
       const res = await createBulkContribution(data)
       if (res.success) {
         if ('count' in res) {
-          toast.success(`${t("contributions.bulk.successMessage")} (${res.count})`);
+          toast.success(`${"Successfully processed {{count}} months."} (${res.count})`);
         } else {
-          toast.success(t("contributions.bulk.successMessage"));
+          toast.success("Successfully processed {{count}} months.");
         }
         router.push("/contributions/due");
       } else {
-        toast.error(res.error || t("contributions.form.errorMessage"))
+        toast.error(res.error || "Failed to save contribution")
       }
       setLoading(false)
     }
@@ -143,8 +141,8 @@ export function BulkContributionForm({
       <div className="space-y-6 max-w-5xl mx-auto">
         <Card className="shadow-sm border-muted">
           <CardHeader className="py-4 border-b bg-muted/10">
-            <CardTitle className="text-lg font-semibold">{t("contributions.bulk.title") || "Bulk Monthly Dues Payment"}</CardTitle>
-            <CardDescription>{t("contributions.bulk.description") || "Process multiple months of dues for a member at once."}</CardDescription>
+            <CardTitle className="text-lg font-semibold">{"Monthly Dues Payment"}</CardTitle>
+            <CardDescription>{"Process dues for a single month or multiple months at once."}</CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <Form {...form}>
@@ -155,7 +153,7 @@ export function BulkContributionForm({
                   name="memberId"
                   render={({ field }) => (
                     <FormItem className="md:w-1/2">
-                      <FormLabel>{t("contributions.form.member")}</FormLabel>
+                      <FormLabel>{"Select Member *"}</FormLabel>
                       <FormControl>
                         <MemberCombobox
                           members={members}
@@ -170,7 +168,7 @@ export function BulkContributionForm({
 
                 <div className="space-y-4">
                   <div className="flex flex-col gap-3 pb-2">
-                    <label className="text-sm font-medium leading-none">{t("contributions.bulk.paymentMode") || "Payment Mode"}</label>
+                    <label className="text-sm font-medium leading-none">{"Payment Mode"}</label>
                     <div className="flex gap-4">
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input 
@@ -181,7 +179,7 @@ export function BulkContributionForm({
                           onChange={() => setPaymentMode("SINGLE")}
                           className="w-4 h-4 text-primary"
                         />
-                        <span className="text-sm">{t("contributions.bulk.singleMonth") || "Single Month"}</span>
+                        <span className="text-sm">{"Single Month"}</span>
                       </label>
                       <label className="flex items-center gap-2 cursor-pointer">
                         <input 
@@ -192,7 +190,7 @@ export function BulkContributionForm({
                           onChange={() => setPaymentMode("MULTIPLE")}
                           className="w-4 h-4 text-primary"
                         />
-                        <span className="text-sm">{t("contributions.bulk.multipleMonths") || "Multiple Months"}</span>
+                        <span className="text-sm">{"Multiple Months"}</span>
                       </label>
                     </div>
                   </div>
@@ -204,7 +202,7 @@ export function BulkContributionForm({
                         name="fromMonth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.month") || "Month"}</FormLabel>
+                            <FormLabel>{"Month"}</FormLabel>
                             <Select onValueChange={v => field.onChange(parseInt(v))} value={field.value?.toString()}>
                               <FormControl>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -212,7 +210,7 @@ export function BulkContributionForm({
                               <SelectContent>
                                 {Array.from({length: 12}, (_, i) => i + 1).map(m => (
                                   <SelectItem key={m} value={m.toString()}>
-                                    {(() => { const arr = t("contributions.months"); return Array.isArray(arr) ? arr[m - 1] : t(`contributions.months.${m - 1}`); })()}
+                                    {(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][m - 1])}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -226,7 +224,7 @@ export function BulkContributionForm({
                         name="fromYear"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.year") || "Year"}</FormLabel>
+                            <FormLabel>{"Year"}</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseInt(e.target.value) || "")} />
                             </FormControl>
@@ -242,7 +240,7 @@ export function BulkContributionForm({
                         name="fromMonth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.fromMonth") || "From Month"}</FormLabel>
+                            <FormLabel>{"From Month"}</FormLabel>
                             <Select onValueChange={v => field.onChange(parseInt(v))} value={field.value?.toString()}>
                               <FormControl>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -250,7 +248,7 @@ export function BulkContributionForm({
                               <SelectContent>
                                 {Array.from({length: 12}, (_, i) => i + 1).map(m => (
                                   <SelectItem key={m} value={m.toString()}>
-                                    {(() => { const arr = t("contributions.months"); return Array.isArray(arr) ? arr[m - 1] : t(`contributions.months.${m - 1}`); })()}
+                                    {(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][m - 1])}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -264,7 +262,7 @@ export function BulkContributionForm({
                         name="fromYear"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.fromYear") || "From Year"}</FormLabel>
+                            <FormLabel>{"From Year"}</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseInt(e.target.value) || "")} />
                             </FormControl>
@@ -277,7 +275,7 @@ export function BulkContributionForm({
                         name="toMonth"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.toMonth") || "To Month"}</FormLabel>
+                            <FormLabel>{"To Month"}</FormLabel>
                             <Select onValueChange={v => field.onChange(parseInt(v))} value={field.value?.toString()}>
                               <FormControl>
                                 <SelectTrigger><SelectValue /></SelectTrigger>
@@ -285,7 +283,7 @@ export function BulkContributionForm({
                               <SelectContent>
                                 {Array.from({length: 12}, (_, i) => i + 1).map(m => (
                                   <SelectItem key={m} value={m.toString()}>
-                                    {(() => { const arr = t("contributions.months"); return Array.isArray(arr) ? arr[m - 1] : t(`contributions.months.${m - 1}`); })()}
+                                    {(["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"][m - 1])}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -299,7 +297,7 @@ export function BulkContributionForm({
                         name="toYear"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>{t("contributions.bulk.toYear") || "To Year"}</FormLabel>
+                            <FormLabel>{"To Year"}</FormLabel>
                             <FormControl>
                               <Input type="number" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseInt(e.target.value) || "")} />
                             </FormControl>
@@ -318,7 +316,7 @@ export function BulkContributionForm({
                       name="monthlyAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("contributions.bulk.monthlyAmount") || "Monthly Amount (Read Only)"}</FormLabel>
+                          <FormLabel>{"Monthly Amount"}</FormLabel>
                           <FormControl>
                             <Input type="number" readOnly className="bg-muted/50 cursor-not-allowed" step="0.01" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseFloat(e.target.value) || "")} />
                           </FormControl>
@@ -328,14 +326,14 @@ export function BulkContributionForm({
                     />
                     
                     <div className="flex flex-col space-y-2">
-                      <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-1">{t("contributions.bulk.totalMonths") || "Total Months (Auto)"}</span>
+                      <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-1">{"Total Months"}</span>
                       <div className="h-10 px-3 py-2 border rounded-md bg-muted flex items-center font-semibold">
                         {calculation.totalMonths}
                       </div>
                     </div>
 
                     <div className="flex flex-col space-y-2 md:col-span-2">
-                      <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-1">{t("contributions.bulk.totalAmount") || "Total Amount (Auto)"}</span>
+                      <span className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 mt-1">{"Total Amount"}</span>
                       <div className="h-10 px-3 py-2 border rounded-md bg-primary/10 text-primary flex items-center text-lg font-bold">
                         ৳ {calculation.totalMonths * (monthlyAmount || 0)}
                       </div>
@@ -348,7 +346,7 @@ export function BulkContributionForm({
                       name="monthlyAmount"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>{t("contributions.bulk.amount") || "Amount"}</FormLabel>
+                          <FormLabel>{"Amount"}</FormLabel>
                           <FormControl>
                             <Input type="number" step="0.01" {...field} value={field.value ?? ""} onChange={e => field.onChange(parseFloat(e.target.value) || "")} />
                           </FormControl>
@@ -361,15 +359,15 @@ export function BulkContributionForm({
 
                 {memberId && calculation.totalMonths > 0 && (
                   <div className="space-y-4 border-t pt-4">
-                    <h3 className="font-semibold text-lg">{t("contributions.bulk.preview") || "Payment Preview"}</h3>
+                    <h3 className="font-semibold text-lg">{"Payment Preview"}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       {calculation.alreadyPaid.length > 0 && (
                         <div className="bg-orange-50 border border-orange-200 text-orange-800 rounded-md p-4">
                           <div className="flex items-start gap-2">
                             <AlertTriangle className="h-5 w-5 stroke-orange-800 mt-0.5" />
                             <div>
-                              <h4 className="font-semibold">{t("contributions.bulk.alreadyPaidTitle") || "Already Paid"}</h4>
-                              <p className="text-sm mt-1">{t("contributions.bulk.alreadyPaidDesc") || "These months are already paid and will be skipped:"}</p>
+                              <h4 className="font-semibold">{"Already Paid"}</h4>
+                              <p className="text-sm mt-1">{"These months are already paid and will be skipped:"}</p>
                               <div className="mt-2 flex flex-wrap gap-1">
                                 {calculation.alreadyPaid.map(m => (
                                   <Badge key={m.key} variant="outline" className="bg-orange-100 border-orange-300 hover:bg-orange-200">
@@ -387,8 +385,8 @@ export function BulkContributionForm({
                           <div className="flex items-start gap-2">
                             <CheckCircle2 className="h-5 w-5 stroke-green-800 mt-0.5" />
                             <div className="w-full">
-                              <h4 className="font-semibold">{t("contributions.bulk.newRecordsTitle") || "New Records To Be Created"}</h4>
-                              <p className="text-sm mt-1">{t("contributions.bulk.newRecordsDesc") || "Payments will be recorded for:"}</p>
+                              <h4 className="font-semibold">{"New Records To Be Created"}</h4>
+                              <p className="text-sm mt-1">{"Payments will be recorded for:"}</p>
                               <div className="mt-2 flex flex-wrap gap-1">
                                 {calculation.newRecords.map(m => (
                                   <Badge key={m.key} variant="outline" className="bg-green-100 border-green-300 hover:bg-green-200 text-green-800">
@@ -397,7 +395,7 @@ export function BulkContributionForm({
                                 ))}
                               </div>
                               <div className="mt-4 font-bold text-lg">
-                                {t("contributions.bulk.actualCharge") || "Actual Charge:"} ৳ {calculation.newRecords.length * (monthlyAmount || 0)}
+                                {"Actual Charge:"} ৳ {calculation.newRecords.length * (monthlyAmount || 0)}
                               </div>
                             </div>
                           </div>
@@ -407,8 +405,8 @@ export function BulkContributionForm({
                           <div className="flex items-start gap-2">
                             <AlertTriangle className="h-5 w-5 stroke-red-800 mt-0.5" />
                             <div>
-                              <h4 className="font-semibold">{t("contributions.bulk.noNewRecordsTitle") || "No Action Required"}</h4>
-                              <p className="text-sm mt-1">{t("contributions.bulk.noNewRecordsDesc") || "All selected months have already been paid."}</p>
+                              <h4 className="font-semibold">{"No Action Required"}</h4>
+                              <p className="text-sm mt-1">{"All selected months have already been paid."}</p>
                             </div>
                           </div>
                         </div>
@@ -423,7 +421,7 @@ export function BulkContributionForm({
                     name="paymentDate"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("contributions.form.paymentDate")}</FormLabel>
+                        <FormLabel>{"Payment Date *"}</FormLabel>
                         <FormControl>
                           <Input type="date" {...field} />
                         </FormControl>
@@ -437,17 +435,17 @@ export function BulkContributionForm({
                     name="paymentMethod"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("contributions.form.paymentMethod")}</FormLabel>
+                        <FormLabel>{"Payment Method *"}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder={t("contributions.form.paymentMethodPlaceholder")} />
+                              <SelectValue placeholder={"Select method"} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="CASH">{t("contributions.form.methods.cash")}</SelectItem>
-                            <SelectItem value="BANK">{t("contributions.form.methods.bank")}</SelectItem>
-                            <SelectItem value="MOBILE_MONEY">{t("contributions.form.methods.mobile")}</SelectItem>
+                            <SelectItem value="CASH">{"Cash"}</SelectItem>
+                            <SelectItem value="BANK">{"Bank Transfer"}</SelectItem>
+                            <SelectItem value="MOBILE_MONEY">{"Mobile Money (bKash/Nagad)"}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -460,9 +458,9 @@ export function BulkContributionForm({
                     name="referenceNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>{t("contributions.form.reference")}</FormLabel>
+                        <FormLabel>{"Reference / Receipt No (Optional)"}</FormLabel>
                         <FormControl>
-                          <Input placeholder={t("contributions.form.referencePlaceholder")} {...field} />
+                          <Input placeholder={"e.g. TrxID or Receipt #"} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -475,9 +473,9 @@ export function BulkContributionForm({
                   name="notes"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t("contributions.form.notes")}</FormLabel>
+                      <FormLabel>{"Remarks / Notes"}</FormLabel>
                       <FormControl>
-                        <Textarea placeholder={t("contributions.form.notesPlaceholder")} className="resize-none" {...field} />
+                        <Textarea placeholder={"Any additional notes"} className="resize-none" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -486,10 +484,10 @@ export function BulkContributionForm({
 
                 <div className="flex justify-end space-x-4 pt-6 border-t">
                   <Button type="button" variant="outline" onClick={() => router.push("/contributions")}>
-                    {t("contributions.form.cancel")}
+                    {"Cancel"}
                   </Button>
                   <Button type="submit" disabled={loading || calculation.newRecords.length === 0}>
-                    {loading ? t("contributions.form.saving") : t("contributions.form.save")}
+                    {loading ? "Saving..." : "Save Contribution"}
                   </Button>
                 </div>
               </form>

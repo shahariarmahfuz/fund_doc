@@ -34,7 +34,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import type { MonthlyContribution, ContributionPayment } from "@prisma/client"
+import type { MonthlyContribution, ContributionPayment } from "@/types/models"
 import { MoreHorizontal, FileText, Download, Printer, Eye, Edit, Trash, CheckCircle, Clock } from "lucide-react"
 import { EditContributionSheet } from "./edit-contribution-sheet"
 import { ViewContributionDialog } from "./view-contribution-dialog"
@@ -52,11 +52,9 @@ type ContributionWithDetails = MonthlyContribution & {
 }
 
 import { useRbac } from "@/components/providers/rbac-provider"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function ContributionsTable({ data }: { data: ContributionWithDetails[] }) {
-    const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+      const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = useState({})
@@ -72,20 +70,20 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
   const canDelete = can("Fund Collection", "Delete")
 
   const handleDelete = async (id: string) => {
-    if (!confirm(t("contributions.table.actions.deleteConfirm"))) return;
+    if (!confirm("Are you sure you want to delete this contribution? This will permanently remove the record and reverse all associated ledger entries. This action cannot be undone.")) return;
     
     const res = await deleteContribution(id)
     if (res.success) {
-      toast.success(t("contributions.table.messages.deletedSuccess"), { description: "Contribution and ledger entries reversed." })
+      toast.success("Contribution successfully deleted", { description: "Contribution and ledger entries reversed." })
     } else {
-      toast.error(t("contributions.form.errorMessage"), { description: res.error })
+      toast.error("Failed to save contribution", { description: res.error })
     }
   }
 
   const handleStatusUpdate = async (contribution: ContributionWithDetails, newStatus: string) => {
     // If we're marking as paid but it has no payment details, we can't do it blindly. We should prompt them to edit instead.
     if (newStatus === "PAID" && contribution.payments.length === 0) {
-      toast.info(t("contributions.table.messages.missingDetails"), { description: "Please use 'Edit' to enter payment amount and date." })
+      toast.info("Missing payment details. Please edit to add amount and date.", { description: "Please use 'Edit' to enter payment amount and date." })
       setEditingContribution(contribution)
       return
     }
@@ -103,9 +101,9 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
     
     const res = await updateContribution(contribution.id, payload)
     if (res.success) {
-      toast.success(t("contributions.table.messages.statusUpdated"), { description: `Contribution marked as ${newStatus}.` })
+      toast.success("Status successfully updated", { description: `Contribution marked as ${newStatus}.` })
     } else {
-      toast.error(t("contributions.form.errorMessage"), { description: res.error })
+      toast.error("Failed to save contribution", { description: res.error })
     }
   }
 
@@ -132,37 +130,37 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
     {
       accessorFn: (row) => `${row.member.fullName || 'Unknown'} (${row.member.memberId})`,
       id: "member",
-      header: t("contributions.table.columns.member"),
+      header: "Member",
     },
     {
       accessorFn: (row) => row.member.group?.name || "N/A",
       id: "group",
-      header: t("contributions.table.columns.group"),
+      header: "Group",
     },
     {
       accessorFn: (row) => `${formatShortMonth(row.month - 1)} ${row.year}`,
       id: "period",
-      header: t("contributions.table.columns.period"),
+      header: "Period",
     },
     {
       accessorKey: "expectedAmount",
-      header: t("contributions.table.columns.amount"),
+      header: "Amount",
       cell: ({ row }) => `৳${(row.getValue("expectedAmount") as number)}`,
     },
     {
       accessorKey: "status",
-      header: t("contributions.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.getValue("status") === "PAID" ? "default" : "destructive"}>
-          {row.getValue("status") === "PAID" ? t("contributions.table.statuses.paid") : t("contributions.table.statuses.pending")}
+          {row.getValue("status") === "PAID" ? "Paid" : "Pending"}
         </Badge>
       ),
     },
     {
       accessorKey: "isAdditional",
-      header: t("contributions.table.columns.type"),
+      header: "Type",
       cell: ({ row }) => {
-        return (row.getValue("isAdditional") ? <Badge variant="outline">{t("contributions.table.types.additional")}</Badge> : <Badge variant="outline">{t("contributions.table.types.standard")}</Badge>);
+        return (row.getValue("isAdditional") ? <Badge variant="outline">{"Additional"}</Badge> : <Badge variant="outline">{"Standard"}</Badge>);
       },
     },
     {
@@ -174,30 +172,30 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">{t("contributions.table.actions.menu")}</span>
+                <span className="sr-only">{"Actions"}</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuLabel>{t("contributions.table.actions.menu")}</DropdownMenuLabel>
+              <DropdownMenuLabel>{"Actions"}</DropdownMenuLabel>
               {canView && (
                 <DropdownMenuItem onClick={() => setViewingContribution(contribution)}>
-                  <Eye className="mr-2 h-4 w-4" /> {t("contributions.table.actions.view")}</DropdownMenuItem>
+                  <Eye className="mr-2 h-4 w-4" /> {"View Details"}</DropdownMenuItem>
               )}
               {canEdit && (
                 <DropdownMenuItem onClick={() => setEditingContribution(contribution)}>
-                  <Edit className="mr-2 h-4 w-4" /> {t("contributions.table.actions.edit")}</DropdownMenuItem>
+                  <Edit className="mr-2 h-4 w-4" /> {"Edit Contribution"}</DropdownMenuItem>
               )}
               
               <DropdownMenuSeparator />
               
               {canEdit && contribution.status !== "PAID" && (
                 <DropdownMenuItem onClick={() => handleStatusUpdate(contribution, "PAID")}>
-                  <CheckCircle className="mr-2 h-4 w-4" /> {t("contributions.table.actions.markPaid")}</DropdownMenuItem>
+                  <CheckCircle className="mr-2 h-4 w-4" /> {"Mark as Paid"}</DropdownMenuItem>
               )}
               {canEdit && contribution.status !== "PENDING" && (
                 <DropdownMenuItem onClick={() => handleStatusUpdate(contribution, "PENDING")}>
-                  <Clock className="mr-2 h-4 w-4" /> {t("contributions.table.actions.markPending")}</DropdownMenuItem>
+                  <Clock className="mr-2 h-4 w-4" /> {"Mark as Pending"}</DropdownMenuItem>
               )}
               
               <DropdownMenuSeparator />
@@ -205,32 +203,32 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
               <DropdownMenuItem onClick={() => {
                       return (window.print());
                     }}>
-                <Printer className="mr-2 h-4 w-4" /> {t("contributions.table.actions.printReceipt")}</DropdownMenuItem>
+                <Printer className="mr-2 h-4 w-4" /> {"Print Receipt"}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => {
                       return (window.print());
                     }}>
-                <Download className="mr-2 h-4 w-4" /> {t("contributions.table.actions.downloadPdf")}</DropdownMenuItem>
+                <Download className="mr-2 h-4 w-4" /> {"Download PDF"}</DropdownMenuItem>
               <DropdownMenuItem onClick={() => router.push(`/members/${contribution.memberId}`)}>
-                <FileText className="mr-2 h-4 w-4" /> {t("contributions.table.actions.viewMember")}</DropdownMenuItem>
+                <FileText className="mr-2 h-4 w-4" /> {"View Member Profile"}</DropdownMenuItem>
               
               <DropdownMenuSeparator />
 
               <DropdownMenuItem 
                 onClick={() => {
                   if (contribution.payments.length > 0) {
-                    toast.success(t("contributions.table.messages.ledgerFound"), { description: `Ledger Transaction ID: ${contribution.payments[0].ledgerTransactionId}` })
+                    toast.success("Ledger entry found", { description: `Ledger Transaction ID: ${contribution.payments[0].ledgerTransactionId}` })
                   } else {
-                    toast.error(t("contributions.table.messages.ledgerNotFound"), { description: "There is no ledger entry for unpaid contributions." })
+                    toast.error("No ledger entry found for unpaid contribution", { description: "There is no ledger entry for unpaid contributions." })
                   }
                 }}
               >
-                <FileText className="mr-2 h-4 w-4" /> {t("contributions.table.actions.viewLedger")}</DropdownMenuItem>
+                <FileText className="mr-2 h-4 w-4" /> {"View Ledger Entry"}</DropdownMenuItem>
               
               {canDelete && (
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => handleDelete(contribution.id)} className="text-red-600 focus:text-red-600">
-                    <Trash className="mr-2 h-4 w-4" /> {t("contributions.table.actions.delete")}</DropdownMenuItem>
+                    <Trash className="mr-2 h-4 w-4" /> {"Delete Contribution"}</DropdownMenuItem>
                 </>
               )}
             </DropdownMenuContent>
@@ -264,7 +262,7 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center space-x-2">
           <Input
-            placeholder={t("contributions.table.filterPlaceholder")}
+            placeholder={"Filter members..."}
             value={(table.getColumn("member")?.getFilterValue() as string) ?? ""}
             onChange={(event) =>
               table.getColumn("member")?.setFilterValue(event.target.value)
@@ -278,11 +276,11 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
             <Button variant="outline" size="sm" onClick={() => {
                         return (window.print());
                       }}>
-              <Printer className="mr-2 h-4 w-4" /> {t("contributions.table.print")}</Button>
+              <Printer className="mr-2 h-4 w-4" /> {"Print Selected"}</Button>
             <Button variant="outline" size="sm" onClick={() => {
                         return (window.print());
                       }}>
-              <Download className="mr-2 h-4 w-4" /> {t("contributions.table.exportPdf")}</Button>
+              <Download className="mr-2 h-4 w-4" /> {"Export PDF"}</Button>
           </div>
         )}
       </div>
@@ -323,7 +321,7 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                  {t("contributions.table.empty")}</TableCell>
+                  {"No contributions found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -333,12 +331,12 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
       <div className="flex items-center justify-between space-x-2 py-2">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} {t("contributions.table.pagination.selected")}</div>
+          {table.getFilteredRowModel().rows.length} {"selected"}</div>
         <div className="space-x-2">
           <Button variant="outline" size="sm" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
-            {t("contributions.table.pagination.previous")}</Button>
+            {"Previous"}</Button>
           <Button variant="outline" size="sm" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
-            {t("contributions.table.pagination.next")}</Button>
+            {"Next"}</Button>
         </div>
       </div>
 

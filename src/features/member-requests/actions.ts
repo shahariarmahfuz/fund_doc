@@ -1,13 +1,9 @@
 "use server";
 
-import { prisma } from "@/lib/prisma";
-import { requirePermission, checkPermission } from "@/lib/rbac";
-import { getAuthSession } from "@/lib/auth";
+import { apiClient } from "@/lib/api/client";
 import { uploadToCloudinary } from "@/lib/cloudinary";
 import { revalidatePath } from "next/cache";
-import { getNow } from "@/lib/date";
 import { baseMemberSchema, type BaseMemberFormValues } from "@/features/members/schema";
-import { generateMemberId } from "@/features/members/actions";
 
 async function uploadBase64(base64Str: string, folder: string) {
   const buffer = Buffer.from(base64Str.replace(/^data:image\/\w+;base64,/, ""), "base64");
@@ -29,35 +25,6 @@ export async function submitMemberRequest(data: BaseMemberFormValues) {
       signatureBase64,
       ...restData
     } = parsed.data;
-
-    if (restData.groupId) {
-      const selectedGroup = await prisma.group.findUnique({ where: { id: restData.groupId } });
-      if (!selectedGroup || !selectedGroup.memberSignupEnabled || selectedGroup.isFoundationGroup) {
-        return { success: false, error: "Member registration is disabled for the selected group." };
-      }
-    }
-
-    const year = getNow().getFullYear();
-    const prefix = `MR-${year}-`;
-    
-    const existingRequests = await prisma.memberRequest.findMany({
-      where: { applicationNumber: { startsWith: prefix } },
-      select: { applicationNumber: true }
-    });
-    
-    let maxNum = 0;
-    const existingNumbers = new Set<string>();
-    
-    for (const req of existingRequests) {
-      existingNumbers.add(req.applicationNumber);
-      const match = req.applicationNumber.match(new RegExp(`^MR-${year}-(\\d+)$`));
-      if (match) {
-        const num = parseInt(match[1], 10);
-        if (num > maxNum) {
-          maxNum = num;
-        }
-      }
-    }
 
     const uploadedDocuments: Array<{ title: string; cloudinaryPublicId: string; secureUrl: string }> = [];
 
@@ -82,329 +49,99 @@ export async function submitMemberRequest(data: BaseMemberFormValues) {
       uploadedDocuments.push({ title: "Signature", cloudinaryPublicId: res.public_id, secureUrl: res.secure_url });
     }
 
-    let memberRequest;
-    let applicationNumber = "";
-    let nextNum = maxNum + 1;
-    let retries = 0;
-    const maxRetries = 5;
+    const payload = {
+      ...restData,
+      dob: restData.dob ? new Date(restData.dob).toISOString() : undefined,
+      documents: uploadedDocuments.length > 0 ? JSON.stringify(uploadedDocuments) : null,
+    };
 
-    while (retries < maxRetries) {
-      applicationNumber = `${prefix}${nextNum.toString().padStart(5, "0")}`;
-      
-      if (existingNumbers.has(applicationNumber)) {
-        nextNum++;
-        continue;
-      }
+    const res = await apiClient.post<any>("/api/v1/member-requests/public/submit", payload);
 
-      try {
-        memberRequest = await prisma.memberRequest.create({
-          data: {
-            applicationNumber,
-            fullName: restData.fullName,
-            fatherName: restData.fatherName || null,
-            motherName: restData.motherName || null,
-            gender: restData.gender || null,
-            dob: restData.dob || null,
-            nationalId: restData.nationalId || null,
-            idDocumentType: restData.idDocumentType || "NID",
-            occupation: restData.occupation || null,
-            education: restData.education || null,
-            bloodGroup: restData.bloodGroup || null,
-            maritalStatus: restData.maritalStatus || null,
-            mobile: restData.mobile || null,
-            altMobile: restData.altMobile || null,
-            email: restData.email || null,
-            phone: restData.phone || null,
-            presentAddress: restData.presentAddress || null,
-            permanentAddress: restData.permanentAddress || null,
-            emergencyContactName: restData.emergencyContactName || null,
-            emergencyContactMobile: restData.emergencyContactMobile || null,
-            emergencyContactRelation: restData.emergencyContactRelation || null,
-            referenceName: restData.referenceName || null,
-            referenceMobile: restData.referenceMobile || null,
-            referenceRelation: restData.referenceRelation || null,
-            groupId: restData.groupId || null,
-            reasonForJoining: restData.reasonForJoining || null,
-            documents: uploadedDocuments.length > 0 ? JSON.stringify(uploadedDocuments) : null,
-            status: "PENDING",
-          },
-        });
-        break; // Success
-      } catch (error: any) {
-        const isUniqueConstraint = 
-          error.code === "P2002" || 
-          (error.message && error.message.includes("UNIQUE constraint failed") && error.message.includes("applicationNumber"));
-          
-        if (isUniqueConstraint) {
-          nextNum++;
-          retries++;
-          continue;
-        }
-        throw error;
-      }
-    }
-
-    if (!memberRequest) {
-      throw new Error("Failed to generate a unique application number. Please try again.");
-    }
-
-    return { success: true, applicationNumber, id: memberRequest.id };
+    return { success: true, applicationNumber: res.applicationNumber, id: res.id };
   } catch (error: any) {
     console.error("Failed to submit member request:", error);
-    return { success: false, error: error.message || "Failed to submit" };
+    return { success: false, error: error?.message || "Failed to submit" };
   }
 }
 
 export async function getMemberRequestByApplicationNumber(applicationNumber: string) {
-  const request = await prisma.memberRequest.findUnique({
-    where: { applicationNumber },
-    select: {
-      id: true,
-      applicationNumber: true,
-      status: true,
-      fullName: true,
-      submittedAt: true,
-      approvedAt: true,
-      adminMessage: true,
-      rejectionReason: true,
-    },
-  });
-  return request;
+  try {
+    return await apiClient.get<any>(`/api/v1/member-requests/by-application/${applicationNumber}`);
+  } catch {
+    return null;
+  }
 }
 
 export async function getMemberRequests() {
-  await requirePermission("Members", "View");
-  return prisma.memberRequest.findMany({
-    orderBy: { submittedAt: "desc" },
-  });
+  try {
+    return await apiClient.memberRequests.getAll();
+  } catch (err) {
+    console.error("Failed to fetch member requests:", err);
+    return [];
+  }
 }
 
 export async function getMemberRequest(id: string) {
-  await requirePermission("Members", "View");
-  return prisma.memberRequest.findUnique({ where: { id } });
+  try {
+    return await apiClient.memberRequests.getById(id);
+  } catch (err) {
+    console.error(`Failed to fetch member request ${id}:`, err);
+    return null;
+  }
 }
 
 export async function approveMemberRequest(id: string) {
-  const session = await getAuthSession();
-  const user = session?.user as any;
-
-  const canApprove = (await checkPermission("Members", "Add"));
-  if (!canApprove) {
-    return { success: false, error: "Unauthorized" };
-  }
-
-  const request = await prisma.memberRequest.findUnique({ where: { id } });
-  if (!request) return { success: false, error: "Request not found" };
-  if (request.status === "APPROVED") return { success: false, error: "Already approved" };
-  if (!request.groupId) return { success: false, error: "Group not selected in application" };
-
-  const targetGroup = await prisma.group.findUnique({ where: { id: request.groupId } });
-  if (!targetGroup || !targetGroup.memberSignupEnabled || targetGroup.isFoundationGroup) {
-    return { success: false, error: "Member registration is disabled for the selected group." };
-  }
-
-  const memberId = await generateMemberId();
-
-  const referenceData = (request.referenceName || request.referenceMobile || request.referenceRelation)
-    ? JSON.stringify({
-        name: request.referenceName || "",
-        mobile: request.referenceMobile || "",
-        relation: request.referenceRelation || "",
-      })
-    : null;
-
-  let docsToCreate: Array<{ title: string; cloudinaryPublicId: string; secureUrl: string }> = [];
-  if (request.documents) {
-    try {
-      docsToCreate = JSON.parse(request.documents) as Array<{ title: string; cloudinaryPublicId: string; secureUrl: string }>;
-    } catch (e) {
-      // Documents parsing failed, continue without documents
-    }
-  }
-
-  const approvedBy = user?.name || user?.id || "Admin";
-  const approvedAt = getNow();
-
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      const member = await tx.member.create({
-        data: {
-          memberId,
-          groupId: request.groupId!,
-          fullName: request.fullName,
-          fatherName: request.fatherName,
-          motherName: request.motherName,
-          gender: request.gender,
-          dob: request.dob ? new Date(request.dob) : null,
-          nationalId: request.nationalId,
-          idDocumentType: request.idDocumentType,
-          occupation: request.occupation,
-          monthlyIncome: request.monthlyIncome,
-          bloodGroup: request.bloodGroup,
-          education: request.education,
-          maritalStatus: request.maritalStatus,
-          mobile: request.mobile,
-          altMobile: request.altMobile,
-          email: request.email,
-          phone: request.phone,
-          presentAddress: request.presentAddress,
-          permanentAddress: request.permanentAddress,
-          emergencyContactName: request.emergencyContactName,
-          emergencyContactMobile: request.emergencyContactMobile,
-          emergencyContactRelation: request.emergencyContactRelation,
-          reference: referenceData,
-          joinDate: request.submittedAt,
-          status: "ACTIVE",
-          position: "GENERAL_MEMBER",
-          reasonForJoining: request.reasonForJoining,
-          declarationAccepted: true,
-        },
-      });
-
-      // Copy documents to member
-      if (docsToCreate.length > 0) {
-        for (const doc of docsToCreate) {
-          await tx.document.create({
-            data: {
-              documentNumber: `DOC-${Date.now()}-${Math.random().toString(36).substr(2, 4).toUpperCase()}`,
-              title: doc.title === "Photo" ? "Member Photo" : doc.title,
-              type: "IMAGE",
-              cloudinaryPublicId: doc.cloudinaryPublicId,
-              secureUrl: doc.secureUrl,
-              originalFilename: `${doc.title.toLowerCase().replace(/\s/g, "_")}.jpg`,
-              mimeType: "image/jpeg",
-              sizeBytes: 0,
-              targetType: "MEMBER",
-              memberId: member.id,
-            },
-          });
-        }
-      }
-
-      await tx.memberRequest.update({
-        where: { id },
-        data: {
-          status: "APPROVED",
-          approvedAt,
-          approvedBy,
-          createdMemberId: member.id,
-        },
-      });
-
-      await tx.auditLog.create({
-        data: {
-          userId: user?.id,
-          action: "APPROVE",
-          module: "MEMBER_REQUEST",
-          referenceId: id,
-          remarks: `Approved member request ${request.applicationNumber}, created member ${member.memberId}`,
-        },
-      });
-
-      return { success: true, memberId: member.memberId };
-    });
-
+    const res = await apiClient.post<any>(`/api/v1/member-requests/${id}/approve`);
     revalidatePath("/members/manage");
     revalidatePath("/members/requests");
-
-    return result;
+    return { success: true, ...res };
   } catch (error: any) {
     console.error("Failed to approve member request:", error);
-    return { success: false, error: error.message || "Failed to approve" };
+    return { success: false, error: error?.message || "Failed to approve" };
   }
 }
 
 export async function rejectMemberRequest(id: string, reason: string) {
-  const session = await getAuthSession();
-  const user = session?.user as any;
-  await requirePermission("Members", "Edit");
-
   try {
-    const request = await prisma.memberRequest.update({
-      where: { id },
-      data: {
-        status: "REJECTED",
-        rejectionReason: reason,
-      },
+    await apiClient.memberRequests.updateStatus(id, {
+      status: "REJECTED",
+      rejectionReason: reason,
     });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user?.id,
-        action: "REJECT",
-        module: "MEMBER_REQUEST",
-        referenceId: id,
-        remarks: `Rejected member request ${request.applicationNumber}. Reason: ${reason}`,
-      },
-    });
-
     revalidatePath("/members/requests");
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || "Failed to reject" };
   }
 }
 
 export async function requestChangesMemberRequest(id: string, message: string) {
-  const session = await getAuthSession();
-  const user = session?.user as any;
-  await requirePermission("Members", "Edit");
-
   try {
-    const request = await prisma.memberRequest.update({
-      where: { id },
-      data: {
-        status: "NEEDS_CHANGES",
-        adminMessage: message,
-      },
+    await apiClient.memberRequests.updateStatus(id, {
+      status: "NEEDS_CHANGES",
+      adminMessage: message,
     });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user?.id,
-        action: "REQUEST_CHANGES",
-        module: "MEMBER_REQUEST",
-        referenceId: id,
-        remarks: `Requested changes for ${request.applicationNumber}: ${message}`,
-      },
-    });
-
     revalidatePath("/members/requests");
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || "Failed to request changes" };
   }
 }
 
 export async function deleteMemberRequest(id: string) {
-  const session = await getAuthSession();
-  const user = session?.user as any;
-  await requirePermission("Members", "Delete");
-
   try {
-    const request = await prisma.memberRequest.delete({ where: { id } });
-
-    await prisma.auditLog.create({
-      data: {
-        userId: user?.id,
-        action: "DELETE",
-        module: "MEMBER_REQUEST",
-        referenceId: id,
-        remarks: `Deleted member request ${request.applicationNumber}`,
-      },
-    });
-
+    await apiClient.delete(`/api/v1/member-requests/${id}`);
     revalidatePath("/members/requests");
     return { success: true };
   } catch (error: any) {
-    return { success: false, error: error.message };
+    return { success: false, error: error?.message || "Failed to delete" };
   }
 }
 
 export async function getGroups() {
-  return prisma.group.findMany({
-    where: { status: "ACTIVE", memberSignupEnabled: true, isFoundationGroup: false },
-    orderBy: { name: "asc" },
-    select: { id: true, name: true, code: true, isFoundationGroup: true, memberSignupEnabled: true },
-  });
+  try {
+    return await apiClient.get<any[]>("/api/v1/groups/signup-eligible");
+  } catch {
+    return [];
+  }
 }

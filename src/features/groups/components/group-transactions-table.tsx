@@ -25,7 +25,6 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 // Placeholder type
 export type TransactionPlaceholder = {
@@ -39,43 +38,42 @@ export type TransactionPlaceholder = {
 }
 
 export function GroupTransactionsTable({ data }: { data: TransactionPlaceholder[] }) {
-    const { t } = useLanguage();
-  const [sorting, setSorting] = useState<SortingState>([])
+      const [sorting, setSorting] = useState<SortingState>([])
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([])
 
   const columns: ColumnDef<TransactionPlaceholder>[] = [
     {
       accessorKey: "date",
-      header: t("groups.transactions.table.columns.date"),
+      header: "Date",
     },
     {
       accessorKey: "type",
-      header: t("groups.transactions.table.columns.type"),
+      header: "Type",
       cell: ({ row }) => (
         <Badge variant="outline">{row.original.type}</Badge>
       ),
     },
     {
       accessorKey: "reference",
-      header: t("groups.transactions.table.columns.reference"),
+      header: "Reference",
     },
     {
       accessorKey: "amount",
-      header: t("groups.transactions.table.columns.amount"),
+      header: "Amount",
       cell: ({ row }) => `৳${formatCurrency(row.original.amount)}`,
     },
     {
       accessorKey: "status",
-      header: t("groups.transactions.table.columns.status"),
+      header: "Status",
       cell: ({ row }) => (
         <Badge variant={row.original.status === "COMPLETED" ? "default" : "secondary"}>
-          {row.original.status === "COMPLETED" ? t("groups.transactions.table.status.completed") : t("groups.transactions.table.status.pending")}
+          {row.original.status === "COMPLETED" ? "Completed" : "Pending"}
         </Badge>
       ),
     },
     {
       accessorKey: "remarks",
-      header: t("groups.transactions.table.columns.remarks"),
+      header: "Remarks",
     },
   ]
 
@@ -98,7 +96,7 @@ export function GroupTransactionsTable({ data }: { data: TransactionPlaceholder[
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row items-center gap-4">
         <Input
-          placeholder={t("groups.transactions.table.search")}
+          placeholder={"Search transactions..."}
           value={(table.getColumn("reference")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn("reference")?.setFilterValue(event.target.value)
@@ -111,20 +109,20 @@ export function GroupTransactionsTable({ data }: { data: TransactionPlaceholder[
           }
         >
           <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder={t("groups.transactions.table.allTypes")} />
+            <SelectValue placeholder={"All Types"} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="ALL">{t("groups.transactions.table.allTypes")}</SelectItem>
-            <SelectItem value="Contribution">{t("groups.transactions.types.contribution")}</SelectItem>
-            <SelectItem value="Loan">{t("groups.transactions.types.loan")}</SelectItem>
-            <SelectItem value="Repayment">{t("groups.transactions.types.repayment")}</SelectItem>
-            <SelectItem value="Grant">{t("groups.transactions.types.grant")}</SelectItem>
-            <SelectItem value="Adjustment">{t("groups.transactions.types.adjustment")}</SelectItem>
-            <SelectItem value="Transfer">{t("groups.transactions.types.transfer")}</SelectItem>
+            <SelectItem value="ALL">{"All Types"}</SelectItem>
+            <SelectItem value="Contribution">{"Contribution"}</SelectItem>
+            <SelectItem value="Loan">{"Qard Hasan"}</SelectItem>
+            <SelectItem value="Repayment">{"Repayment"}</SelectItem>
+            <SelectItem value="Grant">{"Sadaqah"}</SelectItem>
+            <SelectItem value="Adjustment">{"Adjustment"}</SelectItem>
+            <SelectItem value="Transfer">{"Transfer"}</SelectItem>
           </SelectContent>
         </Select>
         <Input type="date" className="max-w-[150px]" />
-        <span className="text-sm text-muted-foreground">{t("groups.transactions.table.to")}</span>
+        <span className="text-sm text-muted-foreground">{"to"}</span>
         <Input type="date" className="max-w-[150px]" />
       </div>
 
@@ -169,7 +167,7 @@ export function GroupTransactionsTable({ data }: { data: TransactionPlaceholder[
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="h-24 text-center text-muted-foreground">
-                  {t("groups.transactions.table.empty")}</TableCell>
+                  {"No transactions found."}</TableCell>
               </TableRow>
             )}
           </TableBody>
@@ -182,14 +180,14 @@ export function GroupTransactionsTable({ data }: { data: TransactionPlaceholder[
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
         >
-          {t("groups.table.pagination.previous")}</Button>
+          {"Previous"}</Button>
         <Button
           variant="outline"
           size="sm"
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
         >
-          {t("groups.table.pagination.next")}</Button>
+          {"Next"}</Button>
       </div>
     </div>
   )

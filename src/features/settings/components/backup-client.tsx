@@ -5,11 +5,9 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { toast } from "sonner"
 import { DatabaseBackup, UploadCloud } from "lucide-react"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function BackupClient() {
-    const { t } = useLanguage();
-  const [isBackingUp, setIsBackingUp] = useState(false)
+      const [isBackingUp, setIsBackingUp] = useState(false)
   const [isRestoring, setIsRestoring] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -17,9 +15,9 @@ export function BackupClient() {
     setIsBackingUp(true)
     try {
       window.location.href = "/api/backup";
-      toast.success(t("settings.backup_download_star_db0141"))
+      toast.success("Backup download started successfully")
     } catch (err) {
-      toast.error(t("settings.failed_to_create_bac_6ea09c"))
+      toast.error("Failed to create backup")
     } finally {
       setIsBackingUp(false)
     }
@@ -48,7 +46,7 @@ export function BackupClient() {
         throw new Error(error.error || "Failed to restore backup")
       }
       
-      toast.success(t("settings.database_restored_su_0f03ea"))
+      toast.success("Database restored successfully")
       window.location.reload()
     } catch (err: any) {
       toast.error(err.message || "Failed to restore backup")
@@ -65,13 +63,13 @@ export function BackupClient() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <DatabaseBackup className="h-5 w-5" /> <span>{t("settings.create_backup_c14ce8")}</span>
+            <DatabaseBackup className="h-5 w-5" /> <span>{"Create Backup"}</span>
           </CardTitle>
-          <CardDescription>{t("settings.generate_a_secure_sn_ba8dfb")}</CardDescription>
+          <CardDescription>{"Generate a secure snapshot of your entire database."}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <p className="text-sm text-muted-foreground">
-            {t("settings.this_will_lock_write_87c5da")}</p>
+            {"This will lock write operations momentarily to ensure data consistency, then create a complete database dump in ZIP format."}</p>
           <Button onClick={handleBackup} disabled={isBackingUp} className="w-full">
             {isBackingUp ? "Generating Backup..." : "Generate Full Backup"}
           </Button>
@@ -81,13 +79,13 @@ export function BackupClient() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
-            <UploadCloud className="h-5 w-5" /> <span>{t("settings.restore_backup_6b57c8")}</span>
+            <UploadCloud className="h-5 w-5" /> <span>{"Restore Backup"}</span>
           </CardTitle>
-          <CardDescription>{t("settings.restore_the_database_daef4b")}</CardDescription>
+          <CardDescription>{"Restore the database from an existing backup file."}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <p className="text-sm text-muted-foreground text-red-600 dark:text-red-400 font-semibold">
-            {t("settings.warning_restoring_a__1575f3")}</p>
+          <p className="text-sm text-muted-foreground text-red-600 font-semibold">
+            {"Warning: Restoring a backup will overwrite all current data. This action cannot be undone."}</p>
           <div className="relative">
             <input 
               type="file" 

@@ -9,25 +9,23 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Monitor, Smartphone, Tablet, LogOut } from "lucide-react"
 import { logoutDevice, logoutOtherDevices, logoutAllDevices } from "../actions"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function DevicesTable({ sessions, currentJti }: { sessions: any[], currentJti: string }) {
-    const { t } = useLanguage();
-  const router = useRouter()
+      const router = useRouter()
   const [isProcessing, setIsProcessing] = useState(false)
 
   const handleLogout = async (jti: string) => {
     setIsProcessing(true)
     try {
       await logoutDevice(jti)
-      toast.success(t("profile.k_b19441"))
+      toast.success("\u09a1\u09bf\u09ad\u09be\u0987\u09b8\u099f\u09bf \u09b8\u09ab\u09b2\u09ad\u09be\u09ac\u09c7 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09be \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
       if (jti === currentJti) {
         signOut({ callbackUrl: window.location.origin + '/login' })
       } else {
         router.refresh()
       }
     } catch (err) {
-      toast.error(t("profile.k_dc3aa0"))
+      toast.error("\u09b2\u0997\u0986\u0989\u099f \u09ac\u09cd\u09af\u09b0\u09cd\u09a5 \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
     } finally {
       setIsProcessing(false)
     }
@@ -37,26 +35,26 @@ export function DevicesTable({ sessions, currentJti }: { sessions: any[], curren
     setIsProcessing(true)
     try {
       await logoutOtherDevices()
-      toast.success(t("profile.k_f34979"))
+      toast.success("\u0985\u09a8\u09cd\u09af\u09be\u09a8\u09cd\u09af \u09b8\u0995\u09b2 \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09a5\u09c7\u0995\u09c7 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09be \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
       router.refresh()
     } catch (err) {
-      toast.error(t("profile.k_dc3aa0"))
+      toast.error("\u09b2\u0997\u0986\u0989\u099f \u09ac\u09cd\u09af\u09b0\u09cd\u09a5 \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
     } finally {
       setIsProcessing(false)
     }
   }
 
   const handleLogoutAll = async () => {
-    if (!confirm("আপনি কি নিশ্চিত যে সকল ডিভাইস থেকে লগআউট করতে চান?")) return
+    if (!confirm("Are you sure you want to log out from all devices?")) return
     setIsProcessing(true)
     try {
       const res = await logoutAllDevices()
       if (res.requireReauth) {
-        toast.success(t("profile.k_12f44a"))
+        toast.success("\u09b8\u0995\u09b2 \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09a5\u09c7\u0995\u09c7 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09be \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
         signOut({ callbackUrl: window.location.origin + '/login' })
       }
     } catch (err) {
-      toast.error(t("profile.k_dc3aa0"))
+      toast.error("\u09b2\u0997\u0986\u0989\u099f \u09ac\u09cd\u09af\u09b0\u09cd\u09a5 \u09b9\u09af\u09bc\u09c7\u099b\u09c7")
     } finally {
       setIsProcessing(false)
     }
@@ -72,16 +70,16 @@ export function DevicesTable({ sessions, currentJti }: { sessions: any[], curren
     <Card>
       <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <CardTitle>{t("profile.active_sessions_8f93e4")}</CardTitle>
-          <CardDescription>{t("profile.k_b84c4f")}</CardDescription>
+          <CardTitle>{"Active Sessions"}</CardTitle>
+          <CardDescription>{"\u09af\u09c7 \u09b8\u0995\u09b2 \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09a5\u09c7\u0995\u09c7 \u0986\u09aa\u09a8\u09bf \u09ac\u09b0\u09cd\u09a4\u09ae\u09be\u09a8\u09c7 \u09b2\u0997\u0987\u09a8 \u0986\u099b\u09c7\u09a8\u0964"}</CardDescription>
         </div>
         <div className="flex gap-2">
           {sessions.length > 1 && (
             <Button variant="outline" size="sm" onClick={handleLogoutOthers} disabled={isProcessing}>
-              {t("profile.k_67bca8")}</Button>
+              {"\u0985\u09a8\u09cd\u09af\u09be\u09a8\u09cd\u09af \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09c1\u09a8"}</Button>
           )}
           <Button variant="destructive" size="sm" onClick={handleLogoutAll} disabled={isProcessing}>
-            {t("profile.k_7c2a7c")}</Button>
+            {"\u09b8\u0995\u09b2 \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09c1\u09a8"}</Button>
         </div>
       </CardHeader>
       <CardContent>
@@ -97,12 +95,12 @@ export function DevicesTable({ sessions, currentJti }: { sessions: any[], curren
                   <div>
                     <div className="flex items-center gap-2">
                       <h4 className="font-semibold">{session.os} - {session.browser}</h4>
-                      {isCurrent && <Badge variant="default" className="text-xs">{t("profile.k_b24731")}</Badge>}
+                      {isCurrent && <Badge variant="default" className="text-xs">{"\u09ac\u09b0\u09cd\u09a4\u09ae\u09be\u09a8 \u09a1\u09bf\u09ad\u09be\u0987\u09b8"}</Badge>}
                     </div>
                     <div className="text-sm text-muted-foreground mt-1 space-x-2">
-                      <span>{t("profile.k_3901cd")}{session.ipAddress}</span>
+                      <span>{"IP:"}{session.ipAddress}</span>
                       <span>•</span>
-                      <span>{t("profile.k_b95719")}{new Date(session.lastActive).toLocaleString('bn-BD')}</span>
+                      <span>{"\u09b8\u09b0\u09cd\u09ac\u09b6\u09c7\u09b7 \u09b8\u0995\u09cd\u09b0\u09bf\u09af\u09bc:"}{new Date(session.lastActive).toLocaleString('bn-BD')}</span>
                     </div>
                   </div>
                 </div>
@@ -114,7 +112,7 @@ export function DevicesTable({ sessions, currentJti }: { sessions: any[], curren
                     return (handleLogout(session.jti));
                   }}
                   disabled={isProcessing}
-                  title={t("profile.k_c7b00c")}
+                  title={"\u098f\u0987 \u09a1\u09bf\u09ad\u09be\u0987\u09b8 \u09a5\u09c7\u0995\u09c7 \u09b2\u0997\u0986\u0989\u099f \u0995\u09b0\u09c1\u09a8"}
                 >
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -123,7 +121,7 @@ export function DevicesTable({ sessions, currentJti }: { sessions: any[], curren
           })}
           {sessions.length === 0 && (
             <div className="text-center py-8 text-muted-foreground">
-              {t("profile.k_e5da6e")}</div>
+              {"\u0995\u09cb\u09a8 \u09b8\u0995\u09cd\u09b0\u09bf\u09af\u09bc \u09b8\u09c7\u09b6\u09a8 \u09aa\u09be\u0993\u09af\u09bc\u09be \u09af\u09be\u09af\u09bc\u09a8\u09bf\u0964"}</div>
           )}
         </div>
       </CardContent>

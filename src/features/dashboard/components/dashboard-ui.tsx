@@ -20,11 +20,9 @@ import {
 
 import { useState, useEffect } from "react"
 import { getNow, formatDate } from "@/lib/date"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 export function WelcomeSection({ userName }: { userName: string }) {
-    const { t } = useLanguage();
-  const [today, setToday] = useState<string>("")
+      const [today, setToday] = useState<string>("")
 
   useEffect(() => {
     setToday(formatDate(getNow()))
@@ -33,11 +31,11 @@ export function WelcomeSection({ userName }: { userName: string }) {
   return (
     <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
       <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{t("dashboard.k_d52b84")}{userName}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-foreground">{"welcome,"}{userName}</h1>
         <p className="text-sm text-muted-foreground mt-1">{today}</p>
       </div>
       <div className="flex gap-2">
-        <Button variant="outline" size="sm" className="bg-background shadow-sm h-9">{t("dashboard.k_b25061")}</Button>
+        <Button variant="outline" size="sm" className="bg-background shadow-sm h-9">{"Download the report"}</Button>
       </div>
     </div>
   )
@@ -86,19 +84,18 @@ export function KpiCard({
 }
 
 export function QuickActions() {
-    const { t } = useLanguage();
   const actions = [
-    { label: "নতুন সদস্য", icon: Plus, color: "bg-blue-500/10 text-blue-600" },
-    { label: "কিস্তি গ্রহণ", icon: Wallet, color: "bg-emerald-500/10 text-emerald-600" },
-    { label: "চাঁদা সংগ্রহ", icon: FileText, color: "bg-indigo-500/10 text-indigo-600" },
-    { label: "অনুদান গ্রহণ", icon: Plus, color: "bg-teal-500/10 text-teal-600" },
-    { label: "ঋণ প্রদান", icon: Plus, color: "bg-amber-500/10 text-amber-600" },
+    { label: "New Member", icon: Plus, color: "bg-blue-500/10 text-blue-600" },
+    { label: "Collect Installment", icon: Wallet, color: "bg-emerald-500/10 text-emerald-600" },
+    { label: "Collect Contribution", icon: FileText, color: "bg-indigo-500/10 text-indigo-600" },
+    { label: "Receive Donation", icon: Plus, color: "bg-teal-500/10 text-teal-600" },
+    { label: "Disburse Loan", icon: Plus, color: "bg-amber-500/10 text-amber-600" },
   ]
 
   return (
     <Card className="shadow-card border-border/50">
       <CardHeader className="pb-3 border-b border-border/50">
-        <CardTitle className="text-sm font-medium">{t("dashboard.k_954173")}</CardTitle>
+        <CardTitle className="text-sm font-medium">{"Quick action"}</CardTitle>
       </CardHeader>
       <CardContent className="p-4 grid grid-cols-2 md:grid-cols-5 gap-3">
         {actions.map((action, i) => (
@@ -128,17 +125,16 @@ export function EmptyState({ icon: Icon, title, description, action }: { icon: R
 }
 
 export function TodaysTasks() {
-    const { t } = useLanguage();
-  return (
+      return (
     <Card className="shadow-card border-border/50 h-full flex flex-col">
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium">{t("dashboard.k_ecc556")}</CardTitle>
+        <CardTitle className="text-sm font-medium">{"Today's tasks"}</CardTitle>
       </CardHeader>
       <CardContent className="p-5 flex-1 flex flex-col">
         <EmptyState 
           icon={Calendar} 
-          title={t("dashboard.k_8ac274")} 
-          description={t("dashboard.k_fb93e5")}
+          title={"There is no work"} 
+          description={"There are no Qard Hasan installments, subscriptions or approvals pending for today."}
         />
       </CardContent>
     </Card>
@@ -146,19 +142,18 @@ export function TodaysTasks() {
 }
 
 export function OverdueAlerts() {
-    const { t } = useLanguage();
-  return (
+      return (
     <Card className="shadow-card border-border/50 border-t-4 border-t-rose-500 h-full flex flex-col">
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <BadgeAlert className="h-4 w-4 text-rose-500" />
-          {t("dashboard.k_5e5ab0")}</CardTitle>
+          {"Due warning"}</CardTitle>
       </CardHeader>
       <CardContent className="p-5 flex-1 flex flex-col">
         <EmptyState 
           icon={CheckCircle2} 
-          title={t("dashboard.k_8a0726")} 
-          description={t("dashboard.k_6d0a6a")}
+          title={"All is well!"} 
+          description={"Currently there are no due installments or monthly subscriptions."}
         />
       </CardContent>
     </Card>
@@ -166,17 +161,16 @@ export function OverdueAlerts() {
 }
 
 export function UpcomingTasks() {
-    const { t } = useLanguage();
-  return (
+      return (
     <Card className="shadow-card border-border/50 h-full flex flex-col">
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium">{t("dashboard.k_40142f")}</CardTitle>
+        <CardTitle className="text-sm font-medium">{"Upcoming (next 7 days)"}</CardTitle>
       </CardHeader>
       <CardContent className="p-5 flex-1 flex flex-col">
         <EmptyState 
           icon={CalendarDays} 
-          title={t("dashboard.k_d35b21")} 
-          description={t("dashboard.k_2f73b2")}
+          title={"There are no upcoming jobs"} 
+          description={"There is no work scheduled for the next 7 days."}
         />
       </CardContent>
     </Card>
@@ -184,17 +178,16 @@ export function UpcomingTasks() {
 }
 
 export function TodaysFinancialSummary() {
-    const { t } = useLanguage();
-  return (
+      return (
     <Card className="shadow-card border-border/50 h-full flex flex-col">
       <CardHeader className="pb-3 border-b border-border/50 flex flex-row items-center justify-between">
-        <CardTitle className="text-sm font-medium">{t("dashboard.k_882b08")}</CardTitle>
+        <CardTitle className="text-sm font-medium">{"Today's financial summary"}</CardTitle>
       </CardHeader>
       <CardContent className="p-5 flex-1 flex flex-col">
         <EmptyState 
           icon={Activity} 
-          title={t("dashboard.k_5adc34")} 
-          description={t("dashboard.k_1336d3")}
+          title={"No transaction occurred"} 
+          description={"No financial transactions have been recorded till date."}
         />
       </CardContent>
     </Card>
@@ -202,16 +195,15 @@ export function TodaysFinancialSummary() {
 }
 
 export function SystemStatus() {
-    const { t } = useLanguage();
   const statuses = [
-    { label: "ডেটাবেস (Database)", status: "সচল", icon: CheckCircle2, color: "text-emerald-500" },
-    { label: "এপিআই সার্ভিস (API Services)", status: "সচল", icon: CheckCircle2, color: "text-emerald-500" },
-    { label: "ব্যাকগ্রাউন্ড জবস (Background Jobs)", status: "চলমান", icon: CheckCircle2, color: "text-emerald-500" },
+    { label: "Database", status: "Operational", icon: CheckCircle2, color: "text-emerald-500" },
+    { label: "API Services", status: "Operational", icon: CheckCircle2, color: "text-emerald-500" },
+    { label: "Background Jobs", status: "Running", icon: CheckCircle2, color: "text-emerald-500" },
   ]
   return (
     <Card className="shadow-card border-border/50">
       <CardHeader className="pb-3 border-b border-border/50">
-        <CardTitle className="text-sm font-medium">{t("dashboard.k_2a9529")}</CardTitle>
+        <CardTitle className="text-sm font-medium">{"system status"}</CardTitle>
       </CardHeader>
       <CardContent className="p-4 space-y-4">
         {statuses.map((item, i) => (

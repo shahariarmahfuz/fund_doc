@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button"
 import { RefreshCcw } from "lucide-react"
 import { replaceDocument } from "../replace-action"
 import { toast } from "sonner"
-import { useLanguage } from "@/i18n/LanguageProvider";
 
 interface ReplaceDocumentButtonProps {
   documentId: string
@@ -22,8 +21,7 @@ export function ReplaceDocumentButton({
   className = "",
   showLabel = true
 }: ReplaceDocumentButtonProps) {
-    const { t } = useLanguage();
-  const [isReplacing, setIsReplacing] = useState(false)
+      const [isReplacing, setIsReplacing] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,7 +34,7 @@ export function ReplaceDocumentButton({
 
     const res = await replaceDocument(documentId, formData)
     if (res.success) {
-      toast.success(t("documents.document_replaced_su_e603ea"))
+      toast.success("Document replaced successfully")
     } else {
       toast.error(res.error || "Failed to replace document")
     }
@@ -60,7 +58,7 @@ export function ReplaceDocumentButton({
         className={className}
         onClick={() => inputRef.current?.click()}
         disabled={isReplacing}
-        title={t("documents.replace_document_968069")}
+        title={"Replace Document"}
       >
         <RefreshCcw className={`h-4 w-4 ${showLabel ? "mr-2" : ""}`} />
         {showLabel ? (isReplacing ? "..." : "Replace") : null}

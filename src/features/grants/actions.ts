@@ -1,192 +1,78 @@
 "use server"
-import { getNow } from "@/lib/date";
 
-import { prisma } from "@/lib/prisma"
+import { apiClient } from "@/lib/api/client"
 import { grantSchema, type GrantFormValues } from "./schema"
-import { LedgerEngine, LedgerEntryInput } from "@/services/ledger"
 import { revalidatePath } from "next/cache"
-import { requirePermission, checkPermission } from "@/lib/rbac";
-
-async function generateGrantNumber() {
-  const count = await prisma.grant.count()
-  const year = getNow().getFullYear()
-  return `GRN-${year}-${(count + 1).toString().padStart(4, '0')}`
-}
 
 export async function createGrant(data: GrantFormValues) {
-    await requirePermission("Grants", "Add");
   const parsed = grantSchema.safeParse(data)
   if (!parsed.success) return { success: false, error: "Invalid data" }
-  
   const pd = parsed.data
 
   try {
-    const grantNumber = await generateGrantNumber()
-    const result = await prisma.$transaction(async (tx) => {
-      // 1. Create the Grant record
-      const grant = await tx.grant.create({
-        data: {
-          grantNumber,
-          beneficiaryId: pd.beneficiaryId,
-          amount: pd.amount,
-          purpose: pd.grantReason,
-          dateApproved: new Date(pd.grantDate),
-          disbursedDate: new Date(pd.grantDate),
-          status: "PAID", 
-          notes: pd.comment || "",
-        }
-      })
-
-      // 2. Prepare Ledger Transaction
-      const ledgerEntries: LedgerEntryInput[] = []
-
-      for (const alloc of pd.allocations) {
-        const { groupFund, generalFund } = await LedgerEngine.getOrCreateFunds(alloc.groupId, tx)
-        
-        // Debit Group Fund (reducing equity)
-        ledgerEntries.push({ fundId: groupFund.id, isCredit: false, amount: alloc.amount })
-        
-        // Credit General Fund (reducing cash asset)
-        ledgerEntries.push({ fundId: generalFund.id, isCredit: true, amount: alloc.amount })
-
-        // Create FundAllocation record linking the Group Fund to the Grant
-        await tx.fundAllocation.create({
-          data: {
-            fundId: groupFund.id,
-            targetType: "GRANT",
-            grantId: grant.id,
-            amount: alloc.amount,
-          }
-        })
-      }
-
-      // 3. Create the actual Ledger Transaction
-      await LedgerEngine.createTransaction({
-        date: new Date(pd.grantDate),
-        type: "GRANT",
-        referenceId: grantNumber,
-        notes: pd.comment,
-        entries: ledgerEntries
-      }, tx)
-
-      return { success: true, data: grant, error: undefined }
+    const grant = await apiClient.grants.issue({
+      beneficiaryId: pd.beneficiaryId,
+      amount: pd.amount,
+      grantReason: pd.grantReason,
+      grantDate: new Date(pd.grantDate).toISOString(),
+      comment: pd.comment || "",
+      allocations: pd.allocations || [],
     })
 
-    if (result.success) {
-      revalidatePath("/grants")
-    }
-
-    return result
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "অনুদান তৈরি করতে ব্যর্থ হয়েছে" }
+    revalidatePath("/grants")
+    return { success: true, data: grant }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to create grant" }
   }
 }
 
 export async function updateGrant(id: string, data: GrantFormValues) {
-    await requirePermission("Grants", "Edit");
   const parsed = grantSchema.safeParse(data)
   if (!parsed.success) return { success: false, error: "Invalid data" }
-  
   const pd = parsed.data
 
   try {
-    const result = await prisma.$transaction(async (tx) => {
-      const grant = await tx.grant.findUnique({ where: { id }, include: { allocations: true } })
-      if (!grant) throw new Error("Grant not found")
-
-      await tx.grant.update({
-        where: { id },
-        data: {
-          beneficiaryId: pd.beneficiaryId,
-          amount: pd.amount,
-          purpose: pd.grantReason,
-          dateApproved: new Date(pd.grantDate),
-          disbursedDate: new Date(pd.grantDate),
-          notes: pd.comment || "",
-        }
-      })
-
-      // Delete old allocations and create new ones
-      await tx.fundAllocation.deleteMany({ where: { grantId: id } })
-      
-      for (const alloc of pd.allocations) {
-        const { groupFund } = await LedgerEngine.getOrCreateFunds(alloc.groupId, tx)
-        
-        await tx.fundAllocation.create({
-          data: {
-            fundId: groupFund.id,
-            targetType: "GRANT",
-            grantId: grant.id,
-            amount: alloc.amount,
-          }
-        })
-      }
-
-      return { success: true, data: grant, error: undefined }
+    const grant = await apiClient.grants.update(id, {
+      beneficiaryId: pd.beneficiaryId,
+      amount: pd.amount,
+      grantReason: pd.grantReason,
+      grantDate: new Date(pd.grantDate).toISOString(),
+      comment: pd.comment || "",
+      allocations: pd.allocations || [],
     })
 
-    if (result.success) {
-      revalidatePath(`/grants/${id}`)
-      revalidatePath("/grants")
-    }
-
-    return result
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "অনুদান আপডেট করতে ব্যর্থ হয়েছে" }
+    revalidatePath(`/grants/${id}`)
+    revalidatePath("/grants")
+    return { success: true, data: grant }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to update grant" }
   }
 }
 
-
-
 export async function getGrants() {
-  if (!await checkPermission("Grants", "View")) return [];
-  return prisma.grant.findMany({
-    orderBy: { createdAt: "desc" },
-    include: {
-      beneficiary: {
-        select: { fullName: true, beneficiaryId: true }
-      },
-      allocations: {
-        include: {
-          fund: {
-            include: { group: { select: { name: true, code: true } } }
-          }
-        }
-      }
-    }
-  })
+  try {
+    return await apiClient.grants.getAll()
+  } catch (err) {
+    console.error("Failed to fetch grants:", err)
+    return []
+  }
 }
 
 export async function getGrant(id: string) {
-  if (!await checkPermission("Grants", "View")) return null;
-  return prisma.grant.findUnique({
-    where: { id },
-    include: {
-      beneficiary: true,
-      allocations: {
-        include: {
-          fund: {
-            include: { group: true }
-          }
-        }
-      }
-    }
-  })
+  try {
+    return await apiClient.grants.getById(id)
+  } catch (err) {
+    console.error(`Failed to fetch grant ${id}:`, err)
+    return null
+  }
 }
 
 export async function deleteGrant(id: string) {
-    await requirePermission("Grants", "Delete");
   try {
-    const grant = await prisma.grant.findUnique({
-      where: { id },
-      include: { allocations: true }
-    })
-    
-    if (!grant) return { success: false, error: "অনুদান খুঁজে পাওয়া যায়নি" }
-    
-    return { success: false, error: "লেজার এন্ট্রি থাকায় অনুদান মুছা সম্ভব নয়। অনুগ্রহ করে রিভার্সাল অ্যাডজাস্টমেন্ট ব্যবহার করুন।" }
-    
-  } catch (error: unknown) {
-    return { success: false, error: error instanceof Error ? error.message : "অনুদান মুছতে ব্যর্থ হয়েছে" }
+    await apiClient.grants.delete(id)
+    revalidatePath("/grants")
+    return { success: true }
+  } catch (error: any) {
+    return { success: false, error: error?.message || "Failed to delete grant" }
   }
 }
