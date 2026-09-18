@@ -21,7 +21,7 @@ interface PersonalProfileFormProps {
 }
 
 export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
-      const { update } = useSession();
+  const { update } = useSession();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [formData, setFormData] = useState({
@@ -39,7 +39,7 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
     try {
       const data = new FormData();
       data.append("file", file);
-      data.append("folder", "profiles");
+      data.append("folder", "foundation/profiles");
 
       const response = await fetch("/api/upload", {
         method: "POST",
@@ -48,13 +48,18 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
 
       const result = await response.json();
       if (result.secure_url) {
+        const saveRes = await saveUserProfile(user.id, { photo: result.secure_url });
+        if (!saveRes.success) {
+          throw new Error(saveRes.error || "Failed to save profile picture");
+        }
         setFormData((prev) => ({ ...prev, photo: result.secure_url }));
-        toast.success("Profile picture uploaded. Please save changes.");
+        await update({ image: result.secure_url });
+        toast.success("Profile picture updated successfully!");
       } else {
         throw new Error(result.error || "Failed to upload image");
       }
-    } catch (error) {
-      toast.error("Failed to upload profile picture");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to upload profile picture");
     } finally {
       setIsUploading(false);
     }
@@ -65,11 +70,14 @@ export function PersonalProfileForm({ user }: PersonalProfileFormProps) {
     setIsSubmitting(true);
 
     try {
-      await saveUserProfile(user.id, formData);
+      const res = await saveUserProfile(user.id, formData);
+      if (!res.success) {
+        throw new Error(res.error || "Failed to update profile");
+      }
       await update({ name: formData.name, image: formData.photo });
       toast.success("Personal profile updated successfully");
-    } catch (error) {
-      toast.error("Failed to update profile");
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to update profile");
     } finally {
       setIsSubmitting(false);
     }

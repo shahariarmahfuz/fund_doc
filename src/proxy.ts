@@ -15,13 +15,7 @@ export const config = {
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - login
-     * - member-request
-     * - about
-     * - goals
-     * - mission
-     * - contact
-     * - homepage ($)
      */
-    "/((?!api/auth|api/public|_next/static|_next/image|favicon.ico|login|member-request|about|goals|mission|contact|$).*)",
+    "/((?!api/auth|api/public|_next/static|_next/image|favicon.ico|login|member-request|$).*)",
   ],
 }
