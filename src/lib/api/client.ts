@@ -48,6 +48,39 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+export function isAuthError(err: any): boolean {
+  return err instanceof ApiError && [401, 403].includes(err.status || 0)
+}
+
+export function isDatabaseError(err: any): boolean {
+  return (
+    (err instanceof ApiError && err.status === 503) ||
+    err?.code === "DATABASE_UNAVAILABLE" ||
+    err?.code === "SERVICE_UNAVAILABLE"
+  )
+}
+
+export function isNetworkError(err: any): boolean {
+  return err instanceof ApiError && (err.status === 0 || err.code === "NETWORK_ERROR")
+}
+
+const PUBLIC_PREFIXES = [
+  "/api/v1/settings/branding",
+  "/api/v1/groups/signup-eligible",
+  "/api/v1/member-requests/public/",
+  "/api/v1/member-requests/by-application/",
+  "/api/v1/auth/login",
+  "/api/v1/auth/refresh",
+  "/api/health",
+  "/api/v1/health",
+  "/health",
+]
+
+export function isPublicEndpoint(endpoint: string): boolean {
+  const clean = endpoint.startsWith("/") ? endpoint : `/${endpoint}`
+  return PUBLIC_PREFIXES.some((prefix) => clean.startsWith(prefix))
+}
+
 let activeRefreshPromise: Promise<string | null> | null = null
 
 async function refreshAuthToken(): Promise<string | null> {
@@ -111,11 +144,14 @@ async function apiRequest<T>(
   options: RequestInit & { token?: string; tags?: string[]; revalidate?: number | false; retries?: number; _isRetryAfterRefresh?: boolean } = {}
 ): Promise<T> {
   const { token: explicitToken, tags, revalidate, retries = 2, headers: customHeaders, _isRetryAfterRefresh = false, ...fetchOptions } = options
-  const token = explicitToken || (await getSessionToken())
 
   const baseUrl = getBaseUrl()
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`
   const url = baseUrl ? `${baseUrl.replace(/\/$/, "")}${cleanEndpoint}` : cleanEndpoint
+
+  // Public endpoints NEVER require or wait for an authenticated user session
+  const isPublic = isPublicEndpoint(cleanEndpoint)
+  const token = isPublic ? undefined : (explicitToken || (await getSessionToken()))
 
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
@@ -152,8 +188,8 @@ async function apiRequest<T>(
         ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
       })
 
-      // Intercept 401 Unauthorized for automatic token refresh (except for auth endpoints themselves or already retried requests)
-      if (res.status === 401 && !cleanEndpoint.startsWith("/api/v1/auth/") && !_isRetryAfterRefresh) {
+      // Intercept 401 Unauthorized for automatic token refresh (only for protected endpoints, not public or already retried)
+      if (res.status === 401 && !isPublic && !cleanEndpoint.startsWith("/api/v1/auth/") && !_isRetryAfterRefresh) {
         const refreshedToken = await refreshAuthToken()
         if (refreshedToken) {
           return apiRequest<T>(endpoint, {

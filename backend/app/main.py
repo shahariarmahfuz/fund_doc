@@ -1,19 +1,34 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
+from sqlalchemy.exc import SQLAlchemyError
 from app.core.config import settings
 from app.core.logging import setup_logging, logger
 from app.core.exceptions import (
     APIException,
+    DatabaseUnavailableException,
     api_exception_handler,
+    database_exception_handler,
     http_exception_handler,
     validation_exception_handler,
     generic_exception_handler
 )
+from app.core.database import init_db_engine, dispose_db_engine
 from app.api.v1.router import api_router
 
 # Initialize structured logging
 setup_logging()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Application startup: Initialize persistent application-level DB pool
+    logger.info("Initializing persistent application database connection pool...")
+    init_db_engine()
+    yield
+    # Application shutdown: Dispose persistent DB pool cleanly
+    logger.info("Disposing application database connection pool...")
+    dispose_db_engine()
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -21,6 +36,7 @@ app = FastAPI(
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url="/redoc" if settings.DEBUG else None,
     openapi_url="/openapi.json" if settings.DEBUG else None,
+    lifespan=lifespan
 )
 
 import time
@@ -48,6 +64,9 @@ async def performance_telemetry_middleware(request: Request, call_next):
     return response
 
 # Register standardized error handlers
+# Dedicated database connectivity error handler (HTTP 503)
+app.add_exception_handler(DatabaseUnavailableException, api_exception_handler)
+app.add_exception_handler(SQLAlchemyError, database_exception_handler)
 app.add_exception_handler(APIException, api_exception_handler)
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)

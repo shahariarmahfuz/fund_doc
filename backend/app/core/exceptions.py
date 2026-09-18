@@ -33,6 +33,38 @@ class ConflictException(APIException):
     def __init__(self, message: str = "Resource already exists or conflict occurred", details: Optional[Any] = None):
         super().__init__(message=message, code="CONFLICT", status_code=status.HTTP_409_CONFLICT, details=details)
 
+class DatabaseUnavailableException(APIException):
+    def __init__(
+        self,
+        message: str = "Database is temporarily unavailable. Please try again shortly.",
+        details: Optional[Any] = None
+    ):
+        super().__init__(
+            message=message,
+            code="DATABASE_UNAVAILABLE",
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            details=details or {"category": "DATABASE_ERROR", "retryable": True}
+        )
+
+async def database_exception_handler(request: Request, exc: Any) -> JSONResponse:
+    import logging
+    logger = logging.getLogger("app.database")
+    logger.error(f"Database error on {request.method} {request.url.path}: {exc}")
+    return JSONResponse(
+        status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+        content={
+            "success": False,
+            "error": {
+                "code": "DATABASE_UNAVAILABLE",
+                "message": "Database is temporarily unavailable. Please try again shortly.",
+                "details": {
+                    "category": "DATABASE_ERROR",
+                    "retryable": True
+                }
+            }
+        }
+    )
+
 async def api_exception_handler(request: Request, exc: APIException) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,

@@ -161,9 +161,9 @@ async function DashboardStats() {
         <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 text-sm animate-fade-up">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <div>
-            <p className="font-medium">Backend Service Notice</p>
+            <p className="font-medium">Database Service Notice</p>
             <p className="text-xs text-amber-600/80 mt-0.5">
-              Unable to reach backend services. Displaying last synchronized metrics.
+              Database is temporarily reconnecting. Displaying last synchronized metrics.
             </p>
           </div>
         </div>

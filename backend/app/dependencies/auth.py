@@ -4,7 +4,8 @@ from typing import Optional
 from sqlalchemy.orm import Session
 from app.core.database import get_db
 from app.core.security import decode_access_token
-from app.core.exceptions import UnauthorizedException, ForbiddenException
+from sqlalchemy.exc import SQLAlchemyError
+from app.core.exceptions import UnauthorizedException, ForbiddenException, DatabaseUnavailableException
 from app.models import User
 from app.services.auth_service import AuthService, is_super_admin_role
 
@@ -43,14 +44,19 @@ def get_current_user(
     if not user_id:
         raise UnauthorizedException("Token missing user identity.", details={"code": "AUTH_TOKEN_INVALID"})
 
-    # Validate session from DB with self-healing support
+    # Validate session from DB (with cache-first and clean DB error separation)
     if jti:
         user = AuthService.validate_session(db, jti, user_id=user_id)
         if not user:
             raise UnauthorizedException("Session has been revoked or expired.", details={"code": "AUTH_SESSION_REVOKED"})
         return user
 
-    user = db.query(User).filter(User.id == user_id, User.status == "ACTIVE").first()
+    try:
+        user = db.query(User).filter(User.id == user_id, User.status == "ACTIVE").first()
+    except SQLAlchemyError as exc:
+        db.rollback()
+        raise DatabaseUnavailableException("Database temporarily unavailable during authentication check.") from exc
+
     if not user:
         raise UnauthorizedException("User account not found or inactive.", details={"code": "AUTH_USER_INACTIVE"})
 

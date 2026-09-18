@@ -1,12 +1,15 @@
 import uuid
+import logging
 from datetime import datetime, timezone, timedelta
-from typing import Optional, List, Dict, Any, Tuple
-from sqlalchemy.orm import Session
+from typing import Optional, List, Dict, Any, Tuple, Set
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.exc import SQLAlchemyError
 from app.models import User, UserSession, Role, Permission, RolePermission, UserPermission, AuditLog
-from app.core.security import verify_password, get_password_hash, create_access_token
-from app.core.exceptions import UnauthorizedException, APIException
+from app.core.security import verify_password, get_password_hash, create_access_token, decode_access_token
+from app.core.exceptions import UnauthorizedException, ForbiddenException, DatabaseUnavailableException
 from app.core.cache import cache, app_cache
-from sqlalchemy.orm import joinedload
+
+logger = logging.getLogger("app.auth")
 
 def is_super_admin_role(role_name: Optional[str]) -> bool:
     if not role_name:
@@ -70,11 +73,16 @@ class AuthService:
         browser: Optional[str] = None,
         os_info: Optional[str] = None
     ) -> User:
-        user = (
-            db.query(User)
-            .filter((User.username == username) | (User.email == username))
-            .first()
-        )
+        try:
+            user = (
+                db.query(User)
+                .filter((User.username == username) | (User.email == username))
+                .first()
+            )
+        except SQLAlchemyError as exc:
+            db.rollback()
+            logger.error(f"Database error during user authentication: {exc}")
+            raise DatabaseUnavailableException("Database is temporarily unavailable. Please try again.") from exc
 
         if not user or user.status != "ACTIVE":
             raise UnauthorizedException("ব্যবহারকারীর নাম বা ইমেইল সঠিক নয়।")
@@ -82,20 +90,24 @@ class AuthService:
         if not verify_password(password, user.password):
             raise UnauthorizedException("পাসওয়ার্ড সঠিক নয়।")
 
-        user.lastLogin = datetime.now(timezone.utc)
-        
-        # Log login audit
-        db.add(AuditLog(
-            userId=user.id,
-            action="LOGIN",
-            module="AUTHENTICATION",
-            ipAddress=ip_address,
-            device=device,
-            browser=browser,
-            remarks=f"User {user.username} logged in successfully"
-        ))
-        db.commit()
-        db.refresh(user)
+        try:
+            user.lastLogin = datetime.now(timezone.utc)
+            # Log login audit
+            db.add(AuditLog(
+                userId=user.id,
+                action="LOGIN",
+                module="AUTHENTICATION",
+                ipAddress=ip_address,
+                device=device,
+                browser=browser,
+                remarks=f"User {user.username} logged in successfully"
+            ))
+            db.commit()
+            db.refresh(user)
+        except SQLAlchemyError as exc:
+            db.rollback()
+            logger.error(f"Database error updating user login audit: {exc}")
+            # Audit failure is non-fatal for login if user is already authenticated
         return user
 
     @staticmethod
@@ -112,22 +124,34 @@ class AuthService:
         days = 30 if remember_me else 1
         expires_at = datetime.now(timezone.utc) + timedelta(days=days)
 
-        session = UserSession(
-            userId=user_id,
-            jti=jti,
-            device=device,
-            browser=browser,
-            os=os_info,
-            ipAddress=ip_address,
-            expiresAt=expires_at,
-            lastActive=datetime.now(timezone.utc)
-        )
-        db.add(session)
-        db.commit()
+        try:
+            session = UserSession(
+                userId=user_id,
+                jti=jti,
+                device=device,
+                browser=browser,
+                os=os_info,
+                ipAddress=ip_address,
+                expiresAt=expires_at,
+                lastActive=datetime.now(timezone.utc)
+            )
+            db.add(session)
+            db.commit()
+        except SQLAlchemyError as exc:
+            db.rollback()
+            logger.error(f"Database error creating UserSession: {exc}")
+            raise DatabaseUnavailableException("Database is temporarily unavailable. Please try again.") from exc
+
         return jti, expires_at
 
     @staticmethod
     def validate_session(db: Session, jti: str, user_id: Optional[str] = None) -> Optional[User]:
+        """
+        Validate a user session by jti.
+        Returns User if session is active and valid.
+        Returns None if session does not exist or has expired.
+        Raises DatabaseUnavailableException if PostgreSQL is unreachable.
+        """
         cached_user = app_cache.get(f"session:{jti}")
         if cached_user is not None:
             return cached_user
@@ -139,34 +163,16 @@ class AuthService:
                 .filter(UserSession.jti == jti)
                 .first()
             )
-        except Exception:
+        except SQLAlchemyError as exc:
             db.rollback()
-            session = None
+            logger.error(f"Database error during UserSession lookup: {exc}")
+            raise DatabaseUnavailableException("Database temporarily unavailable during session validation.") from exc
+
+        if not session:
+            # Query succeeded; session legitimately does not exist or was logged out
+            return None
 
         now = datetime.now(timezone.utc)
-
-        # Self-healing recovery: If session record was lost (e.g. database migration or reseed)
-        # but the request presents a cryptographically valid token signed by our SECRET_KEY
-        # and the user exists and is active, heal the session to avoid sudden user revocation.
-        if not session:
-            if user_id:
-                try:
-                    user = db.query(User).options(joinedload(User.role)).filter(User.id == user_id, User.status == "ACTIVE").first()
-                    if user:
-                        healed_session = UserSession(
-                            userId=user.id,
-                            jti=jti,
-                            device="Healed Session",
-                            expiresAt=now + timedelta(days=7),
-                            lastActive=now
-                        )
-                        db.add(healed_session)
-                        db.commit()
-                        app_cache.set(f"session:{jti}", user, ttl=60, tags=["session"])
-                        return user
-                except Exception:
-                    db.rollback()
-            return None
 
         # Timezone-safe expiration comparison
         expires_at = session.expiresAt
@@ -177,7 +183,7 @@ class AuthService:
             try:
                 db.delete(session)
                 db.commit()
-            except Exception:
+            except SQLAlchemyError:
                 db.rollback()
             return None
 
@@ -190,11 +196,11 @@ class AuthService:
             try:
                 session.lastActive = now
                 db.commit()
-            except Exception:
+            except SQLAlchemyError:
                 db.rollback()
 
         if session.user and session.user.status == "ACTIVE":
-            app_cache.set(f"session:{jti}", session.user, ttl=60, tags=["session"])
+            app_cache.set(f"session:{jti}", session.user, ttl=300, tags=["session"])
             return session.user
 
         return None
@@ -231,7 +237,13 @@ class AuthService:
         if not user_id:
             raise UnauthorizedException("Token missing user identity.", details={"code": "AUTH_TOKEN_INVALID"})
 
-        user = db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
+        try:
+            user = db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
+        except SQLAlchemyError as exc:
+            db.rollback()
+            logger.error(f"Database error during refresh token user lookup: {exc}")
+            raise DatabaseUnavailableException("Database is temporarily unavailable during token refresh.") from exc
+
         if not user or user.status != "ACTIVE":
             raise UnauthorizedException("User account is inactive or not found.", details={"code": "AUTH_SESSION_REVOKED"})
 
@@ -249,8 +261,10 @@ class AuthService:
             )
             db.add(new_session)
             db.commit()
-        except Exception:
+        except SQLAlchemyError as exc:
             db.rollback()
+            logger.error(f"Database error creating UserSession on refresh: {exc}")
+            raise DatabaseUnavailableException("Database is temporarily unavailable during token refresh.") from exc
 
         expires_delta = timedelta(days=days)
         new_access_token = create_access_token(
