@@ -1,6 +1,6 @@
 "use client"
 
-import { User, LogOut, Settings, KeyRound, Menu, HelpCircle, MonitorSmartphone } from "lucide-react"
+import { User, LogOut, Settings, KeyRound, Menu, HelpCircle } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useSidebar } from "@/components/layout/sidebar-provider"
 import { usePathname } from "next/navigation"
@@ -107,12 +107,6 @@ export function Header() {
               <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
-              <Link href="/profile/devices">
-                <MonitorSmartphone className="mr-2 h-4 w-4" />
-                <span>Device Management</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
