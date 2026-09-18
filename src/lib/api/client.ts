@@ -48,11 +48,69 @@ async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
 }
 
+let activeRefreshPromise: Promise<string | null> | null = null
+
+async function refreshAuthToken(): Promise<string | null> {
+  if (activeRefreshPromise) {
+    return activeRefreshPromise
+  }
+
+  activeRefreshPromise = (async () => {
+    try {
+      if (typeof window === "undefined") {
+        const { getAuthSession } = await import("@/lib/auth")
+        const session = await getAuthSession()
+        const currentToken = (session as any)?.accessToken
+        const refreshToken = (session as any)?.refreshToken || currentToken
+        if (!refreshToken) return null
+
+        const baseUrl = getBaseUrl()
+        const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/v1/auth/refresh`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${refreshToken}`,
+          },
+          body: JSON.stringify({ refreshToken }),
+        })
+
+        if (!res.ok) return null
+        const json = await res.json()
+        const data = json?.data || json
+        const newToken = data?.access_token
+        if (newToken && session) {
+          (session as any).accessToken = newToken
+          if (data.refresh_token) {
+            (session as any).refreshToken = data.refresh_token
+          }
+        }
+        return newToken || null
+      } else {
+        const res = await fetch("/api/v1/auth/refresh", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        })
+        if (!res.ok) return null
+        const json = await res.json()
+        const data = json?.data || json
+        return data?.access_token || null
+      }
+    } catch (err) {
+      console.warn("Automatic token refresh failed:", err)
+      return null
+    } finally {
+      activeRefreshPromise = null
+    }
+  })()
+
+  return activeRefreshPromise
+}
+
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit & { token?: string; tags?: string[]; revalidate?: number | false; retries?: number } = {}
+  options: RequestInit & { token?: string; tags?: string[]; revalidate?: number | false; retries?: number; _isRetryAfterRefresh?: boolean } = {}
 ): Promise<T> {
-  const { token: explicitToken, tags, revalidate, retries = 2, headers: customHeaders, ...fetchOptions } = options
+  const { token: explicitToken, tags, revalidate, retries = 2, headers: customHeaders, _isRetryAfterRefresh = false, ...fetchOptions } = options
   const token = explicitToken || (await getSessionToken())
 
   const baseUrl = getBaseUrl()
@@ -94,7 +152,19 @@ async function apiRequest<T>(
         ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
       })
 
-      // Retry on 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout
+      // Intercept 401 Unauthorized for automatic token refresh (except for auth endpoints themselves or already retried requests)
+      if (res.status === 401 && !cleanEndpoint.startsWith("/api/v1/auth/") && !_isRetryAfterRefresh) {
+        const refreshedToken = await refreshAuthToken()
+        if (refreshedToken) {
+          return apiRequest<T>(endpoint, {
+            ...options,
+            token: refreshedToken,
+            _isRetryAfterRefresh: true,
+          })
+        }
+      }
+
+      // Retry on 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout for idempotent GET requests
       if (!res.ok && isGet && [502, 503, 504].includes(res.status) && attempt < maxAttempts - 1) {
         continue
       }
@@ -185,6 +255,9 @@ export const apiClient = {
 
     getMe: (token?: string) =>
       apiClient.get<any>("/api/v1/auth/me", { token }),
+
+    refresh: (data?: { refreshToken?: string; refresh_token?: string }, options?: { token?: string }) =>
+      apiClient.post<any>("/api/v1/auth/refresh", data, options),
 
     logout: (token?: string) =>
       apiClient.post<any>("/api/v1/auth/logout", undefined, { token }),

@@ -11,8 +11,13 @@ class LoginRequest(BaseModel):
     browser: Optional[str] = None
     os: Optional[str] = None
 
+class RefreshTokenRequest(BaseModel):
+    refreshToken: Optional[str] = None
+    refresh_token: Optional[str] = None
+
 class TokenResponse(BaseModel):
     access_token: str
+    refresh_token: Optional[str] = None
     token_type: str = "bearer"
     expires_at: int
     user: "UserAuthProfile"

@@ -48,23 +48,62 @@ const EMPTY_METRIC: MetricComparison = {
   has_data: false,
 }
 
-// Module-level cache to preserve Last-Known-Good dashboard metrics across transient API failures
-let lastKnownGoodStats: DashboardStatsData | null = null
+// Global cache to preserve Last-Known-Good dashboard metrics across hot reloads & serverless workers
+const globalStats = globalThis as unknown as {
+  __lastKnownGoodStats?: DashboardStatsData | null
+}
 
 export async function getDashboardStats(): Promise<DashboardStatsData> {
+  let cached: DashboardStatsData | null = globalStats.__lastKnownGoodStats || null
+
+  // Fallback to local filesystem cache across process cold starts
+  if (!cached) {
+    try {
+      const fs = await import("fs/promises")
+      const path = await import("path")
+      const cachePath = path.join(process.cwd(), ".next", "cache", "dashboard-stats.json")
+      const raw = await fs.readFile(cachePath, "utf-8")
+      cached = JSON.parse(raw)
+      if (cached) {
+        globalStats.__lastKnownGoodStats = cached
+      }
+    } catch {
+      // No file cache yet
+    }
+  }
+
   try {
-    const stats = await apiClient.get<DashboardStatsData>("/api/v1/dashboard/stats")
-    if (stats && typeof stats === "object") {
-      lastKnownGoodStats = { ...stats, isError: false }
+    const stats = await apiClient.get<DashboardStatsData>("/api/v1/dashboard/stats", {
+      retries: 2,
+    })
+    if (stats && typeof stats === "object" && stats.foundationTotalFund) {
+      globalStats.__lastKnownGoodStats = { ...stats, isError: false }
+
+      // Asynchronously persist to file cache
+      try {
+        const fs = await import("fs/promises")
+        const path = await import("path")
+        const cacheDir = path.join(process.cwd(), ".next", "cache")
+        await fs.mkdir(cacheDir, { recursive: true })
+        await fs.writeFile(
+          path.join(cacheDir, "dashboard-stats.json"),
+          JSON.stringify(stats),
+          "utf-8"
+        )
+      } catch {
+        // Non-fatal if filesystem is read-only
+      }
+
+      return { ...stats, isError: false }
     }
     return stats
   } catch (err) {
     console.error("[Dashboard] Temporary API synchronization failure:", err)
 
     // VALID DATA + TEMPORARY API FAILURE = KEEP VALID DATA!
-    if (lastKnownGoodStats) {
+    if (cached) {
       return {
-        ...lastKnownGoodStats,
+        ...cached,
         isError: true,
       }
     }

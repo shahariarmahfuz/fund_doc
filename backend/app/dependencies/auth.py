@@ -31,28 +31,28 @@ def get_current_user(
         )
 
     if not token:
-        raise UnauthorizedException("Authentication token required.")
+        raise UnauthorizedException("Authentication token required.", details={"code": "AUTH_TOKEN_REQUIRED"})
 
     payload = decode_access_token(token)
     if not payload:
-        raise UnauthorizedException("Invalid or expired authentication token.")
+        raise UnauthorizedException("Invalid or expired authentication token.", details={"code": "AUTH_TOKEN_EXPIRED"})
 
     user_id = payload.get("sub")
     jti = payload.get("jti")
 
     if not user_id:
-        raise UnauthorizedException("Token missing user identity.")
+        raise UnauthorizedException("Token missing user identity.", details={"code": "AUTH_TOKEN_INVALID"})
 
-    # Validate session from DB if jti present
+    # Validate session from DB with self-healing support
     if jti:
-        user = AuthService.validate_session(db, jti)
+        user = AuthService.validate_session(db, jti, user_id=user_id)
         if not user:
-            raise UnauthorizedException("Session has been revoked or expired.")
+            raise UnauthorizedException("Session has been revoked or expired.", details={"code": "AUTH_SESSION_REVOKED"})
         return user
 
     user = db.query(User).filter(User.id == user_id, User.status == "ACTIVE").first()
     if not user:
-        raise UnauthorizedException("User account not found or inactive.")
+        raise UnauthorizedException("User account not found or inactive.", details={"code": "AUTH_USER_INACTIVE"})
 
     return user
 

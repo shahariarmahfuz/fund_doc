@@ -86,15 +86,28 @@ function DashboardSkeleton() {
   )
 }
 
-function getFinancialCardDisplay(metric?: MetricComparison) {
+function getFinancialCardDisplay(metric?: MetricComparison, isError?: boolean) {
   if (!metric || (!metric.has_data && metric.current === 0)) {
+    if (isError) {
+      return {
+        value: (
+          <span className="text-[20px] text-amber-600 font-medium">
+            Syncing...
+          </span>
+        ),
+        subValue: "Reconnecting to backend",
+        badgeLabel: "Reconnecting",
+        badgeIcon: RefreshCcw,
+        badgeVariant: "neutral" as const,
+      }
+    }
     return {
       value: (
         <>
           ৳0<span className="text-[18px] text-surface-500 font-medium">.00</span>
         </>
       ),
-      subValue: "No data available",
+      subValue: "No data recorded",
       badgeLabel: undefined,
       badgeIcon: undefined,
       badgeVariant: "neutral" as const,
@@ -132,10 +145,10 @@ function getFinancialCardDisplay(metric?: MetricComparison) {
 
 async function DashboardStats() {
   const stats = await getDashboardStats()
-  const cashDisplay = getFinancialCardDisplay(stats.currentCashBalance)
-  const foundationDisplay = getFinancialCardDisplay(stats.foundationTotalFund)
-  const groupDisplay = getFinancialCardDisplay(stats.totalGroupFunds)
-  const contribDisplay = getFinancialCardDisplay(stats.totalContributions)
+  const cashDisplay = getFinancialCardDisplay(stats.currentCashBalance, stats.isError)
+  const foundationDisplay = getFinancialCardDisplay(stats.foundationTotalFund, stats.isError)
+  const groupDisplay = getFinancialCardDisplay(stats.totalGroupFunds, stats.isError)
+  const contribDisplay = getFinancialCardDisplay(stats.totalContributions, stats.isError)
 
   const membersHasData = stats.totalMembers > 0
   const institutionsHasData = stats.totalGroups > 0 || stats.totalBeneficiaries > 0

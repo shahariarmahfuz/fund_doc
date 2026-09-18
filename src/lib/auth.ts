@@ -123,6 +123,7 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
             image: user.photo,
             accessToken: authData.access_token,
+            refreshToken: authData.refresh_token,
             permissions: user.permissions || [],
             expiresAt: authData.expires_at ? authData.expires_at * 1000 : Date.now() + 24 * 60 * 60 * 1000,
           } as any
@@ -145,16 +146,44 @@ export const authOptions: NextAuthOptions = {
         token.role = (user as any).role
         token.picture = (user as any).image || (user as any).photo
         token.accessToken = (user as any).accessToken
+        token.refreshToken = (user as any).refreshToken
         token.permissions = (user as any).permissions
         token.expiresAt = (user as any).expiresAt
+        return token
       }
 
-      // Check dynamic expiration
-      if (token.expiresAt && Date.now() > (token.expiresAt as number)) {
-        return {} as any
+      // Check dynamic expiration - proactively refresh within 5 minutes of expiration or if expired
+      const expiresAt = (token.expiresAt as number) || 0
+      const now = Date.now()
+
+      // If token still valid for more than 5 minutes, keep using it
+      if (expiresAt && now < expiresAt - 5 * 60 * 1000) {
+        return token
       }
 
-      return token
+      // Proactively refresh the token via backend
+      try {
+        const refreshRes = await apiClient.auth.refresh({
+          refreshToken: (token.refreshToken as string) || (token.accessToken as string)
+        })
+        if (refreshRes && refreshRes.access_token) {
+          token.accessToken = refreshRes.access_token
+          if (refreshRes.refresh_token) token.refreshToken = refreshRes.refresh_token
+          token.expiresAt = refreshRes.expires_at ? refreshRes.expires_at * 1000 : Date.now() + 24 * 60 * 60 * 1000
+          token.error = undefined
+          return token
+        }
+      } catch (err) {
+        console.warn("Token refresh attempt failed in NextAuth:", err)
+      }
+
+      // If refresh failed but expired less than 24 hours ago, preserve session temporarily during transient downtime
+      if (expiresAt && now < expiresAt + 24 * 60 * 60 * 1000) {
+        return token
+      }
+
+      // Only invalidate if expired for over 24 hours without successful refresh
+      return {} as any
     },
     async session({ session, token }) {
       if (!token || !token.id) {
@@ -169,6 +198,7 @@ export const authOptions: NextAuthOptions = {
         image: token.picture as string | null | undefined,
       } as any
       ;(session as any).accessToken = token.accessToken
+      ;(session as any).refreshToken = token.refreshToken
       ;(session as any).permissions = token.permissions || []
       return session
     },

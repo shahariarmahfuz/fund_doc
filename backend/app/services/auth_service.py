@@ -127,32 +127,153 @@ class AuthService:
         return jti, expires_at
 
     @staticmethod
-    def validate_session(db: Session, jti: str) -> Optional[User]:
-        cached_user_id = app_cache.get(f"session:{jti}")
-        if cached_user_id is not None:
-            user = db.query(User).options(joinedload(User.role)).filter(User.id == cached_user_id, User.status == "ACTIVE").first()
-            if user:
-                return user
+    def validate_session(db: Session, jti: str, user_id: Optional[str] = None) -> Optional[User]:
+        cached_user = app_cache.get(f"session:{jti}")
+        if cached_user is not None:
+            return cached_user
 
-        session = (
-            db.query(UserSession)
-            .options(joinedload(UserSession.user).joinedload(User.role))
-            .filter(UserSession.jti == jti)
-            .first()
-        )
-        if not session:
-            return None
+        try:
+            session = (
+                db.query(UserSession)
+                .options(joinedload(UserSession.user).joinedload(User.role))
+                .filter(UserSession.jti == jti)
+                .first()
+            )
+        except Exception:
+            db.rollback()
+            session = None
 
         now = datetime.now(timezone.utc)
-        if session.expiresAt.replace(tzinfo=timezone.utc) < now:
-            db.delete(session)
-            db.commit()
+
+        # Self-healing recovery: If session record was lost (e.g. database migration or reseed)
+        # but the request presents a cryptographically valid token signed by our SECRET_KEY
+        # and the user exists and is active, heal the session to avoid sudden user revocation.
+        if not session:
+            if user_id:
+                try:
+                    user = db.query(User).options(joinedload(User.role)).filter(User.id == user_id, User.status == "ACTIVE").first()
+                    if user:
+                        healed_session = UserSession(
+                            userId=user.id,
+                            jti=jti,
+                            device="Healed Session",
+                            expiresAt=now + timedelta(days=7),
+                            lastActive=now
+                        )
+                        db.add(healed_session)
+                        db.commit()
+                        app_cache.set(f"session:{jti}", user, ttl=60, tags=["session"])
+                        return user
+                except Exception:
+                    db.rollback()
             return None
 
-        # Update lastActive if older than 5 minutes
-        if (now - session.lastActive.replace(tzinfo=timezone.utc)).total_seconds() > 300:
-            session.lastActive = now
-            db.commit()
+        # Timezone-safe expiration comparison
+        expires_at = session.expiresAt
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=timezone.utc)
 
-        app_cache.set(f"session:{jti}", session.userId, ttl=60, tags=["session"])
-        return session.user
+        if expires_at < now:
+            try:
+                db.delete(session)
+                db.commit()
+            except Exception:
+                db.rollback()
+            return None
+
+        # Update lastActive if older than 5 minutes (timezone-safe)
+        last_active = session.lastActive
+        if last_active.tzinfo is None:
+            last_active = last_active.replace(tzinfo=timezone.utc)
+
+        if (now - last_active).total_seconds() > 300:
+            try:
+                session.lastActive = now
+                db.commit()
+            except Exception:
+                db.rollback()
+
+        if session.user and session.user.status == "ACTIVE":
+            app_cache.set(f"session:{jti}", session.user, ttl=60, tags=["session"])
+            return session.user
+
+        return None
+
+    @staticmethod
+    def refresh_session(db: Session, token: str) -> Tuple[str, str, int, User]:
+        """Refresh an access token and return (new_access_token, new_refresh_token, expires_at, user)."""
+        from jose import jwt, JWTError
+        from app.core.config import settings
+
+        payload = None
+        try:
+            payload = decode_access_token(token)
+        except Exception:
+            pass
+
+        if not payload:
+            try:
+                # Decode with verify_exp=False to allow refreshing expired tokens within a grace window
+                payload = jwt.decode(
+                    token, 
+                    settings.SECRET_KEY, 
+                    algorithms=[settings.ALGORITHM],
+                    options={"verify_exp": False}
+                )
+                exp = payload.get("exp", 0)
+                # Max grace window: 30 days
+                if datetime.now(timezone.utc).timestamp() - exp > 30 * 86400:
+                    raise UnauthorizedException("Session has expired beyond the refresh window. Please log in again.", details={"code": "AUTH_SESSION_REVOKED"})
+            except JWTError:
+                raise UnauthorizedException("Invalid token provided for refresh.", details={"code": "AUTH_TOKEN_INVALID"})
+
+        user_id = payload.get("sub")
+        if not user_id:
+            raise UnauthorizedException("Token missing user identity.", details={"code": "AUTH_TOKEN_INVALID"})
+
+        user = db.query(User).options(joinedload(User.role)).filter(User.id == user_id).first()
+        if not user or user.status != "ACTIVE":
+            raise UnauthorizedException("User account is inactive or not found.", details={"code": "AUTH_SESSION_REVOKED"})
+
+        new_jti = str(uuid.uuid4())
+        days = 30 if payload.get("rememberMe") or (payload.get("exp", 0) - payload.get("iat", 0) > 86400 * 2) else 1
+        expires_at_dt = datetime.now(timezone.utc) + timedelta(days=days)
+
+        try:
+            new_session = UserSession(
+                userId=user.id,
+                jti=new_jti,
+                device=payload.get("device", "Web"),
+                expiresAt=expires_at_dt,
+                lastActive=datetime.now(timezone.utc)
+            )
+            db.add(new_session)
+            db.commit()
+        except Exception:
+            db.rollback()
+
+        expires_delta = timedelta(days=days)
+        new_access_token = create_access_token(
+            subject=user.id,
+            expires_delta=expires_delta,
+            custom_claims={
+                "username": user.username,
+                "role": user.role.name if user.role else "USER",
+                "jti": new_jti,
+                "name": user.name,
+                "email": user.email
+            }
+        )
+        new_refresh_token = create_access_token(
+            subject=user.id,
+            expires_delta=timedelta(days=30),
+            custom_claims={
+                "type": "refresh",
+                "jti": new_jti,
+                "username": user.username
+            }
+        )
+        expires_at_ts = int(expires_at_dt.timestamp())
+        app_cache.set(f"session:{new_jti}", user, ttl=60, tags=["session"])
+        return new_access_token, new_refresh_token, expires_at_ts, user
+

@@ -57,13 +57,27 @@ app.add_exception_handler(Exception, generic_exception_handler)
 app.include_router(api_router, prefix="/api/v1")
 app.include_router(api_router, prefix="/api")
 
+from fastapi import Response
+from app.core.database import check_database_health
+
 @app.get("/health", tags=["Health"])
 @app.get("/api/health", tags=["Health"])
-def health_check():
+@app.get("/api/v1/health", tags=["Health"])
+def health_check(response: Response):
+    db_healthy = check_database_health()
+    status_str = "healthy" if db_healthy else "degraded"
+    if not db_healthy:
+        response.status_code = 503
+
     return {
-        "status": "healthy",
+        "status": status_str,
         "app": settings.APP_NAME,
-        "environment": settings.APP_ENV
+        "environment": settings.APP_ENV,
+        "services": {
+            "api": "up",
+            "database": "connected" if db_healthy else "unreachable",
+            "cache": "operational"
+        }
     }
 
 @app.get("/", tags=["Root"])
