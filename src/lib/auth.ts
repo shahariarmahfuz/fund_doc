@@ -134,6 +134,13 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith("/")) return url
+      try {
+        if (new URL(url).origin === baseUrl) return url
+      } catch (e) {}
+      return baseUrl
+    },
     async jwt({ token, user, trigger, session }) {
       if (trigger === "update" && session) {
         if (session.image !== undefined) token.picture = session.image
