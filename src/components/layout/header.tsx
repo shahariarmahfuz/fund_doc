@@ -117,7 +117,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-surface-200" />
             <DropdownMenuItem onClick={() => {
-                        return (signOut({ callbackUrl: window.location.origin + '/login' }));
+                        return (signOut({ callbackUrl: '/login' }));
                       }} className="hover:bg-accent-red/10 focus:bg-accent-red/10 text-accent-red focus:text-accent-red text-[13px] font-medium cursor-pointer transition-colors">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>

@@ -1,6 +1,13 @@
 "use client"
 
 import Link from "next/link"
+import { MoreVertical, Info, Target, Compass, Mail } from "lucide-react"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function PublicHeader() {
   return (
@@ -22,6 +29,46 @@ export function PublicHeader() {
           </span>
         </div>
       </Link>
+
+      {/* 3-dot (⋮) Navigation Menu */}
+      <div className="flex items-center gap-2">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="p-2.5 rounded-full bg-white/80 border border-slate-200 text-slate-700 hover:bg-slate-100 hover:text-teal-700 transition-all shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500"
+              aria-label="More navigation options"
+            >
+              <MoreVertical className="w-5 h-5" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-48 bg-white/95 backdrop-blur-md border border-slate-200 shadow-xl rounded-2xl p-1.5 space-y-1">
+            <DropdownMenuItem asChild className="hover:bg-slate-100/80 focus:bg-slate-100 rounded-xl text-slate-800 font-medium cursor-pointer p-2.5">
+              <Link href="/about" className="flex items-center gap-2.5">
+                <Info className="w-4 h-4 text-teal-600" />
+                <span>About Us</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="hover:bg-slate-100/80 focus:bg-slate-100 rounded-xl text-slate-800 font-medium cursor-pointer p-2.5">
+              <Link href="/goals" className="flex items-center gap-2.5">
+                <Target className="w-4 h-4 text-amber-600" />
+                <span>Our Goals</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="hover:bg-slate-100/80 focus:bg-slate-100 rounded-xl text-slate-800 font-medium cursor-pointer p-2.5">
+              <Link href="/mission" className="flex items-center gap-2.5">
+                <Compass className="w-4 h-4 text-emerald-600" />
+                <span>Our Mission / Vision</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="hover:bg-slate-100/80 focus:bg-slate-100 rounded-xl text-slate-800 font-medium cursor-pointer p-2.5">
+              <Link href="/contact" className="flex items-center gap-2.5">
+                <Mail className="w-4 h-4 text-sky-600" />
+                <span>Contact Us</span>
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   )
 }
