@@ -2,11 +2,9 @@
 
 import { apiClient } from "@/lib/api/client"
 import { getAuthSession } from "@/lib/auth"
-import { writeFile, mkdir } from "fs/promises"
-import { join } from "path"
-import crypto from "crypto"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { uploadToCloudinary } from "@/lib/cloudinary"
 
 async function getSessionUser() {
   const session = await getAuthSession()
@@ -56,29 +54,28 @@ export async function uploadProfilePhoto(formData: FormData) {
     return { success: false, error: "Unsupported image type. Use JPG, PNG or WEBP." }
   }
 
-  if (file.size > 2 * 1024 * 1024) return { success: false, error: "File exceeds 2MB limit" }
-
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const ext = file.name.split(".").pop()
-  const generatedFilename = `${crypto.randomBytes(16).toString("hex")}.${ext}`
-  const uploadDir = join(process.cwd(), "public", "uploads", "profiles")
+  if (file.size > 5 * 1024 * 1024) return { success: false, error: "File exceeds 5MB limit" }
 
   try {
-    await mkdir(uploadDir, { recursive: true })
-  } catch (e) {}
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const uploaded = await uploadToCloudinary(buffer, {
+      folder: "foundation/profiles",
+    })
 
-  const path = join(uploadDir, generatedFilename)
+    if (!uploaded?.secure_url) {
+      return { success: false, error: "Failed to upload image to Cloudinary" }
+    }
 
-  try {
-    await writeFile(path, buffer)
-    const secureUrl = `/uploads/profiles/${generatedFilename}`
+    const secureUrl = uploaded.secure_url
 
     await apiClient.users.update(session.user.id, { photo: secureUrl })
 
     revalidatePath("/profile")
+    revalidatePath("/settings/profile")
     return { success: true, url: secureUrl }
   } catch (e: any) {
-    return { success: false, error: "Failed to upload photo" }
+    console.error("Cloudinary upload profile error:", e)
+    return { success: false, error: e?.message || "Failed to upload photo" }
   }
 }
 

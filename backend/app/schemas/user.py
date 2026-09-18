@@ -20,6 +20,7 @@ class UserUpdate(BaseModel):
     email: Optional[str] = None
     mobile: Optional[str] = None
     status: Optional[str] = None
+    photo: Optional[str] = None
 
 class RoleBase(BaseSchema):
     id: str
