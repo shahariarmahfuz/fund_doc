@@ -222,6 +222,11 @@ Ensure you have the following installed locally:
    ```
    The application will be live at [http://localhost:3000](http://localhost:3000).
 
+5. (Optional) Expose via Cloudflare Quick Tunnel for remote preview:
+   ```bash
+   cloudflared tunnel --url http://127.0.0.1:3000
+   ```
+
 ---
 
 ## 6. Default Admin Credentials
