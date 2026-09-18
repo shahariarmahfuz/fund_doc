@@ -53,7 +53,7 @@ export function ProfileForm({ initialData }: { initialData: ProfileData }) {
         if (res.requireReauth) {
           toast.info("Your username has changed. Please log in again.")
           setTimeout(() => {
-            return (signOut({ callbackUrl: '/login' }));
+            return (signOut({ callbackUrl: window.location.origin + '/login' }));
           }, 2000)
         } else {
           router.refresh()
@@ -109,7 +109,7 @@ export function ProfileForm({ initialData }: { initialData: ProfileData }) {
       if (res.success) {
         toast.success("Password changed successfully. Please log in again.")
         setTimeout(() => {
-          return (signOut({ callbackUrl: '/login' }));
+          return (signOut({ callbackUrl: window.location.origin + '/login' }));
         }, 2000)
       } else {
         toast.error(res.error)

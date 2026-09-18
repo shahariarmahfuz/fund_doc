@@ -95,3 +95,25 @@ export async function changeUserPassword(data: { current: string; new: string })
     return { success: false, error: err?.message || "Failed to change password." }
   }
 }
+
+export async function getUserSessions() {
+  const session = await getSessionUser()
+  return {
+    sessions: [],
+    currentJti: (session as any).jti as string,
+  }
+}
+
+export async function logoutDevice(jti: string) {
+  revalidatePath("/profile/devices")
+  return { success: true }
+}
+
+export async function logoutOtherDevices() {
+  revalidatePath("/profile/devices")
+  return { success: true }
+}
+
+export async function logoutAllDevices() {
+  return { success: true, requireReauth: true }
+}

@@ -1,6 +1,6 @@
 "use client"
 
-import { User, LogOut, Settings, KeyRound, Menu, HelpCircle } from "lucide-react"
+import { User, LogOut, Settings, KeyRound, Menu, HelpCircle, MonitorSmartphone } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useSidebar } from "@/components/layout/sidebar-provider"
 import { usePathname } from "next/navigation"
@@ -110,6 +110,12 @@ export function Header() {
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
+              <Link href="/profile/devices">
+                <MonitorSmartphone className="mr-2 h-4 w-4" />
+                <span>Device Management</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
               <Link href="/profile/password">
                 <KeyRound className="mr-2 h-4 w-4" />
                 <span>Change Password</span>
@@ -117,7 +123,7 @@ export function Header() {
             </DropdownMenuItem>
             <DropdownMenuSeparator className="bg-surface-200" />
             <DropdownMenuItem onClick={() => {
-                        return (signOut({ callbackUrl: '/login' }));
+                        return (signOut({ callbackUrl: window.location.origin + '/login' }));
                       }} className="hover:bg-accent-red/10 focus:bg-accent-red/10 text-accent-red focus:text-accent-red text-[13px] font-medium cursor-pointer transition-colors">
               <LogOut className="mr-2 h-4 w-4" />
               <span>Logout</span>
