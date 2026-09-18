@@ -8,13 +8,10 @@ import {
   Users,
   Heart,
   Leaf,
-  Target,
-  Compass,
-  Mail,
+  Star,
   UserPlus,
   CheckCircle2,
   ArrowRight,
-  Sparkles,
 } from "lucide-react"
 
 export default async function PublicHomepage() {
@@ -155,92 +152,146 @@ export default async function PublicHomepage() {
         </section>
 
         {/* =================================================================== */}
-        {/* QUICK ACCESS CARDS (4 COMPACT ROUNDED CARDS)                        */}
+        {/* OUR VALUES SECTION (PREMIUM SOFT MINT CARD MATCHING VISUAL REF)     */}
         {/* =================================================================== */}
-        <section className="grid grid-cols-4 gap-2 sm:gap-3">
-          {/* Card 1: About Us */}
-          <Link
-            href="/about"
-            className="bg-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 text-center border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between items-center group cursor-pointer"
+        <section className="relative rounded-3xl bg-[#EEF7F4] border border-[#CCEAE0] shadow-[0_4px_24px_rgba(13,126,115,0.04)] px-2 sm:px-6 py-5 sm:py-6 overflow-hidden text-center">
+          {/* Left Decorative Botanical Leaves */}
+          <svg
+            className="absolute -left-1 sm:left-0 top-1.5 sm:top-2 w-14 sm:w-20 h-22 sm:h-28 pointer-events-none select-none text-[#74B6A3]/65"
+            viewBox="0 0 100 130"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center mb-2 shrink-0">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div className="space-y-0.5">
-              <h3 className="font-bold text-[#0F172A] text-xs sm:text-sm leading-tight">
-                About Us
-              </h3>
-              <p className="text-[9px] sm:text-[11px] text-slate-400 font-normal line-clamp-1">
-                Know our journey
-              </p>
-            </div>
-            <div className="w-6 h-6 rounded-full bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center mt-2.5 group-hover:bg-[#0D7E73] group-hover:text-white transition-colors">
-              <ArrowRight className="w-3 h-3" />
-            </div>
-          </Link>
+            <path
+              d="M -5 115 C 18 85, 34 55, 46 22"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M 46 22 C 60 12, 82 16, 88 34 C 74 46, 52 38, 46 22 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 36 42 C 26 28, 8 28, 4 42 C 16 52, 30 50, 36 42 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 26 66 C 42 56, 62 62, 65 76 C 50 84, 34 78, 26 66 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 14 90 C 2 78, -6 82, -8 94 C 2 102, 12 98, 14 90 Z"
+              fill="currentColor"
+            />
+          </svg>
 
-          {/* Card 2: Our Goals */}
-          <Link
-            href="/goals"
-            className="bg-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 text-center border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between items-center group cursor-pointer"
+          {/* Right Decorative Botanical Leaves */}
+          <svg
+            className="absolute -right-1 sm:right-0 top-1.5 sm:top-2 w-14 sm:w-20 h-22 sm:h-28 pointer-events-none select-none text-[#74B6A3]/65"
+            viewBox="0 0 100 130"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
           >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FEF3C7] text-[#D97706] flex items-center justify-center mb-2 shrink-0">
-              <Target className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div className="space-y-0.5">
-              <h3 className="font-bold text-[#0F172A] text-xs sm:text-sm leading-tight">
-                Our Goals
-              </h3>
-              <p className="text-[9px] sm:text-[11px] text-slate-400 font-normal line-clamp-1">
-                What we aim for
-              </p>
-            </div>
-            <div className="w-6 h-6 rounded-full bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center mt-2.5 group-hover:bg-[#0D7E73] group-hover:text-white transition-colors">
-              <ArrowRight className="w-3 h-3" />
-            </div>
-          </Link>
+            <path
+              d="M 105 115 C 82 85, 66 55, 54 22"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+            />
+            <path
+              d="M 54 22 C 40 12, 18 16, 12 34 C 26 46, 48 38, 54 22 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 64 42 C 74 28, 92 28, 96 42 C 84 52, 70 50, 64 42 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 74 66 C 58 56, 38 62, 35 76 C 50 84, 66 78, 74 66 Z"
+              fill="currentColor"
+            />
+            <path
+              d="M 86 90 C 98 78, 106 82, 108 94 C 98 102, 88 98, 86 90 Z"
+              fill="currentColor"
+            />
+          </svg>
 
-          {/* Card 3: Our Mission */}
-          <Link
-            href="/mission"
-            className="bg-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 text-center border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between items-center group cursor-pointer"
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center mb-2 shrink-0">
-              <Compass className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div className="space-y-0.5">
-              <h3 className="font-bold text-[#0F172A] text-xs sm:text-sm leading-tight">
-                Our Mission
-              </h3>
-              <p className="text-[9px] sm:text-[11px] text-slate-400 font-normal line-clamp-1">
-                Our vision for change
-              </p>
-            </div>
-            <div className="w-6 h-6 rounded-full bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center mt-2.5 group-hover:bg-[#0D7E73] group-hover:text-white transition-colors">
-              <ArrowRight className="w-3 h-3" />
-            </div>
-          </Link>
+          {/* Center Heading with Decorative Thin Lines */}
+          <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 relative z-10">
+            <span className="h-[1px] w-6 sm:w-9 bg-[#7BBBAA]" aria-hidden="true" />
+            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-[#2F7E6F] uppercase">
+              OUR VALUES
+            </span>
+            <span className="h-[1px] w-6 sm:w-9 bg-[#7BBBAA]" aria-hidden="true" />
+          </div>
 
-          {/* Card 4: Contact Us */}
-          <Link
-            href="/contact"
-            className="bg-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-4 text-center border border-slate-100 shadow-[0_4px_16px_rgba(0,0,0,0.03)] hover:shadow-md hover:-translate-y-0.5 transition-all duration-150 flex flex-col justify-between items-center group cursor-pointer"
-          >
-            <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E0F2FE] text-[#0284C7] flex items-center justify-center mb-2 shrink-0">
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5" />
-            </div>
-            <div className="space-y-0.5">
-              <h3 className="font-bold text-[#0F172A] text-xs sm:text-sm leading-tight">
-                Contact Us
+          {/* Centerpiece Headline: People • Community • Change */}
+          <h2 className="font-serif italic text-xl sm:text-2xl md:text-[28px] font-medium text-[#115E54] tracking-tight mt-1.5 relative z-10">
+            People <span className="inline-block mx-1 sm:mx-2 text-[#4EA896] not-italic text-sm sm:text-base align-middle">•</span> Community <span className="inline-block mx-1 sm:mx-2 text-[#4EA896] not-italic text-sm sm:text-base align-middle">•</span> Change
+          </h2>
+
+          {/* Tagline */}
+          <p className="text-xs sm:text-[13px] font-medium text-[#2F7E6F]/90 mt-1 relative z-10">
+            Together for a kinder, stronger tomorrow.
+          </p>
+
+          {/* 4 Values Grid with Subtle Vertical Dividers */}
+          <div className="grid grid-cols-4 divide-x divide-[#CCEAE0] mt-5 sm:mt-6 pt-1 relative z-10">
+            {/* Value 1: Compassion */}
+            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#DCF3EB] flex items-center justify-center mb-2 shadow-2xs">
+                <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D7E73] fill-[#0D7E73]" />
+              </div>
+              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+                Compassion
               </h3>
-              <p className="text-[9px] sm:text-[11px] text-slate-400 font-normal line-clamp-1">
-                Get in touch
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                We care
               </p>
             </div>
-            <div className="w-6 h-6 rounded-full bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center mt-2.5 group-hover:bg-[#0D7E73] group-hover:text-white transition-colors">
-              <ArrowRight className="w-3 h-3" />
+
+            {/* Value 2: Unity */}
+            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-2 shadow-2xs">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] fill-[#D97706]" />
+              </div>
+              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+                Unity
+              </h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                We stand together
+              </p>
             </div>
-          </Link>
+
+            {/* Value 3: Service */}
+            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-2 shadow-2xs">
+                <Leaf className="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
+              </div>
+              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+                Service
+              </h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                We take action
+              </p>
+            </div>
+
+            {/* Value 4: Impact */}
+            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
+              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#E0F2FE] flex items-center justify-center mb-2 shadow-2xs">
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#0284C7] fill-[#0284C7]" />
+              </div>
+              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+                Impact
+              </h3>
+              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+                We create change
+              </p>
+            </div>
+          </div>
         </section>
 
         {/* =================================================================== */}
