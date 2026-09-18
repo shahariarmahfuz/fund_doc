@@ -48,12 +48,27 @@ const EMPTY_METRIC: MetricComparison = {
   has_data: false,
 }
 
+// Module-level cache to preserve Last-Known-Good dashboard metrics across transient API failures
+let lastKnownGoodStats: DashboardStatsData | null = null
+
 export async function getDashboardStats(): Promise<DashboardStatsData> {
   try {
     const stats = await apiClient.get<DashboardStatsData>("/api/v1/dashboard/stats")
+    if (stats && typeof stats === "object") {
+      lastKnownGoodStats = { ...stats, isError: false }
+    }
     return stats
   } catch (err) {
-    console.error("Failed to fetch dashboard stats from FastAPI:", err)
+    console.error("[Dashboard] Temporary API synchronization failure:", err)
+
+    // VALID DATA + TEMPORARY API FAILURE = KEEP VALID DATA!
+    if (lastKnownGoodStats) {
+      return {
+        ...lastKnownGoodStats,
+        isError: true,
+      }
+    }
+
     return {
       totalMembers: 0,
       activeMembers: 0,
@@ -73,4 +88,3 @@ export async function getDashboardStats(): Promise<DashboardStatsData> {
     }
   }
 }
-

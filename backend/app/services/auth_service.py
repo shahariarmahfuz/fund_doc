@@ -128,9 +128,11 @@ class AuthService:
 
     @staticmethod
     def validate_session(db: Session, jti: str) -> Optional[User]:
-        cached_user = app_cache.get(f"session:{jti}")
-        if cached_user is not None:
-            return cached_user
+        cached_user_id = app_cache.get(f"session:{jti}")
+        if cached_user_id is not None:
+            user = db.query(User).options(joinedload(User.role)).filter(User.id == cached_user_id, User.status == "ACTIVE").first()
+            if user:
+                return user
 
         session = (
             db.query(UserSession)
@@ -152,5 +154,5 @@ class AuthService:
             session.lastActive = now
             db.commit()
 
-        app_cache.set(f"session:{jti}", session.user, ttl=60, tags=["session"])
+        app_cache.set(f"session:{jti}", session.userId, ttl=60, tags=["session"])
         return session.user

@@ -87,7 +87,7 @@ function DashboardSkeleton() {
 }
 
 function getFinancialCardDisplay(metric?: MetricComparison) {
-  if (!metric || !metric.has_data || (metric.current === 0 && !metric.has_comparison && metric.previous == null)) {
+  if (!metric || (!metric.has_data && metric.current === 0)) {
     return {
       value: (
         <>
@@ -150,7 +150,7 @@ async function DashboardStats() {
           <div>
             <p className="font-medium">Backend Service Notice</p>
             <p className="text-xs text-amber-600/80 mt-0.5">
-              Unable to synchronize with backend services. Displaying default empty state.
+              Unable to reach backend services. Displaying last synchronized metrics.
             </p>
           </div>
         </div>
@@ -311,4 +311,3 @@ async function DashboardStats() {
     </>
   )
 }
-

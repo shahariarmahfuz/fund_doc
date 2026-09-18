@@ -44,11 +44,15 @@ async function getSessionToken(): Promise<string | undefined> {
   }
 }
 
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
 async function apiRequest<T>(
   endpoint: string,
-  options: RequestInit & { token?: string; tags?: string[]; revalidate?: number | false } = {}
+  options: RequestInit & { token?: string; tags?: string[]; revalidate?: number | false; retries?: number } = {}
 ): Promise<T> {
-  const { token: explicitToken, tags, revalidate, headers: customHeaders, ...fetchOptions } = options
+  const { token: explicitToken, tags, revalidate, retries = 2, headers: customHeaders, ...fetchOptions } = options
   const token = explicitToken || (await getSessionToken())
 
   const baseUrl = getBaseUrl()
@@ -72,50 +76,80 @@ async function apiRequest<T>(
     nextOptions.revalidate = revalidate
   }
 
-  let res: Response
-  try {
-    res = await fetch(url, {
-      ...fetchOptions,
-      headers,
-      ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
-    })
-  } catch (err: any) {
-    throw new ApiError(
-      `Network request failed to ${url}: ${err?.message || "Unknown error"}`,
-      "NETWORK_ERROR",
-      0
-    )
-  }
+  const isGet = (fetchOptions.method || "GET").toUpperCase() === "GET"
+  const maxAttempts = isGet ? Math.max(1, retries + 1) : 1
 
-  let json: any = null
-  const text = await res.text()
-  if (text) {
+  let lastError: ApiError | null = null
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      json = JSON.parse(text)
-    } catch {
-      json = { raw: text }
+      if (attempt > 0) {
+        // Small exponential delay (500ms, 1000ms) for transient network/server blips
+        await sleep(500 * Math.pow(2, attempt - 1))
+      }
+
+      const res = await fetch(url, {
+        ...fetchOptions,
+        headers,
+        ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
+      })
+
+      // Retry on 502 Bad Gateway, 503 Service Unavailable, 504 Gateway Timeout
+      if (!res.ok && isGet && [502, 503, 504].includes(res.status) && attempt < maxAttempts - 1) {
+        continue
+      }
+
+      let json: any = null
+      const text = await res.text()
+      if (text) {
+        try {
+          json = JSON.parse(text)
+        } catch {
+          json = { raw: text }
+        }
+      }
+
+      if (!res.ok) {
+        const message =
+          json?.detail ||
+          json?.error?.message ||
+          json?.message ||
+          `HTTP error ${res.status}: ${res.statusText}`
+        const code = json?.error?.code || json?.code || `HTTP_${res.status}`
+        throw new ApiError(message, code, res.status, json?.error?.details || json?.detail)
+      }
+
+      if (json && typeof json === "object" && "success" in json) {
+        return json.data as T
+      }
+
+      return json as T
+    } catch (err: any) {
+      if (err instanceof ApiError) {
+        // If 401/403 or non-retriable error, rethrow immediately
+        if ([401, 403, 404, 422].includes(err.status || 0) || !isGet || attempt === maxAttempts - 1) {
+          throw err
+        }
+        lastError = err
+      } else {
+        const netErr = new ApiError(
+          `Network request failed to ${url}: ${err?.message || "Unknown error"}`,
+          "NETWORK_ERROR",
+          0
+        )
+        if (!isGet || attempt === maxAttempts - 1) {
+          throw netErr
+        }
+        lastError = netErr
+      }
     }
   }
 
-  if (!res.ok) {
-    const message =
-      json?.detail ||
-      json?.error?.message ||
-      json?.message ||
-      `HTTP error ${res.status}: ${res.statusText}`
-    const code = json?.error?.code || json?.code || `HTTP_${res.status}`
-    throw new ApiError(message, code, res.status, json?.error?.details || json?.detail)
-  }
-
-  if (json && typeof json === "object" && "success" in json) {
-    return json.data as T
-  }
-
-  return json as T
+  throw lastError || new ApiError(`Request failed to ${url}`, "UNKNOWN_ERROR", 0)
 }
 
 export const apiClient = {
-  get: <T>(endpoint: string, options?: { token?: string; tags?: string[]; revalidate?: number | false }) =>
+  get: <T>(endpoint: string, options?: { token?: string; tags?: string[]; revalidate?: number | false; retries?: number }) =>
     apiRequest<T>(endpoint, { method: "GET", ...options }),
 
   post: <T>(endpoint: string, body?: any, options?: { token?: string }) =>
@@ -651,4 +685,3 @@ export const apiClient = {
     },
   },
 }
-
