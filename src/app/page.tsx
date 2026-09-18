@@ -29,30 +29,46 @@ export default async function PublicHomepage() {
       {/* =================================================================== */}
       {/* FULL-BLEED ATMOSPHERIC HERO BACKGROUND LAYER (NO HARD BOUNDARIES)   */}
       {/* =================================================================== */}
-      <div className="absolute top-0 right-0 w-full h-[560px] sm:h-[620px] pointer-events-none select-none z-0 overflow-hidden">
+      <div className="absolute top-0 right-0 w-full md:w-[70%] lg:w-[64%] xl:w-[60%] h-[580px] sm:h-[640px] md:h-[680px] pointer-events-none select-none z-0 overflow-hidden">
         <div className="relative w-full h-full">
           <Image
             src="/images/hero-mosque.jpg"
             alt="Humanitarian Atmosphere"
             fill
             priority
-            className="object-cover object-[84%_top] sm:object-[74%_top] opacity-85 sm:opacity-90"
+            className="object-cover object-[78%_28%] sm:object-[76%_30%] md:object-[center_38%] opacity-85 sm:opacity-90"
             sizes="100vw"
           />
           {/* Seamless Multi-Directional Atmospheric Gradients for High Text Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#EFF8F6] via-[#EFF8F6]/85 sm:via-[#EFF8F6]/75 via-42% sm:via-45% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#EFF8F6] via-[#EFF8F6]/85 md:via-[#EFF8F6]/60 via-40% md:via-25% to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#EFF8F6] via-[#EFF8F6]/40 via-15% to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-b from-[#EFF8F6]/60 via-transparent to-transparent" />
         </div>
       </div>
 
       {/* Main Content Area */}
-      <main className="w-full max-w-lg sm:max-w-xl md:max-w-2xl mx-auto px-4 sm:px-6 pt-20 sm:pt-24 pb-8 space-y-4 sm:space-y-5 flex-1 relative z-10">
+      <main className="w-full max-w-lg sm:max-w-xl md:max-w-5xl lg:max-w-6xl mx-auto px-4 sm:px-6 md:px-8 pt-20 sm:pt-24 pb-12 space-y-4 sm:space-y-6 flex-1 relative z-10">
         
         {/* =================================================================== */}
         {/* HERO SECTION (FOREGROUND CONTENT & HORIZONTAL CTA CARDS)            */}
         {/* =================================================================== */}
-        <section className="pt-2 sm:pt-4 pb-1 space-y-4 sm:space-y-5">
+        <section className="pt-2 sm:pt-4 pb-1 space-y-4 sm:space-y-6 relative">
+          {/* Desktop Floating Script Accent (Matching PC Reference) */}
+          <div className="hidden md:block absolute right-8 lg:right-24 top-2 lg:top-6 select-none pointer-events-none text-right -rotate-6 tracking-wide leading-tight">
+            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+              A kinder
+            </span>
+            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+              Stronger
+            </span>
+            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+              Tomorrow
+            </span>
+            <svg className="w-24 h-4 text-[#2F6558]/70 ml-auto mt-0.5" viewBox="0 0 100 20" fill="none">
+              <path d="M 10 10 Q 50 18 95 6" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
+            </svg>
+          </div>
+
           {/* Hero Foreground Text */}
           <div className="space-y-3 sm:space-y-3.5 max-w-[310px] sm:max-w-md">
             {/* Pill Category Badge */}
@@ -78,34 +94,52 @@ export default async function PublicHomepage() {
               for the pleasure of the Almighty.
             </p>
 
-            {/* Subtle Brand Ribbon: — People • Community • Change */}
-            <div className="flex items-center gap-2 text-xs sm:text-sm font-medium text-slate-500 pt-0.5">
-              <span className="h-[2px] w-6 bg-[#0D7E73] rounded-full" aria-hidden="true" />
-              <span>People</span>
-              <span className="text-[#0D7E73]">•</span>
-              <span>Community</span>
-              <span className="text-[#0D7E73]">•</span>
-              <span>Change</span>
+            {/* Tag Line: Mobile has "— People • Community • Change", Desktop has icons with dividers */}
+            <div className="pt-0.5">
+              {/* Mobile version */}
+              <div className="flex sm:hidden items-center gap-2 text-xs font-semibold text-[#0D7E73]">
+                <span className="w-4 h-[2px] bg-[#0D7E73] rounded-full" />
+                <span>People</span>
+                <span className="text-[#0D7E73]">•</span>
+                <span>Community</span>
+                <span className="text-[#0D7E73]">•</span>
+                <span>Change</span>
+              </div>
+              {/* Desktop / Tablet version */}
+              <div className="hidden sm:flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-[#0D7E73]">
+                <span className="flex items-center gap-1.5">
+                  <Leaf className="w-3.5 h-3.5 text-[#0D7E73]" /> People
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="flex items-center gap-1.5">
+                  <Heart className="w-3.5 h-3.5 fill-[#0D7E73] text-[#0D7E73]" /> Community
+                </span>
+                <span className="text-slate-300">|</span>
+                <span className="flex items-center gap-1.5">
+                  <Users className="w-3.5 h-3.5 text-[#0D7E73]" /> Change
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* TWO HORIZONTAL CTA CARDS (BECOME A MEMBER + CHECK APPLICATION STATUS) */}
-          <div className="space-y-2.5 sm:space-y-3 pt-1">
+          {/* TWO HORIZONTAL CTA CARDS (1 COL ON MOBILE, 2 COLS ON DESKTOP) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 lg:gap-5 pt-1">
             {/* Primary Action: Become a Member */}
             <Link
               href="/member-request"
-              className="w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#0C7368] to-[#0A645B] hover:from-[#0B685E] hover:to-[#09574F] text-white p-3.5 sm:p-4.5 flex items-center justify-between shadow-[0_10px_25px_-5px_rgba(12,115,104,0.38)] transition-all duration-150 active:scale-[0.99] group cursor-pointer relative overflow-hidden"
+              className="w-full rounded-2xl sm:rounded-3xl bg-gradient-to-r from-[#0C7368] to-[#0A645B] hover:from-[#0B685E] hover:to-[#09574F] text-white p-4 sm:p-5 flex items-center justify-between shadow-[0_10px_25px_-5px_rgba(12,115,104,0.38)] transition-all duration-150 active:scale-[0.99] group cursor-pointer relative overflow-hidden"
             >
               {/* Subtle background wave/leaf watermark */}
-              <div className="absolute right-12 -bottom-6 w-28 h-28 pointer-events-none select-none opacity-10">
-                <svg viewBox="0 0 100 100" fill="white">
-                  <circle cx="50" cy="50" r="45" stroke="white" strokeWidth="2" fill="none" />
-                  <path d="M 50 5 Q 75 50 50 95 Q 25 50 50 5 Z" fill="white" />
+              <div className="absolute right-12 -bottom-6 w-32 h-32 pointer-events-none select-none opacity-15">
+                <svg viewBox="0 0 100 100" fill="none" stroke="white" strokeWidth="3">
+                  <path d="M 20 80 C 40 40 70 30 90 20" />
+                  <path d="M 40 90 C 60 50 85 40 100 35" />
+                  <path d="M 60 95 C 75 70 90 60 100 55" />
                 </svg>
               </div>
 
               {/* Left: Icon + Text Beside It (Strictly Horizontal Composition) */}
-              <div className="flex items-center gap-3 sm:gap-4 relative z-10 text-left min-w-0 pr-2">
+              <div className="flex items-center gap-3.5 sm:gap-4 relative z-10 text-left min-w-0 pr-2">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-white/15 backdrop-blur-xs flex items-center justify-center shrink-0 shadow-inner">
                   <UserPlus className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" strokeWidth={2.2} />
                 </div>
@@ -119,16 +153,19 @@ export default async function PublicHomepage() {
                 </div>
               </div>
 
-              {/* Right: Circular Arrow Button */}
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-[#0C7368] flex items-center justify-center shrink-0 shadow-xs group-hover:scale-105 group-hover:translate-x-0.5 transition-transform relative z-10">
-                <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0C7368]" strokeWidth={2.2} />
+              {/* Right: Divider & Circular Arrow Button */}
+              <div className="flex items-center gap-3 sm:gap-4 shrink-0 relative z-10">
+                <span className="h-7 w-px bg-white/20" aria-hidden="true" />
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-white text-[#0C7368] flex items-center justify-center shadow-xs group-hover:scale-105 group-hover:translate-x-0.5 transition-transform">
+                  <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0C7368]" strokeWidth={2.2} />
+                </div>
               </div>
             </Link>
 
             {/* Secondary Action: Check Application Status */}
             <Link
               href="/member-request/status"
-              className="w-full rounded-2xl sm:rounded-3xl bg-white/95 hover:bg-white active:bg-slate-50 text-[#0F172A] p-3.5 sm:p-4.5 border border-slate-200/85 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-150 active:scale-[0.99] group cursor-pointer relative overflow-hidden"
+              className="w-full rounded-2xl sm:rounded-3xl bg-white/95 hover:bg-white active:bg-slate-50 text-[#0F172A] p-4 sm:p-5 border border-slate-200/85 flex items-center justify-between shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-150 active:scale-[0.99] group cursor-pointer relative overflow-hidden"
             >
               {/* Subtle bottom-right leaf watermark */}
               <div className="absolute -right-2 -bottom-2 w-16 h-16 pointer-events-none select-none opacity-20 text-[#74B6A3]">
@@ -138,21 +175,22 @@ export default async function PublicHomepage() {
               </div>
 
               {/* Left: Icon + Text Beside It (Strictly Horizontal Composition) */}
-              <div className="flex items-center gap-3 sm:gap-4 relative z-10 text-left min-w-0 pr-2">
+              <div className="flex items-center gap-3.5 sm:gap-4 relative z-10 text-left min-w-0 pr-2">
                 <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center shrink-0">
                   <svg
-                    className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-[#0D7E73]"
+                    className="w-5.5 h-5.5 text-[#0D7E73]"
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="2.2"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   >
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-                    <polyline points="14 2 14 8 20 8" />
-                    <line x1="9" y1="12" x2="13" y2="12" />
-                    <polyline points="9 16 11 18 15 14" />
+                    <path d="M4 4v16a1 1 0 0 0 1 1h8" />
+                    <path d="M4 4h14a1 1 0 0 1 1 1v7" />
+                    <line x1="8" y1="8" x2="14" y2="8" />
+                    <line x1="8" y1="12" x2="12" y2="12" />
+                    <polyline points="15 17 17 19 22 13" stroke="#0D7E73" strokeWidth="2.4" />
                   </svg>
                 </div>
                 <div className="min-w-0">
@@ -166,7 +204,7 @@ export default async function PublicHomepage() {
               </div>
 
               {/* Right: Circular Arrow Button */}
-              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-slate-50 border border-slate-100 text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 group-hover:translate-x-0.5 transition-transform relative z-10">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E8F5F1] border border-[#C6E9E0] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs group-hover:scale-105 group-hover:translate-x-0.5 transition-transform relative z-10">
                 <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D7E73]" strokeWidth={2.2} />
               </div>
             </Link>
@@ -174,9 +212,9 @@ export default async function PublicHomepage() {
         </section>
 
         {/* =================================================================== */}
-        {/* STATS SECTION (UNIFIED COHESIVE CARD MATCHING REDESIGNED REFERENCE) */}
+        {/* STATS SECTION (RESPONSIVE: 3-COL ON DESKTOP, 2+1 ON MOBILE)         */}
         {/* =================================================================== */}
-        <section className="bg-white rounded-3xl p-4 sm:p-5 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
+        <section className="bg-white rounded-3xl p-4 sm:p-5 md:p-6 border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] relative overflow-hidden">
           {/* Subtle Botanical Leaf Watermarks on Edges */}
           <div className="absolute -left-3 -bottom-3 w-16 h-16 pointer-events-none select-none text-[#74B6A3]/25">
             <svg viewBox="0 0 60 60" fill="currentColor">
@@ -189,74 +227,194 @@ export default async function PublicHomepage() {
             </svg>
           </div>
 
-          {/* Top Row: Two Stat Items */}
-          <div className="grid grid-cols-2 divide-x divide-slate-100 relative z-10">
-            {/* Stat Item 1: Lives Supported */}
-            <div className="flex items-center gap-2 sm:gap-3.5 pr-1.5 sm:pr-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
-                <Users className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
+          {/* DESKTOP VIEW: 3 Equal Columns Divided Vertically (Matching PC Reference) */}
+          <div className="hidden md:grid md:grid-cols-3 divide-x divide-slate-100 relative z-10 items-center">
+            {/* Stat 1: Lives Supported */}
+            <div className="flex items-center gap-3.5 pr-4 pl-2">
+              <div className="w-12 h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
+                <Users className="w-5.5 h-5.5" />
               </div>
               <div className="text-left min-w-0">
-                <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                <div className="text-2xl font-black text-[#0F172A] tracking-tight leading-none">
                   1,250+
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
                   Lives Supported
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
+                <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
                   Real people, real change
                 </div>
               </div>
             </div>
 
-            {/* Stat Item 2: Community Projects */}
-            <div className="flex items-center gap-2 sm:gap-3.5 pl-2 sm:pl-4">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
-                <Heart className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 fill-[#0D7E73]" />
+            {/* Stat 2: Community Projects */}
+            <div className="flex items-center gap-3.5 px-6">
+              <div className="w-12 h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
+                <Heart className="w-5.5 h-5.5 fill-[#0D7E73]" />
               </div>
               <div className="text-left min-w-0">
-                <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                <div className="text-2xl font-black text-[#0F172A] tracking-tight leading-none">
                   50+
                 </div>
-                <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
                   Community Projects
                 </div>
-                <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
-                  Stronger communities every day
+                <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
+                  Stronger communities
+                </div>
+              </div>
+            </div>
+
+            {/* Stat 3: For a Better Tomorrow */}
+            <div className="flex items-center gap-3.5 pl-6">
+              <div className="w-12 h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
+                <Leaf className="w-5.5 h-5.5 text-[#0D7E73]" />
+              </div>
+              <div className="text-left min-w-0">
+                <div className="text-2xl font-black text-[#0D7E73] tracking-tight leading-none">
+                  100%
+                </div>
+                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
+                  For a Better Tomorrow
+                </div>
+                <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
+                  Together we build a brighter future
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Clean Horizontal Divider Line */}
-          <div className="my-3.5 sm:my-4.5 border-t border-slate-100 relative z-10" />
-
-          {/* Bottom Row: 100% For a Better Tomorrow */}
-          <div className="flex items-center justify-center gap-2.5 sm:gap-3 relative z-10">
-            <div className="flex items-center gap-1.5 shrink-0">
-              <Leaf className="w-4.5 h-4.5 sm:w-5 sm:h-5 text-[#0D7E73] fill-[#0D7E73]/20" />
-              <span className="text-lg sm:text-2xl font-black text-[#0D7E73] tracking-tight">
-                100%
-              </span>
-            </div>
-            <div className="text-left">
-              <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
-                For a Better Tomorrow
+          {/* MOBILE VIEW: 2 Columns on Top + 1 Bottom Centered (Matching Mobile Reference) */}
+          <div className="md:hidden relative z-10">
+            {/* Top Row: Two Stat Items */}
+            <div className="grid grid-cols-2 divide-x divide-slate-100">
+              {/* Stat Item 1: Lives Supported */}
+              <div className="flex items-center gap-2 sm:gap-3.5 pr-1.5 sm:pr-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Users className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
+                </div>
+                <div className="text-left min-w-0">
+                  <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                    1,250+
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                    Lives Supported
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
+                    Real people, real change
+                  </div>
+                </div>
               </div>
-              <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
-                Together we build a kinder, brighter future
+
+              {/* Stat Item 2: Community Projects */}
+              <div className="flex items-center gap-2 sm:gap-3.5 pl-2 sm:pl-4">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#E0F4EE] text-[#0D7E73] flex items-center justify-center shrink-0 shadow-2xs">
+                  <Heart className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 fill-[#0D7E73]" />
+                </div>
+                <div className="text-left min-w-0">
+                  <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                    50+
+                  </div>
+                  <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                    Community Projects
+                  </div>
+                  <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
+                    Stronger communities every day
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Clean Horizontal Divider Line */}
+            <div className="my-3.5 border-t border-slate-100" />
+
+            {/* Bottom Row: 100% For a Better Tomorrow */}
+            <div className="flex items-center justify-center gap-2.5 sm:gap-3">
+              <div className="flex items-center gap-1.5 shrink-0">
+                <Leaf className="w-4.5 h-4.5 text-[#0D7E73]" />
+                <span className="text-lg sm:text-2xl font-black text-[#0D7E73] tracking-tight">
+                  100%
+                </span>
+              </div>
+              <div className="text-left">
+                <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                  For a Better Tomorrow
+                </div>
+                <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
+                  Together we build a kinder, brighter future
+                </div>
               </div>
             </div>
           </div>
         </section>
 
         {/* =================================================================== */}
-        {/* OUR VALUES SECTION (PREMIUM SOFT MINT CARD MATCHING VISUAL REF)     */}
+        {/* OUR VALUES SECTION (RESPONSIVE: SLEEK BAR ON PC, FRAMED CARD ON MOB) */}
         {/* =================================================================== */}
-        <section className="relative rounded-3xl bg-[#EEF7F4] border border-[#CCEAE0] shadow-[0_4px_24px_rgba(13,126,115,0.04)] px-2 sm:px-6 py-5 sm:py-6 overflow-hidden text-center">
+        
+        {/* DESKTOP VIEW: Sleek Horizontal Bar (Matching PC Reference Image) */}
+        <section className="hidden md:flex items-center justify-between rounded-3xl bg-[#EEF7F4] border border-[#CCEAE0] px-6 py-4.5 shadow-[0_4px_24px_rgba(13,126,115,0.03)] relative overflow-hidden">
+          {/* Left Label with Underline */}
+          <div className="pr-6 shrink-0 border-r border-[#CCEAE0]">
+            <span className="text-xs font-black tracking-[0.2em] text-[#0D7E73] uppercase block">
+              OUR VALUES
+            </span>
+            <span className="h-[2px] w-8 bg-[#0D7E73] block mt-1 rounded-full" />
+          </div>
+
+          {/* 4 Values Distributed Horizontally */}
+          <div className="flex-1 grid grid-cols-4 divide-x divide-[#CCEAE0] text-left pl-6">
+            {/* Value 1: Compassion */}
+            <div className="flex items-center gap-3 px-4">
+              <div className="w-10 h-10 rounded-full bg-[#DCF3EB] flex items-center justify-center shrink-0 shadow-2xs">
+                <Heart className="w-4.5 h-4.5 text-[#0D7E73] fill-[#0D7E73]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Compassion</h4>
+                <p className="text-[11px] text-slate-500 font-normal mt-0.5">We care</p>
+              </div>
+            </div>
+
+            {/* Value 2: Unity */}
+            <div className="flex items-center gap-3 px-4">
+              <div className="w-10 h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center shrink-0 shadow-2xs">
+                <Users className="w-4.5 h-4.5 text-[#D97706] fill-[#D97706]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Unity</h4>
+                <p className="text-[11px] text-slate-500 font-normal mt-0.5">We stand together</p>
+              </div>
+            </div>
+
+            {/* Value 3: Service */}
+            <div className="flex items-center gap-3 px-4">
+              <div className="w-10 h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center shrink-0 shadow-2xs">
+                <Leaf className="w-4.5 h-4.5 text-[#16A34A]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Service</h4>
+                <p className="text-[11px] text-slate-500 font-normal mt-0.5">We take action</p>
+              </div>
+            </div>
+
+            {/* Value 4: Impact */}
+            <div className="flex items-center gap-3 px-4">
+              <div className="w-10 h-10 rounded-full bg-[#E0F2FE] flex items-center justify-center shrink-0 shadow-2xs">
+                <Star className="w-4.5 h-4.5 text-[#0284C7] fill-[#0284C7]" />
+              </div>
+              <div>
+                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Impact</h4>
+                <p className="text-[11px] text-slate-500 font-normal mt-0.5">We create change</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* MOBILE VIEW: Beautiful Framed Card (Matching Mobile Reference Image) */}
+        <section className="md:hidden relative rounded-3xl bg-[#EEF7F4] border border-[#CCEAE0] shadow-[0_4px_24px_rgba(13,126,115,0.04)] px-2 sm:px-6 py-5 sm:py-6 overflow-hidden text-center">
           {/* Left Decorative Botanical Leaves */}
           <svg
-            className="absolute -left-1 sm:left-0 top-1.5 sm:top-2 w-14 sm:w-20 h-22 sm:h-28 pointer-events-none select-none text-[#74B6A3]/65"
+            className="absolute -left-1 top-1.5 w-14 h-22 pointer-events-none select-none text-[#74B6A3]/65"
             viewBox="0 0 100 130"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -288,7 +446,7 @@ export default async function PublicHomepage() {
 
           {/* Right Decorative Botanical Leaves */}
           <svg
-            className="absolute -right-1 sm:right-0 top-1.5 sm:top-2 w-14 sm:w-20 h-22 sm:h-28 pointer-events-none select-none text-[#74B6A3]/65"
+            className="absolute -right-1 top-1.5 w-14 h-22 pointer-events-none select-none text-[#74B6A3]/65"
             viewBox="0 0 100 130"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
@@ -319,74 +477,64 @@ export default async function PublicHomepage() {
           </svg>
 
           {/* Center Heading with Decorative Thin Lines */}
-          <div className="flex items-center justify-center gap-2.5 sm:gap-3.5 relative z-10">
-            <span className="h-[1px] w-6 sm:w-9 bg-[#7BBBAA]" aria-hidden="true" />
-            <span className="text-[10px] sm:text-[11px] font-bold tracking-[0.22em] text-[#2F7E6F] uppercase">
+          <div className="flex items-center justify-center gap-2.5 relative z-10">
+            <span className="h-[1px] w-6 bg-[#7BBBAA]" aria-hidden="true" />
+            <span className="text-[10px] font-bold tracking-[0.22em] text-[#2F7E6F] uppercase">
               OUR VALUES
             </span>
-            <span className="h-[1px] w-6 sm:w-9 bg-[#7BBBAA]" aria-hidden="true" />
+            <span className="h-[1px] w-6 bg-[#7BBBAA]" aria-hidden="true" />
           </div>
 
-          {/* Centerpiece Headline: People • Community • Change */}
-          <h2 className="font-serif italic text-xl sm:text-2xl md:text-[28px] font-medium text-[#115E54] tracking-tight mt-1.5 relative z-10">
-            People <span className="inline-block mx-1 sm:mx-2 text-[#4EA896] not-italic text-sm sm:text-base align-middle">•</span> Community <span className="inline-block mx-1 sm:mx-2 text-[#4EA896] not-italic text-sm sm:text-base align-middle">•</span> Change
-          </h2>
-
-          {/* Tagline */}
-          <p className="text-xs sm:text-[13px] font-medium text-[#2F7E6F]/90 mt-1 relative z-10">
-            Together for a kinder, stronger tomorrow.
-          </p>
-
           {/* 4 Values Grid with Subtle Vertical Dividers */}
-          <div className="grid grid-cols-4 divide-x divide-[#CCEAE0] mt-5 sm:mt-6 pt-1 relative z-10">
+          <div className="grid grid-cols-4 divide-x divide-[#CCEAE0] mt-3.5 pt-0.5 relative z-10">
             {/* Value 1: Compassion */}
-            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#DCF3EB] flex items-center justify-center mb-2 shadow-2xs">
-                <Heart className="w-4 h-4 sm:w-5 sm:h-5 text-[#0D7E73] fill-[#0D7E73]" />
+            <div className="px-0.5 sm:px-1 flex flex-col items-center text-center">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCF3EB] flex items-center justify-center mb-1.5 shadow-2xs">
+                <Heart className="w-4 h-4 text-[#0D7E73] fill-[#0D7E73]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Compassion
               </h3>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
                 We care
               </p>
             </div>
 
             {/* Value 2: Unity */}
-            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-2 shadow-2xs">
-                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-[#D97706] fill-[#D97706]" />
+            <div className="px-0.5 sm:px-1 flex flex-col items-center text-center">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-1.5 shadow-2xs">
+                <Users className="w-4 h-4 text-[#D97706] fill-[#D97706]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Unity
               </h3>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
                 We stand together
               </p>
             </div>
 
             {/* Value 3: Service */}
-            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-2 shadow-2xs">
-                <Leaf className="w-4 h-4 sm:w-5 sm:h-5 text-[#16A34A]" />
+            <div className="px-0.5 sm:px-1 flex flex-col items-center text-center">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-1.5 shadow-2xs">
+                <Leaf className="w-4 h-4 text-[#16A34A]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Service
               </h3>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
                 We take action
               </p>
             </div>
 
             {/* Value 4: Impact */}
-            <div className="px-1 sm:px-2 flex flex-col items-center text-center">
-              <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-[#E0F2FE] flex items-center justify-center mb-2 shadow-2xs">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#0284C7] fill-[#0284C7]" />
+            <div className="px-0.5 sm:px-1 flex flex-col items-center text-center">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E0F2FE] flex items-center justify-center mb-1.5 shadow-2xs">
+                <Star className="w-4 h-4 text-[#0284C7] fill-[#0284C7]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-xs sm:text-sm tracking-tight">
+              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Impact
               </h3>
-              <p className="text-[10px] sm:text-[11px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
                 We create change
               </p>
             </div>
@@ -410,14 +558,14 @@ export default async function PublicHomepage() {
           </div>
 
           {/* Subtle Decorative Golden Quote Mark */}
-          <div className="text-[#D97706] text-3xl sm:text-4xl font-serif font-black leading-none mb-1 select-none relative z-10">
-            “
+          <div className="flex justify-center mb-1.5 relative z-10">
+            <svg className="w-6 h-6 text-[#D97706]" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M4.583 17.321C3.553 16.227 3 15 3 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179zm10 0C13.553 16.227 13 15 13 13.011c0-3.5 2.457-6.637 6.03-8.188l.893 1.378c-3.335 1.804-3.987 4.145-4.247 5.621.537-.278 1.24-.375 1.929-.311 1.804.167 3.226 1.648 3.226 3.489a3.5 3.5 0 01-3.5 3.5c-1.073 0-2.099-.49-2.748-1.179z" />
+            </svg>
           </div>
           
-          <blockquote className="text-sm sm:text-base font-bold text-[#92400E] leading-snug tracking-tight max-w-sm sm:max-w-md mx-auto relative z-10">
-            "In the service of humanity,
-            <br />
-            for the pleasure of the Almighty"
+          <blockquote className="text-sm sm:text-base font-bold text-[#92400E] leading-snug tracking-tight max-w-xl mx-auto relative z-10 font-serif">
+            “In the service of humanity, for the pleasure of the Almighty”
           </blockquote>
 
           <cite className="text-[11px] sm:text-xs font-semibold text-[#B45309]/85 mt-2 sm:mt-2.5 block tracking-normal not-italic relative z-10">

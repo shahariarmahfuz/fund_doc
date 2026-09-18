@@ -14,6 +14,7 @@ import {
   CheckCircle2,
   LogIn,
   ArrowRight,
+  Search,
 } from "lucide-react"
 import { useBranding } from "@/components/providers/branding-provider"
 
@@ -81,29 +82,101 @@ export function PublicHeader() {
             </div>
           </Link>
 
-          {/* Premium Minimal Navigation Icon Button */}
-          <button
-            type="button"
-            onClick={() => setIsOpen(true)}
-            className="w-11 h-11 rounded-2xl bg-[#E8F5F1] hover:bg-[#D8EFE8] active:bg-[#CCEAE2] border border-[#C6E9E0] text-[#0D7E73] flex items-center justify-center transition-all duration-200 shadow-2xs active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#0D7E73]/30 cursor-pointer"
-            aria-label="Open navigation menu"
-            aria-expanded={isOpen}
-          >
-            {/* Clean 3-Line Hamburger Navigation Icon */}
-            <svg
-              className="w-5 h-5 text-[#0D7E73]"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
+          {/* Desktop Center Navigation Links (Visible on md+) */}
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-slate-600">
+            <Link
+              href="/"
+              className={`transition-colors relative py-1 ${
+                pathname === "/" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+              }`}
             >
-              <line x1="4" y1="7" x2="20" y2="7" />
-              <line x1="4" y1="12" x2="20" y2="12" />
-              <line x1="4" y1="17" x2="20" y2="17" />
-            </svg>
-          </button>
+              Home
+              {pathname === "/" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#0D7E73] rounded-full" />
+              )}
+            </Link>
+            <Link
+              href="/about"
+              className={`transition-colors relative py-1 ${
+                pathname === "/about" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+              }`}
+            >
+              About
+              {pathname === "/about" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#0D7E73] rounded-full" />
+              )}
+            </Link>
+            <Link
+              href="/goals"
+              className={`transition-colors relative py-1 ${
+                pathname === "/goals" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+              }`}
+            >
+              Programs
+              {pathname === "/goals" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#0D7E73] rounded-full" />
+              )}
+            </Link>
+            <Link
+              href="/mission"
+              className={`transition-colors relative py-1 ${
+                pathname === "/mission" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+              }`}
+            >
+              News
+              {pathname === "/mission" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#0D7E73] rounded-full" />
+              )}
+            </Link>
+            <Link
+              href="/about"
+              className="hover:text-[#0D7E73] transition-colors py-1"
+            >
+              Gallery
+            </Link>
+            <Link
+              href="/contact"
+              className={`transition-colors relative py-1 ${
+                pathname === "/contact" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+              }`}
+            >
+              Contact
+              {pathname === "/contact" && (
+                <span className="absolute bottom-0 left-0 w-full h-[2.5px] bg-[#0D7E73] rounded-full" />
+              )}
+            </Link>
+          </nav>
+
+          {/* Right Header Actions */}
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            {/* Desktop Search Button */}
+            <div className="hidden sm:flex w-10 h-10 rounded-2xl bg-slate-50 hover:bg-slate-100 border border-slate-200/80 text-slate-500 hover:text-slate-800 items-center justify-center transition-colors cursor-pointer shadow-2xs">
+              <Search className="w-4 h-4" />
+            </div>
+
+            {/* Premium Minimal 3-Line Navigation Icon Button */}
+            <button
+              type="button"
+              onClick={() => setIsOpen(true)}
+              className="w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-[#E8F5F1] hover:bg-[#D8EFE8] active:bg-[#CCEAE2] border border-[#C6E9E0] text-[#0D7E73] flex items-center justify-center transition-all duration-200 shadow-2xs active:scale-95 focus:outline-none focus:ring-2 focus:ring-[#0D7E73]/30 cursor-pointer"
+              aria-label="Open navigation menu"
+              aria-expanded={isOpen}
+            >
+              <svg
+                className="w-5 h-5 text-[#0D7E73]"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="4" y1="7" x2="20" y2="7" />
+                <line x1="4" y1="12" x2="20" y2="12" />
+                <line x1="4" y1="17" x2="20" y2="17" />
+              </svg>
+            </button>
+          </div>
         </div>
       </header>
 
