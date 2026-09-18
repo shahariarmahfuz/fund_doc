@@ -235,7 +235,7 @@ export function Sidebar() {
     }))
   }
 
-    return (
+  return (
     <>
       {/* Mobile Backdrop */}
       {isOpen && (
@@ -370,7 +370,7 @@ export function Sidebar() {
       {/* Bottom Section */}
       <div className="px-3 py-4 border-t border-surface-200">
         <div className={cn("flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-surface-50 cursor-pointer transition-colors", isCollapsed ? "md:justify-center px-0" : "")}>
-          <div className="w-8 h-8 shrink-0 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm overflow-hidden">
+          <div className="w-8 h-8 shrink-0 rounded-full bg-slate-100 text-slate-700 border border-slate-200 flex items-center justify-center text-[11px] font-bold shadow-sm overflow-hidden">
             {session?.user?.image ? (
               <img 
                 src={session.user.image} 

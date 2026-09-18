@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { MoreVertical, Info, Target, Compass, Mail, Home } from "lucide-react"
+import { Menu, Info, Target, Compass, Mail, Home } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,15 +40,15 @@ export function PublicHeader() {
           </div>
         </Link>
 
-        {/* Premium 3-dot (⋮) Navigation Menu */}
+        {/* Public Hamburger Navigation Menu */}
         <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button
-                className="w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-slate-50 hover:bg-slate-100/90 border border-slate-200/90 text-slate-700 hover:text-teal-700 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
-                aria-label="More navigation options"
+                className="w-10 h-10 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200/90 text-slate-700 hover:text-teal-700 flex items-center justify-center transition-all duration-200 shadow-sm active:scale-95 focus:outline-none focus:ring-2 focus:ring-teal-500/40"
+                aria-label="Toggle navigation menu"
               >
-                <MoreVertical className="w-5 h-5" />
+                <Menu className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent

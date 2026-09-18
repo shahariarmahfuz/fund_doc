@@ -1,6 +1,6 @@
 "use client"
 
-import { User, LogOut, Settings, KeyRound, Menu, HelpCircle, MonitorSmartphone } from "lucide-react"
+import { User, LogOut, Settings, KeyRound, Menu, HelpCircle } from "lucide-react"
 import { useSession, signOut } from "next-auth/react"
 import { useSidebar } from "@/components/layout/sidebar-provider"
 import { usePathname } from "next/navigation"
@@ -69,8 +69,8 @@ export function Header() {
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 pl-1 outline-none ring-2 ring-transparent focus:ring-brand-500 rounded-full transition-all hover:opacity-80">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center text-white text-[11px] font-bold shadow-sm overflow-hidden border border-surface-200">
+            <button className="rounded-full outline-none focus:ring-2 focus:ring-slate-300 transition-all hover:opacity-85">
+              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-[11px] font-bold shadow-sm overflow-hidden border border-slate-200">
                 {session?.user?.image ? (
                   <img 
                     src={session.user.image} 
@@ -107,12 +107,6 @@ export function Header() {
               <Link href="/settings">
                 <Settings className="mr-2 h-4 w-4" />
                 <span>Settings</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
-              <Link href="/profile/devices">
-                <MonitorSmartphone className="mr-2 h-4 w-4" />
-                <span>Device Management</span>
               </Link>
             </DropdownMenuItem>
             <DropdownMenuItem asChild className="hover:bg-surface-50 text-[13px] font-medium text-surface-700 cursor-pointer">
