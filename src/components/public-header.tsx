@@ -89,7 +89,7 @@ export function PublicHeader() {
             aria-label="Open navigation menu"
             aria-expanded={isOpen}
           >
-            {/* Modern Staggered 3-Line Mobile App Navigation Icon */}
+            {/* Clean 3-Line Hamburger Navigation Icon */}
             <svg
               className="w-5 h-5 text-[#0D7E73]"
               viewBox="0 0 24 24"
@@ -100,8 +100,8 @@ export function PublicHeader() {
               strokeLinejoin="round"
             >
               <line x1="4" y1="7" x2="20" y2="7" />
-              <line x1="9" y1="12" x2="20" y2="12" />
-              <line x1="6" y1="17" x2="20" y2="17" />
+              <line x1="4" y1="12" x2="20" y2="12" />
+              <line x1="4" y1="17" x2="20" y2="17" />
             </svg>
           </button>
         </div>
