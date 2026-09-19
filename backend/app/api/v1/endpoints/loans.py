@@ -121,6 +121,7 @@ def create_loan(
     return APIResponse(success=True, data=loan)
 
 @router.post("/{id}/repay", response_model=APIResponse[dict])
+@router.post("/{id}/repayments", response_model=APIResponse[dict], include_in_schema=False)
 def repay_loan(
     id: str,
     payload: LoanRepaymentCreate,
@@ -134,7 +135,8 @@ def repay_loan(
     if loan.status not in ["ACTIVE", "DEFAULTED"]:
         raise APIException("Loan is not in active repayment status.", code="LOAN_INACTIVE")
 
-    repay_dt = datetime.fromisoformat(payload.date.replace("Z", "+00:00"))
+    raw_date = payload.date or payload.paymentDate or datetime.now(timezone.utc).isoformat()
+    repay_dt = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
 
     # Determine Group Fund from loan's first allocation
     alloc = db.query(FundAllocation).filter(FundAllocation.loanId == loan.id).first()
@@ -172,7 +174,7 @@ def repay_loan(
         paymentMethod=payload.paymentMethod,
         referenceNumber=payload.referenceNumber,
         notes=payload.notes,
-        collectedBy=current_user.id,
+        collectedBy=payload.collectedBy or current_user.id,
         receiptUrl=payload.receiptUrl,
         createdBy=current_user.id
     )

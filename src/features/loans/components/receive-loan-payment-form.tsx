@@ -24,6 +24,7 @@ import { Calendar } from "@/components/ui/calendar"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 
 import { repayLoan } from "../actions"
+import { apiClient } from "@/lib/api/client"
 import Link from "next/link"
 import { formatDate, formatCurrency } from "@/lib/format"
 import { PrintButton } from "@/components/shared/print-button"
@@ -121,17 +122,66 @@ export function ReceiveLoanPaymentForm({ loans, initialLoanId }: { loans: Loan[]
       const currentRepayments = selectedLoan.repayments ? selectedLoan.repayments.length : 0
       const installmentNo = currentRepayments + 1
 
-      const result = await repayLoan(
-        selectedLoan.id,
-        values.amount,
-        values.paymentMethod,
-        values.referenceNumber || "",
-        installmentNo,
-        values.notes,
-        values.collectedBy,
-        values.paymentDate,
-        values.receiptUrl
-      )
+      let result: { success: boolean; error?: string }
+
+      try {
+        result = await repayLoan(
+          selectedLoan.id,
+          values.amount,
+          values.paymentMethod,
+          values.referenceNumber || "",
+          installmentNo,
+          values.notes,
+          values.collectedBy,
+          values.paymentDate,
+          values.receiptUrl
+        )
+      } catch (actionErr: any) {
+        const errorMsg = String(actionErr?.message || actionErr || "")
+        if (
+          errorMsg.includes("was not found on the server") ||
+          errorMsg.includes("failed-to-find-server-action") ||
+          errorMsg.includes("Server Action")
+        ) {
+          const isoDate = values.paymentDate ? values.paymentDate.toISOString() : new Date().toISOString()
+          await apiClient.loans.repay(selectedLoan.id, {
+            loanId: selectedLoan.id,
+            amount: values.amount,
+            paymentMethod: values.paymentMethod,
+            referenceNumber: values.referenceNumber || "",
+            installmentNo,
+            notes: values.notes,
+            collectedBy: values.collectedBy,
+            date: isoDate,
+            paymentDate: isoDate,
+            receiptUrl: values.receiptUrl,
+          })
+          result = { success: true }
+        } else {
+          throw actionErr
+        }
+      }
+
+      if (!result.success && result.error && (
+        result.error.includes("was not found on the server") ||
+        result.error.includes("failed-to-find-server-action") ||
+        result.error.includes("Server Action")
+      )) {
+        const isoDate = values.paymentDate ? values.paymentDate.toISOString() : new Date().toISOString()
+        await apiClient.loans.repay(selectedLoan.id, {
+          loanId: selectedLoan.id,
+          amount: values.amount,
+          paymentMethod: values.paymentMethod,
+          referenceNumber: values.referenceNumber || "",
+          installmentNo,
+          notes: values.notes,
+          collectedBy: values.collectedBy,
+          date: isoDate,
+          paymentDate: isoDate,
+          receiptUrl: values.receiptUrl,
+        })
+        result = { success: true }
+      }
 
       if (result.success) {
         toast.success("Repayment recorded successfully")

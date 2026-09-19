@@ -96,18 +96,22 @@ export async function repayLoan(
   receiptUrl?: string
 ) {
   try {
+    const isoDate = paymentDate ? new Date(paymentDate).toISOString() : new Date().toISOString()
     await apiClient.loans.repay(loanId, {
+      loanId,
       amount,
       paymentMethod,
       referenceNumber,
       installmentNo,
       notes,
       collectedBy,
-      paymentDate: paymentDate ? paymentDate.toISOString() : new Date().toISOString(),
+      date: isoDate,
+      paymentDate: isoDate,
       receiptUrl,
     })
 
     revalidatePath(`/loans/${loanId}`)
+    revalidatePath("/loans")
     return { success: true }
   } catch (error: any) {
     return { success: false, error: error?.message || "Failed to process repayment" }

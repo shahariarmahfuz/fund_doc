@@ -34,13 +34,15 @@ class LoanUpdate(BaseModel):
     status: Optional[str] = None
 
 class LoanRepaymentCreate(BaseModel):
-    loanId: str
+    loanId: Optional[str] = None
     amount: int
-    date: str
+    date: Optional[str] = None
+    paymentDate: Optional[str] = None
     installmentNo: Optional[int] = None
     paymentMethod: str = "CASH"
     referenceNumber: Optional[str] = None
     notes: Optional[str] = None
+    collectedBy: Optional[str] = None
     receiptUrl: Optional[str] = None
 
 class LoanRepaymentResponse(BaseSchema):
