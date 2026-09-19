@@ -2,7 +2,7 @@ from typing import Optional, List
 from datetime import datetime
 from pydantic import BaseModel
 from app.schemas.common import BaseSchema
-from app.schemas.loan import FundAllocationItem
+from app.schemas.loan import FundAllocationItem, FundAllocationResponse
 
 class GrantCreate(BaseModel):
     beneficiaryId: str
@@ -38,3 +38,4 @@ class GrantResponse(BaseSchema):
     createdAt: datetime
     updatedAt: datetime
     beneficiary: Optional[BeneficiarySimple] = None
+    allocations: Optional[List[FundAllocationResponse]] = []

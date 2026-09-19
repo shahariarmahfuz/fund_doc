@@ -61,3 +61,82 @@ def test_get_dashboard_stats(client, auth_headers):
     assert data["success"] is True
     assert "totalMembers" in data["data"]
     assert "currentCashBalance" in data["data"]
+
+def test_sadaqah_grant_crud_flow(client, auth_headers):
+    # Ensure a beneficiary exists
+    res_b = client.get("/api/v1/beneficiaries", headers=auth_headers)
+    beneficiaries = res_b.json().get("data", [])
+    if not beneficiaries:
+        res_cb = client.post("/api/v1/beneficiaries", json={
+            "fullName": "Test Beneficiary",
+            "phone": "01799998877",
+            "address": "Dhaka",
+            "category": "POOR_AND_NEEDY",
+            "monthlyIncome": 2000
+        }, headers=auth_headers)
+        beneficiary_id = res_cb.json()["data"]["id"]
+    else:
+        beneficiary_id = beneficiaries[0]["id"]
+
+    # Ensure a group exists
+    res_g = client.get("/api/v1/groups", headers=auth_headers)
+    group_id = res_g.json()["data"][0]["id"]
+
+    # 1. Test POST /api/v1/grants (standard create)
+    grant_payload = {
+        "beneficiaryId": beneficiary_id,
+        "amount": 2500,
+        "grantReason": "Monthly Living Allowance",
+        "grantDate": "2026-09-19T00:00:00.000Z",
+        "comment": "Regular disbursement",
+        "allocations": [{"groupId": group_id, "amount": 2500}]
+    }
+    res_create = client.post("/api/v1/grants", json=grant_payload, headers=auth_headers)
+    assert res_create.status_code == 200
+    created_grant = res_create.json()["data"]
+    grant_id = created_grant["id"]
+    assert created_grant["amount"] == 2500
+    assert created_grant["purpose"] == "Monthly Living Allowance"
+
+    # 2. Test GET /api/v1/grants/{id}
+    res_get = client.get(f"/api/v1/grants/{grant_id}", headers=auth_headers)
+    assert res_get.status_code == 200
+    assert res_get.json()["data"]["id"] == grant_id
+
+    # 3. Test GET /api/v1/grants list
+    res_list = client.get("/api/v1/grants", headers=auth_headers)
+    assert res_list.status_code == 200
+    assert any(g["id"] == grant_id for g in res_list.json()["data"])
+
+    # 4. Test POST /api/v1/grants/issue (alias)
+    grant_payload_issue = {
+        "beneficiaryId": beneficiary_id,
+        "amount": 1500,
+        "grantReason": "Issue Alias Test",
+        "grantDate": "2026-09-19T00:00:00.000Z",
+        "comment": "Testing issue alias",
+        "allocations": [{"groupId": group_id, "amount": 1500}]
+    }
+    res_issue = client.post("/api/v1/grants/issue", json=grant_payload_issue, headers=auth_headers)
+    assert res_issue.status_code == 200
+    issue_grant_id = res_issue.json()["data"]["id"]
+
+    # 5. Test POST /api/v1/sadaqah (sadaqah router alias)
+    grant_payload_sadaqah = {
+        "beneficiaryId": beneficiary_id,
+        "amount": 1200,
+        "grantReason": "Sadaqah Prefix Test",
+        "grantDate": "2026-09-19T00:00:00.000Z",
+        "comment": "Testing sadaqah prefix",
+        "allocations": [{"groupId": group_id, "amount": 1200}]
+    }
+    res_sadaqah = client.post("/api/v1/sadaqah", json=grant_payload_sadaqah, headers=auth_headers)
+    assert res_sadaqah.status_code == 200
+    sadaqah_grant_id = res_sadaqah.json()["data"]["id"]
+
+    # 6. Test DELETE /api/v1/grants/{id}
+    res_del1 = client.delete(f"/api/v1/grants/{issue_grant_id}", headers=auth_headers)
+    assert res_del1.status_code == 200
+    res_del2 = client.delete(f"/api/v1/grants/{sadaqah_grant_id}", headers=auth_headers)
+    assert res_del2.status_code == 200
+

@@ -38,6 +38,8 @@ def get_grant(
     return APIResponse(success=True, data=grant)
 
 @router.post("", response_model=APIResponse[GrantResponse])
+@router.post("/", response_model=APIResponse[GrantResponse], include_in_schema=False)
+@router.post("/issue", response_model=APIResponse[GrantResponse], include_in_schema=False)
 def create_grant(
     payload: GrantCreate,
     db: Session = Depends(get_db),
@@ -121,3 +123,18 @@ def update_grant(
     db.commit()
     db.refresh(grant)
     return APIResponse(success=True, data=grant)
+
+@router.delete("/{id}", response_model=APIResponse[dict])
+def delete_grant(
+    id: str,
+    db: Session = Depends(get_db),
+    _user = Depends(require_permission("Grants", "Delete"))
+):
+    grant = db.query(Grant).filter(Grant.id == id).first()
+    if not grant:
+        raise NotFoundException("Grant not found.")
+
+    db.delete(grant)
+    db.commit()
+    return APIResponse(success=True, data={"message": "Grant deleted successfully."})
+

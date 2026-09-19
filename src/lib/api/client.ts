@@ -543,8 +543,11 @@ export const apiClient = {
     getById: (id: string) =>
       apiClient.get<any>(`/api/v1/grants/${id}`),
 
+    create: (data: any) =>
+      apiClient.post<any>("/api/v1/grants", data),
+
     issue: (data: any) =>
-      apiClient.post<any>("/api/v1/grants/issue", data),
+      apiClient.post<any>("/api/v1/grants", data),
 
     update: (id: string, data: any) =>
       apiClient.put<any>(`/api/v1/grants/${id}`, data),

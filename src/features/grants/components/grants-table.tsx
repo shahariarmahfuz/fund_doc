@@ -136,8 +136,9 @@ export function GrantsTable({ data, manageMode = false }: { data: GrantWithDetai
       id: "fundingSource",
       header: "Funding Source",
       cell: ({ row }) => {
-        if (row.original.allocations.length === 0) return "-";
-        return row.original.allocations.map(a => a.fund?.name || "").filter(Boolean).join(", ") || "-";
+        const allocations = row.original.allocations || [];
+        if (allocations.length === 0) return "-";
+        return allocations.map(a => a.fund?.name || "").filter(Boolean).join(", ") || "-";
       }
     },
     {
