@@ -140,3 +140,102 @@ def test_sadaqah_grant_crud_flow(client, auth_headers):
     res_del2 = client.delete(f"/api/v1/grants/{sadaqah_grant_id}", headers=auth_headers)
     assert res_del2.status_code == 200
 
+def test_qard_hasan_loan_crud_flow(client, auth_headers):
+    # Ensure a beneficiary exists
+    res_b = client.get("/api/v1/beneficiaries", headers=auth_headers)
+    beneficiaries = res_b.json().get("data", [])
+    if not beneficiaries:
+        res_cb = client.post("/api/v1/beneficiaries", json={
+            "fullName": "Loan Beneficiary Test",
+            "phone": "01788887766",
+            "address": "Sylhet",
+            "category": "POOR_AND_NEEDY",
+            "monthlyIncome": 3000
+        }, headers=auth_headers)
+        beneficiary_id = res_cb.json()["data"]["id"]
+    else:
+        beneficiary_id = beneficiaries[0]["id"]
+
+    # Ensure a group exists
+    res_g = client.get("/api/v1/groups", headers=auth_headers)
+    group_id = res_g.json()["data"][0]["id"]
+
+    # 1. Create Qard Hasan via POST /api/v1/loans WITHOUT manual installmentAmount
+    # amount=5000, totalInstallments=6 -> installmentAmount should be auto-derived to 5000 // 6 = 833
+    loan_payload = {
+        "beneficiaryId": beneficiary_id,
+        "loanType": "EMERGENCY",
+        "amount": 5000,
+        "purpose": "Medical emergency support",
+        "installmentType": "MONTHLY",
+        "totalInstallments": 6,
+        "fundAllocations": [{"groupId": group_id, "amount": 5000}]
+    }
+    res_create = client.post("/api/v1/loans", json=loan_payload, headers=auth_headers)
+    assert res_create.status_code == 200
+    created_loan = res_create.json()["data"]
+    loan_id = created_loan["id"]
+    assert created_loan["amount"] == 5000
+    assert created_loan["installmentAmount"] == 833  # auto-derived integer division
+    assert created_loan["remainingBalance"] == 5000
+
+    # 2. Test GET /api/v1/loans/{id}
+    res_get = client.get(f"/api/v1/loans/{loan_id}", headers=auth_headers)
+    assert res_get.status_code == 200
+    assert res_get.json()["data"]["id"] == loan_id
+
+    # 3. Test POST /api/v1/loans/issue (alias used by frontend)
+    loan_payload_issue = {
+        "beneficiaryId": beneficiary_id,
+        "loanType": "BUSINESS",
+        "businessType": "Poultry",
+        "amount": 10000,
+        "purpose": "Feed and chicks",
+        "installmentType": "MONTHLY",
+        "totalInstallments": 10,
+        "fundAllocations": [{"groupId": group_id, "amount": 10000}]
+    }
+    res_issue = client.post("/api/v1/loans/issue", json=loan_payload_issue, headers=auth_headers)
+    assert res_issue.status_code == 200
+    issue_loan = res_issue.json()["data"]
+    assert issue_loan["installmentAmount"] == 1000
+    issue_loan_id = issue_loan["id"]
+
+    # 4. Test POST /api/v1/qard-hasan (prefix alias)
+    loan_payload_prefix = {
+        "beneficiaryId": beneficiary_id,
+        "loanType": "EDUCATION",
+        "amount": 3000,
+        "purpose": "Semester Fee",
+        "installmentType": "MONTHLY",
+        "totalInstallments": 3,
+        "fundAllocations": [{"groupId": group_id, "amount": 3000}]
+    }
+    res_prefix = client.post("/api/v1/qard-hasan", json=loan_payload_prefix, headers=auth_headers)
+    assert res_prefix.status_code == 200
+    prefix_loan_id = res_prefix.json()["data"]["id"]
+
+    # 5. Test PUT and PATCH /api/v1/loans/{id}
+    res_patch = client.patch(f"/api/v1/loans/{loan_id}", json={
+        "notes": "Updated notes via PATCH"
+    }, headers=auth_headers)
+    assert res_patch.status_code == 200
+    assert res_patch.json()["data"]["notes"] == "Updated notes via PATCH"
+
+    # 6. Test Repayment POST /api/v1/loans/{id}/repay
+    res_repay = client.post(f"/api/v1/loans/{loan_id}/repay", json={
+        "loanId": loan_id,
+        "amount": 833,
+        "date": "2026-09-19T00:00:00.000Z",
+        "paymentMethod": "CASH",
+        "installmentNo": 1
+    }, headers=auth_headers)
+    assert res_repay.status_code == 200
+    assert res_repay.json()["data"]["remainingBalance"] == 5000 - 833
+
+    # 7. Clean up via DELETE /api/v1/loans/{id}
+    res_del_issue = client.delete(f"/api/v1/loans/{issue_loan_id}", headers=auth_headers)
+    assert res_del_issue.status_code == 200
+    res_del_prefix = client.delete(f"/api/v1/loans/{prefix_loan_id}", headers=auth_headers)
+    assert res_del_prefix.status_code == 200
+

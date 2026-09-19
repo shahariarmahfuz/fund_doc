@@ -215,6 +215,8 @@ async function apiRequest<T>(
         console.warn(`[API_401] endpoint=${cleanEndpoint} status=401`)
       } else if (res.status === 403) {
         console.warn(`[API_403] endpoint=${cleanEndpoint} status=403`)
+      } else if (res.status === 405) {
+        console.error(`[API_405] Method Not Allowed: method=${fetchOptions.method || "GET"} endpoint=${cleanEndpoint}`)
       } else if (res.status === 500) {
         console.error(`[API_500] endpoint=${cleanEndpoint} status=500`)
       } else if (res.status === 503) {
@@ -514,8 +516,11 @@ export const apiClient = {
     getById: (id: string) =>
       apiClient.get<any>(`/api/v1/loans/${id}`),
 
+    create: (data: any) =>
+      apiClient.post<any>("/api/v1/loans", data),
+
     issue: (data: any) =>
-      apiClient.post<any>("/api/v1/loans/issue", data),
+      apiClient.post<any>("/api/v1/loans", data),
 
     update: (id: string, data: any) =>
       apiClient.put<any>(`/api/v1/loans/${id}`, data),

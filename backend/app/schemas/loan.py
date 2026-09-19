@@ -20,6 +20,19 @@ class LoanCreate(BaseModel):
     notes: Optional[str] = None
     fundAllocations: List[FundAllocationItem]
 
+class LoanUpdate(BaseModel):
+    beneficiaryId: Optional[str] = None
+    loanType: Optional[str] = None
+    businessType: Optional[str] = None
+    amount: Optional[int] = None
+    purpose: Optional[str] = None
+    installmentType: Optional[str] = None
+    installmentAmount: Optional[int] = None
+    totalInstallments: Optional[int] = None
+    firstInstallmentDate: Optional[datetime] = None
+    notes: Optional[str] = None
+    status: Optional[str] = None
+
 class LoanRepaymentCreate(BaseModel):
     loanId: str
     amount: int

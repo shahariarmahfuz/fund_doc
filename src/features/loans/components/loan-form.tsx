@@ -85,6 +85,10 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
   const watchedLoanType = form.watch("loanType")
   const watchedBeneficiaryId = form.watch("beneficiaryId")
   const selectedBeneficiary = beneficiaries.find(b => b.id === watchedBeneficiaryId)
+  const watchedAmount = form.watch("amount") || 0
+  const watchedTotalInstallments = form.watch("totalInstallments") || 0
+  const watchedAllocations = form.watch("fundAllocations") || []
+  const totalAllocated = watchedAllocations.reduce((acc, curr) => acc + (curr?.amount || 0), 0)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -112,9 +116,17 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
 
   async function onSubmit(data: LoanFormValues) {
     setIsLoading(true)
+
+    const totalInst = data.totalInstallments || 0
+    const calculatedInstallment = totalInst > 0 ? Math.floor(data.amount / totalInst) : data.amount
+    const submissionData: LoanFormValues = {
+      ...data,
+      installmentAmount: calculatedInstallment,
+    }
+
     const result = isEditMode && initialData?.id
-      ? await editLoanRequest(initialData.id, data)
-      : await createLoanRequest(data)
+      ? await editLoanRequest(initialData.id, submissionData)
+      : await createLoanRequest(submissionData)
     
     setIsLoading(false)
 
@@ -293,52 +305,29 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
             </div>
 
             {/* Installment Schedule Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
               <FormField
                 control={form.control}
                 name="installmentType"
-                render={({ field }) => {
-                  return ((
-                                  <FormItem>
-                                    <FormLabel>{"Installment Type"}</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder={"Installment Type"} />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="DAILY">{"Daily"}</SelectItem>
-                                        <SelectItem value="WEEKLY">{"Weekly"}</SelectItem>
-                                        <SelectItem value="MONTHLY">{"Monthly"}</SelectItem>
-                                        <SelectItem value="CUSTOM">{"Custom"}</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                ));
-                }}
-              />
-
-              <FormField
-                control={form.control}
-                name="installmentAmount"
-                render={({ field }) => {
-                  return ((
-                                  <FormItem>
-                                    <FormLabel>{"Installment Amount"}</FormLabel>
-                                    <FormControl>
-                                      <Input
-                                        type="number"
-                                        {...field}
-                                        value={field.value ?? ""}
-                                        onChange={e => { const v = parseInt(e.target.value); field.onChange(isNaN(v) ? "" : v); }}
-                                      />
-                                    </FormControl>
-                                    <FormMessage />
-                                  </FormItem>
-                                ));
-                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{"Installment Type"}</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={"Installment Type"} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="DAILY">{"Daily"}</SelectItem>
+                        <SelectItem value="WEEKLY">{"Weekly"}</SelectItem>
+                        <SelectItem value="MONTHLY">{"Monthly"}</SelectItem>
+                        <SelectItem value="CUSTOM">{"Custom"}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
 
               <FormField
@@ -350,6 +339,8 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                     <FormControl>
                       <Input
                         type="number"
+                        min="1"
+                        placeholder="e.g. 10"
                         {...field}
                         value={field.value ?? ""}
                         onChange={e => { const v = parseInt(e.target.value); field.onChange(isNaN(v) ? "" : v); }}
@@ -379,6 +370,27 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 )}
               />
             </div>
+
+            {/* Auto-derived Installment Breakdown Preview */}
+            {watchedAmount > 0 && watchedTotalInstallments > 0 && (
+              <div className="rounded-lg border bg-muted/40 p-3.5 text-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground font-medium">Estimated Installment:</span>
+                  <span className="font-bold text-primary">
+                    ৳{Math.floor(watchedAmount / watchedTotalInstallments).toLocaleString()} / installment
+                  </span>
+                </div>
+                {watchedAmount % watchedTotalInstallments > 0 ? (
+                  <span className="text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded border">
+                    Final installment: ৳{(Math.floor(watchedAmount / watchedTotalInstallments) + (watchedAmount % watchedTotalInstallments)).toLocaleString()} (includes ৳{(watchedAmount % watchedTotalInstallments).toLocaleString()} remainder)
+                  </span>
+                ) : (
+                  <span className="text-xs text-muted-foreground">
+                    Equal installments with zero remainder
+                  </span>
+                )}
+              </div>
+            )}
 
             <FormField
               control={form.control}
@@ -431,7 +443,7 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
               )}
             />
 
-            <div className="space-y-4">
+            <div className="space-y-4 w-full min-w-0">
               {fields.map((field, index) => {
                 const groupId = form.watch(`fundAllocations.${index}.groupId`)
                 const group = groups?.find(g => g.id === groupId)
@@ -440,76 +452,102 @@ export function LoanForm({ beneficiaries, groups, initialData, initialDocuments 
                 const remaining = currentBalance - allocAmount
 
                 return (
-                  <div key={field.id} className="flex gap-4 items-start p-4 border rounded-md relative">
-                    <div className="flex-1 space-y-4">
-                      <FormField
-                        control={form.control}
-                        name={`fundAllocations.${index}.groupId`}
-                        render={({ field: selectField }) => (
-                          <FormItem>
-                            <FormLabel>{"Group"}</FormLabel>
-                            <FormControl>
-                              <GroupCombobox
-                                groups={(groups || []).map((g) => ({
-                                  id: g.id,
-                                  name: g.name,
-                                  code: g.code || g.name.substring(0, 3).toUpperCase(),
-                                  isFoundationGroup: g.isFoundationGroup,
-                                }))}
-                                value={selectField.value}
-                                onChange={selectField.onChange}
-                                placeholder={"Select funding source"}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      {group && (
-                        <div className="flex justify-between text-sm bg-muted p-2 rounded">
-                          <div><span className="text-muted-foreground">{"Available Balance"}</span> ৳{currentBalance}</div>
-                          <div><span className="text-muted-foreground">{"Remaining after Qard Hasan"}</span> <span className={remaining < 0 ? "text-red-500 font-bold" : "text-green-600 font-bold"}>৳{remaining}</span></div>
+                  <div key={field.id} className="p-4 border rounded-lg bg-card/60 relative w-full min-w-0 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start w-full min-w-0">
+                      <div className="w-full min-w-0 md:col-span-7">
+                        <FormField
+                          control={form.control}
+                          name={`fundAllocations.${index}.groupId`}
+                          render={({ field: selectField }) => (
+                            <FormItem className="w-full min-w-0">
+                              <FormLabel>{"Group"}</FormLabel>
+                              <FormControl>
+                                <GroupCombobox
+                                  groups={(groups || []).map((g) => ({
+                                    id: g.id,
+                                    name: g.name,
+                                    code: g.code || g.name.substring(0, 3).toUpperCase(),
+                                    isFoundationGroup: g.isFoundationGroup,
+                                  }))}
+                                  value={selectField.value}
+                                  onChange={selectField.onChange}
+                                  placeholder={"Select funding source"}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="w-full min-w-0 md:col-span-4">
+                        <FormField
+                          control={form.control}
+                          name={`fundAllocations.${index}.amount`}
+                          render={({ field: inputField }) => (
+                            <FormItem className="w-full min-w-0">
+                              <FormLabel>{"Qard Hasan Amount"}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  type="number"
+                                  min="0"
+                                  {...inputField}
+                                  value={inputField.value ?? ""}
+                                  onChange={e => { const v = parseInt(e.target.value); inputField.onChange(isNaN(v) ? "" : v); }}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      {form.watch("isMultiGroup") && index > 0 && (
+                        <div className="md:col-span-1 flex justify-end md:justify-center pt-0 md:pt-8">
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       )}
                     </div>
-                    <div className="w-1/3 mt-0">
-                      <FormField
-                        control={form.control}
-                        name={`fundAllocations.${index}.amount`}
-                        render={({ field: inputField }) => (
-                          <FormItem>
-                            <FormLabel>{"Qard Hasan Amount"}</FormLabel>
-                            <FormControl>
-                              <Input
-                                type="number"
-                                {...inputField}
-                                value={inputField.value ?? ""}
-                                onChange={e => { const v = parseInt(e.target.value); inputField.onChange(isNaN(v) ? "" : v); }}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </div>
-                    {form.watch("isMultiGroup") && index > 0 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="absolute right-2 top-2"
-                        onClick={() => remove(index)}
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+
+                    {group && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-muted/60 p-2.5 rounded-md w-full min-w-0">
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-muted-foreground">{"Available Balance:"}</span>
+                          <span className="font-semibold">৳{currentBalance.toLocaleString()}</span>
+                        </div>
+                        <div className="flex justify-between items-center px-1">
+                          <span className="text-muted-foreground">{"Remaining after Qard Hasan:"}</span>
+                          <span className={remaining < 0 ? "text-destructive font-bold" : "text-emerald-600 dark:text-emerald-400 font-semibold"}>
+                            ৳{remaining.toLocaleString()}
+                          </span>
+                        </div>
+                      </div>
                     )}
                   </div>
                 )
               })}
-              {form.watch("isMultiGroup") && (
-                <Button type="button" variant="outline" onClick={() => append({ groupId: "", amount: 0 })}>
-                  + {"Group"}</Button>
-              )}
+
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-2">
+                {form.watch("isMultiGroup") && (
+                  <Button type="button" variant="outline" size="sm" onClick={() => append({ groupId: "", amount: 0 })}>
+                    + {"Group"}
+                  </Button>
+                )}
+
+                <div className="text-sm w-full sm:w-auto flex justify-between sm:justify-end items-center gap-2">
+                  <span className="text-muted-foreground">{"Total Allocation:"}</span>
+                  <span className={`font-bold ${totalAllocated !== watchedAmount ? 'text-destructive' : 'text-emerald-600 dark:text-emerald-400'}`}>
+                    ৳{totalAllocated.toLocaleString()} / ৳{watchedAmount.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
               {form.formState.errors.fundAllocations?.root?.message && (
                 <p className="text-sm font-medium text-destructive">{form.formState.errors.fundAllocations.root.message}</p>
               )}

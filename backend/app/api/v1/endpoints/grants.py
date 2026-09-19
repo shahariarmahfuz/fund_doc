@@ -98,6 +98,7 @@ def create_grant(
     return APIResponse(success=True, data=grant)
 
 @router.put("/{id}", response_model=APIResponse[GrantResponse])
+@router.patch("/{id}", response_model=APIResponse[GrantResponse], include_in_schema=False)
 def update_grant(
     id: str,
     payload: GrantUpdate,

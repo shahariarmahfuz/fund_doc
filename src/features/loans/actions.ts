@@ -27,15 +27,19 @@ export async function createLoanRequest(data: LoanFormValues) {
   if (!parsed.success) return { success: false, error: "Invalid data" }
   const pd = parsed.data
 
+  const calculatedInstallment = (pd.totalInstallments && pd.totalInstallments > 0)
+    ? Math.floor(pd.amount / pd.totalInstallments)
+    : (pd.installmentAmount || pd.amount)
+
   try {
-    const loan = await apiClient.loans.issue({
+    const loan = await apiClient.loans.create({
       beneficiaryId: pd.beneficiaryId,
       loanType: pd.loanType,
       businessType: pd.loanType === "BUSINESS" ? pd.businessType : null,
       amount: pd.amount,
       purpose: pd.purpose || "",
       installmentType: pd.installmentType,
-      installmentAmount: pd.installmentAmount,
+      installmentAmount: calculatedInstallment,
       totalInstallments: pd.totalInstallments,
       firstInstallmentDate: pd.firstInstallmentDate ? new Date(pd.firstInstallmentDate).toISOString() : undefined,
       notes: pd.notes,
@@ -54,6 +58,10 @@ export async function editLoanRequest(id: string, data: LoanFormValues) {
   if (!parsed.success) return { success: false, error: "Invalid data" }
   const pd = parsed.data
 
+  const calculatedInstallment = (pd.totalInstallments && pd.totalInstallments > 0)
+    ? Math.floor(pd.amount / pd.totalInstallments)
+    : (pd.installmentAmount || pd.amount)
+
   try {
     const loan = await apiClient.loans.update(id, {
       beneficiaryId: pd.beneficiaryId,
@@ -62,7 +70,7 @@ export async function editLoanRequest(id: string, data: LoanFormValues) {
       amount: pd.amount,
       purpose: pd.purpose || "",
       installmentType: pd.installmentType,
-      installmentAmount: pd.installmentAmount,
+      installmentAmount: calculatedInstallment,
       totalInstallments: pd.totalInstallments,
       firstInstallmentDate: pd.firstInstallmentDate ? new Date(pd.firstInstallmentDate).toISOString() : undefined,
       notes: pd.notes,

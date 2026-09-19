@@ -77,7 +77,7 @@ export function GroupCombobox({
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[320px] sm:w-[380px] p-0" align="start">
+      <PopoverContent className="w-[min(calc(100vw-2rem),380px)] max-w-[calc(100vw-2rem)] p-0" align="start">
         <Command filter={(value, search) => {
            if (!search) return 1
            const searchLower = search.toLowerCase()

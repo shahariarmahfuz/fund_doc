@@ -4,7 +4,7 @@ from typing import List, Optional
 from datetime import datetime, timezone
 from app.core.database import get_db
 from app.schemas.common import APIResponse
-from app.schemas.loan import LoanResponse, LoanCreate, LoanRepaymentCreate, LoanRepaymentResponse
+from app.schemas.loan import LoanResponse, LoanCreate, LoanUpdate, LoanRepaymentCreate, LoanRepaymentResponse
 from app.schemas.ledger import LedgerEntryInput
 from app.models import Loan, LoanRepayment, Beneficiary, FundAllocation, Fund
 from app.services.ledger_engine import LedgerEngine
@@ -42,6 +42,8 @@ def get_loan(
     return APIResponse(success=True, data=loan)
 
 @router.post("", response_model=APIResponse[LoanResponse])
+@router.post("/", response_model=APIResponse[LoanResponse], include_in_schema=False)
+@router.post("/issue", response_model=APIResponse[LoanResponse], include_in_schema=False)
 def create_loan(
     payload: LoanCreate,
     db: Session = Depends(get_db),
@@ -54,6 +56,13 @@ def create_loan(
     loan_number = generate_loan_number(db)
     now = datetime.now(timezone.utc)
 
+    # Auto-derive installment amount if not explicitly provided or <= 0
+    installment_amt = payload.installmentAmount
+    if (installment_amt is None or installment_amt <= 0) and payload.totalInstallments and payload.totalInstallments > 0:
+        installment_amt = payload.amount // payload.totalInstallments
+    elif installment_amt is None:
+        installment_amt = payload.amount
+
     # 1. Create Loan
     loan = Loan(
         loanNumber=loan_number,
@@ -64,7 +73,7 @@ def create_loan(
         businessType=payload.businessType if payload.loanType == "BUSINESS" else None,
         purpose=payload.purpose,
         installmentType=payload.installmentType,
-        installmentAmount=payload.installmentAmount,
+        installmentAmount=installment_amt,
         totalInstallments=payload.totalInstallments,
         firstInstallmentDate=payload.firstInstallmentDate,
         nextDueDate=payload.firstInstallmentDate,
@@ -181,3 +190,48 @@ def repay_loan(
         "remainingBalance": loan.remainingBalance,
         "loanStatus": loan.status
     })
+
+@router.put("/{id}", response_model=APIResponse[LoanResponse])
+@router.patch("/{id}", response_model=APIResponse[LoanResponse], include_in_schema=False)
+def update_loan(
+    id: str,
+    payload: LoanUpdate,
+    db: Session = Depends(get_db),
+    current_user = Depends(require_permission("Loans", "Edit"))
+):
+    loan = db.query(Loan).filter(Loan.id == id).first()
+    if not loan:
+        raise NotFoundException("Loan not found.")
+
+    update_dict = payload.model_dump(exclude_unset=True)
+
+    # Auto derive installmentAmount if totalInstallments or amount updated without installmentAmount
+    if ("totalInstallments" in update_dict or "amount" in update_dict) and "installmentAmount" not in update_dict:
+        new_amount = update_dict.get("amount", loan.amount)
+        new_installments = update_dict.get("totalInstallments", loan.totalInstallments)
+        if new_installments and new_installments > 0:
+            loan.installmentAmount = new_amount // new_installments
+
+    for k, v in update_dict.items():
+        setattr(loan, k, v)
+
+    loan.updatedBy = current_user.id
+    db.commit()
+    db.refresh(loan)
+    return APIResponse(success=True, data=loan)
+
+@router.delete("/{id}", response_model=APIResponse[dict])
+def delete_loan(
+    id: str,
+    db: Session = Depends(get_db),
+    _user = Depends(require_permission("Loans", "Delete"))
+):
+    loan = db.query(Loan).filter(Loan.id == id).first()
+    if not loan:
+        raise NotFoundException("Loan not found.")
+
+    db.query(FundAllocation).filter(FundAllocation.loanId == loan.id).delete(synchronize_session=False)
+    db.query(LoanRepayment).filter(LoanRepayment.loanId == loan.id).delete(synchronize_session=False)
+    db.delete(loan)
+    db.commit()
+    return APIResponse(success=True, data={"message": "Loan deleted successfully."})

@@ -277,57 +277,87 @@ export function GrantForm({
 
             <div className="md:col-span-2 mt-4">
               <h4 className="text-sm font-medium mb-3">{"Funding Sources"}</h4>
-              <div className="space-y-4">
+              <div className="space-y-4 w-full min-w-0">
                 {fields.map((field, index) => {
-                  return ((
-                                  <div key={field.id} className="flex flex-col sm:flex-row items-end gap-4 p-4 border rounded-md bg-muted/5">
-                                    <FormField
-                                      control={form.control}
-                                      name={`allocations.${index}.groupId`}
-                                      render={({ field }) => (
-                                        <FormItem className="flex-1 w-full">
-                                          <FormLabel>{"Funding Group"}</FormLabel>
-                                          <FormControl>
-                                            <GroupCombobox
-                                              groups={groups.map((g) => ({
-                                                id: g.id,
-                                                name: g.name,
-                                                code: g.code,
-                                                isFoundationGroup: (g as any).isFoundationGroup,
-                                              }))}
-                                              value={field.value}
-                                              onChange={field.onChange}
-                                            />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <FormField
-                                      control={form.control}
-                                      name={`allocations.${index}.amount`}
-                                      render={({ field }) => (
-                                        <FormItem className="flex-1 w-full">
-                                          <FormLabel>{"Allocated Amount"}</FormLabel>
-                                          <FormControl>
-                                            <Input type="number" step="0.01" {...field} value={field.value ?? ""} onChange={e => { const v = parseFloat(e.target.value); field.onChange(isNaN(v) ? "" : v); }} />
-                                          </FormControl>
-                                          <FormMessage />
-                                        </FormItem>
-                                      )}
-                                    />
-                                    <Button 
-                                      type="button" 
-                                      variant="ghost" 
-                                      size="icon" 
-                                      className="mt-2 sm:mt-0"
-                                      onClick={() => remove(index)}
-                                      disabled={fields.length === 1}
-                                    >
-                                      <Trash2 className="h-4 w-4 text-destructive" />
-                                    </Button>
-                                  </div>
-                                ));
+                  const groupId = form.watch(`allocations.${index}.groupId`)
+                  const group = groups.find((g) => g.id === groupId)
+                  const currentBalance = (group as any)?.currentFund ?? (group as any)?.currentBalance ?? null
+                  const allocAmount = form.watch(`allocations.${index}.amount`) || 0
+                  const remaining = currentBalance !== null ? currentBalance - allocAmount : null
+
+                  return (
+                    <div key={field.id} className="p-4 border rounded-lg bg-card/60 relative w-full min-w-0 space-y-4">
+                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start w-full min-w-0">
+                        <div className="w-full min-w-0 md:col-span-7">
+                          <FormField
+                            control={form.control}
+                            name={`allocations.${index}.groupId`}
+                            render={({ field }) => (
+                              <FormItem className="w-full min-w-0">
+                                <FormLabel>{"Funding Group"}</FormLabel>
+                                <FormControl>
+                                  <GroupCombobox
+                                    groups={groups.map((g) => ({
+                                      id: g.id,
+                                      name: g.name,
+                                      code: g.code,
+                                      isFoundationGroup: (g as any).isFoundationGroup,
+                                    }))}
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    placeholder={"Select funding source"}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="w-full min-w-0 md:col-span-4">
+                          <FormField
+                            control={form.control}
+                            name={`allocations.${index}.amount`}
+                            render={({ field }) => (
+                              <FormItem className="w-full min-w-0">
+                                <FormLabel>{"Allocated Amount"}</FormLabel>
+                                <FormControl>
+                                  <Input type="number" step="0.01" min="0" {...field} value={field.value ?? ""} onChange={e => { const v = parseFloat(e.target.value); field.onChange(isNaN(v) ? "" : v); }} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                        <div className="md:col-span-1 flex justify-end md:justify-center pt-0 md:pt-8">
+                          <Button 
+                            type="button" 
+                            variant="ghost" 
+                            size="icon" 
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => remove(index)}
+                            disabled={fields.length === 1}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {group && currentBalance !== null && remaining !== null && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm bg-muted/60 p-2.5 rounded-md w-full min-w-0">
+                          <div className="flex justify-between items-center px-1">
+                            <span className="text-muted-foreground">{"Available Balance:"}</span>
+                            <span className="font-semibold">৳{Number(currentBalance).toLocaleString()}</span>
+                          </div>
+                          <div className="flex justify-between items-center px-1">
+                            <span className="text-muted-foreground">{"Remaining after Sadaqah:"}</span>
+                            <span className={remaining < 0 ? "text-destructive font-bold" : "text-emerald-600 dark:text-emerald-400 font-semibold"}>
+                              ৳{Number(remaining).toLocaleString()}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )
                 })}
                 
                 <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">

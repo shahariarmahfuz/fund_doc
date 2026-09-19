@@ -32,6 +32,7 @@ api_router.include_router(beneficiaries.router, prefix="/beneficiaries", tags=["
 api_router.include_router(donors.router, prefix="/donors", tags=["Donors"])
 api_router.include_router(contributions.router, prefix="/contributions", tags=["Contributions"])
 api_router.include_router(loans.router, prefix="/loans", tags=["Loans"])
+api_router.include_router(loans.router, prefix="/qard-hasan", tags=["Qard Hasan"])
 api_router.include_router(grants.router, prefix="/grants", tags=["Grants"])
 api_router.include_router(grants.router, prefix="/sadaqah", tags=["Sadaqah"])
 api_router.include_router(ledger.router, prefix="/ledger", tags=["Ledger"])
