@@ -123,12 +123,15 @@ export function BulkContributionForm({
       setLoading(true)
       const res = await createBulkContribution(data)
       if (res.success) {
-        if ('count' in res) {
-          toast.success(`${"Successfully processed {{count}} months."} (${res.count})`);
-        } else {
-          toast.success("Successfully processed {{count}} months.");
+        const count = 'count' in res && typeof res.count === 'number' ? res.count : calculation.newRecords.length;
+        toast.success(`Successfully recorded contribution for ${count} month(s).`);
+
+        // Refresh paid months for the current member so the UI updates immediately
+        if (memberId) {
+          const paid = await getMemberPaidMonths(memberId);
+          setPaidMonths(new Set(paid));
         }
-        router.push("/contributions/due");
+        router.refresh();
       } else {
         toast.error(res.error || "Failed to save contribution")
       }

@@ -52,7 +52,7 @@ export function ContributionForm({ members }: { members: { id: string; memberId:
     const res = await createContribution(data)
     if (res.success) {
       toast.success("Contribution successfully saved")
-      router.push("/contributions")
+      router.refresh()
     } else {
       toast.error(res.error || "Failed to save contribution")
     }
