@@ -2,8 +2,12 @@ import Link from "next/link"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
 import { Compass, Sparkles, HeartHandshake, ArrowLeft, ArrowRight, Quote } from "lucide-react"
+import { getBrandingSettings } from "@/lib/branding"
 
-export default function MissionPage() {
+export default async function MissionPage() {
+  const branding = await getBrandingSettings()
+  const foundationName = branding.foundationName || "Our Foundation"
+
   return (
     <div className="min-h-dvh w-full bg-[#F4FAF8] text-[#0F172A] font-sans flex flex-col justify-between">
       <PublicHeader />
@@ -40,7 +44,7 @@ export default function MissionPage() {
             "In the service of humanity, for the pleasure of the Almighty"
           </p>
           <span className="text-xs font-semibold text-[#B45309]/80 mt-2 block tracking-wider uppercase">
-            — Brotherhood Foundation Creed
+            — {foundationName} Creed
           </span>
         </div>
 

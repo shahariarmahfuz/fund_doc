@@ -2,8 +2,12 @@ import Link from "next/link"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
 import { Target, CheckCircle2, ArrowLeft, ArrowRight, ShieldCheck } from "lucide-react"
+import { getBrandingSettings } from "@/lib/branding"
 
-export default function GoalsPage() {
+export default async function GoalsPage() {
+  const branding = await getBrandingSettings()
+  const foundationName = branding.foundationName || "Our Foundation"
+
   const goals = [
     {
       title: "Poverty Alleviation & Micro-Welfare",
@@ -52,7 +56,7 @@ export default function GoalsPage() {
             Our Goals & Objectives
           </h1>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-            Concrete humanitarian goals driving every action, contribution, and welfare program undertaken by Brotherhood Foundation.
+            Concrete humanitarian goals driving every action, contribution, and welfare program undertaken by {foundationName}.
           </p>
         </div>
 

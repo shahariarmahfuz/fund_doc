@@ -2,8 +2,12 @@ import Link from "next/link"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
 import { Users, Heart, Award, ArrowLeft, ArrowRight } from "lucide-react"
+import { getBrandingSettings } from "@/lib/branding"
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const branding = await getBrandingSettings()
+  const foundationName = branding.foundationName || "Our Foundation"
+
   return (
     <div className="min-h-dvh w-full bg-[#F4FAF8] text-[#0F172A] font-sans flex flex-col justify-between">
       <PublicHeader />
@@ -26,7 +30,7 @@ export default function AboutPage() {
             Who We Are
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
-            About Brotherhood Foundation
+            About {foundationName}
           </h1>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
             Founded with the sole objective of serving humanity and elevating underprivileged families through solidarity, welfare assistance, and mutual support.
@@ -41,7 +45,7 @@ export default function AboutPage() {
             </div>
             <h2 className="text-xl font-bold text-[#0F172A]">Our Journey & Foundations</h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
-              Brotherhood Foundation (Bhratritva Foundation) operates across local community groups to foster self-reliance, transparent collective savings, interest-free assistance, and emergency relief.
+              {foundationName} operates across local community groups to foster self-reliance, transparent collective savings, interest-free assistance, and emergency relief.
             </p>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
               Every initiative is managed with strict double-entry accountability and automated governance, ensuring that every contribution reaches those who need it most.

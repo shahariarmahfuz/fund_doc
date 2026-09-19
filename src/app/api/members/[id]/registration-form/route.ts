@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getMember } from "@/features/members/actions";
+import { getBrandingSettings } from "@/lib/branding";
 
 function translateStatus(status: string) {
   switch (status) {
@@ -30,7 +31,10 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const resolvedParams = await params;
-  const member = await getMember(resolvedParams.id);
+  const [member, branding] = await Promise.all([
+    getMember(resolvedParams.id),
+    getBrandingSettings(),
+  ]);
 
   if (!member) {
     return new NextResponse("Member not found", { status: 404 });
@@ -300,10 +304,10 @@ export async function GET(
 
     <div class="header">
         <div class="logo">
-            <img src="https://res.cloudinary.com/diwp8ug1r/image/upload/v1785393014/branding/o4r9o3gjgfkulrgm4bzu.png?v=1785394871157" alt="Foundation Logo">
+            <img src="${escapeHtml(branding.logoUrl || "https://res.cloudinary.com/diwp8ug1r/image/upload/v1785393014/branding/o4r9o3gjgfkulrgm4bzu.png?v=1785394871157")}" alt="${escapeHtml(branding.foundationName)} Logo">
         </div>
         <div class="title">
-            <h1>Brotherhood Foundation</h1>
+            <h1>${escapeHtml(branding.foundationName)}</h1>
             <h2><strong>Non-Profit Welfare Organization</strong></h2>
             <p><strong>Sonargaon, Narayanganj, Bangladesh</strong></p>
             <p><strong>Contact:</strong> +880 1963953682, +880 1834006014</p>

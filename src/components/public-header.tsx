@@ -18,10 +18,25 @@ import {
 } from "lucide-react"
 import { useBranding } from "@/components/providers/branding-provider"
 
+function getInitials(name?: string, shortName?: string): string {
+  if (shortName && shortName.trim().length <= 3) {
+    return shortName.trim().toUpperCase()
+  }
+  if (name && name.trim()) {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[1][0]).toUpperCase()
+    }
+    return name.trim().slice(0, 2).toUpperCase()
+  }
+  return "BF"
+}
+
 export function PublicHeader() {
   const [isOpen, setIsOpen] = useState(false)
   const branding = useBranding()
   const pathname = usePathname()
+  const initials = getInitials(branding.foundationName, branding.shortName)
 
   // Close drawer on Escape key
   useEffect(() => {
@@ -63,18 +78,18 @@ export function PublicHeader() {
               {branding.loginLogo || branding.logo || branding.headerLogo ? (
                 <img
                   src={branding.loginLogo || branding.logo || branding.headerLogo!}
-                  alt="Brotherhood Foundation"
+                  alt={branding.foundationName || "Foundation"}
                   className="w-full h-full object-contain"
                 />
               ) : (
                 <div className="w-full h-full rounded-2xl bg-gradient-to-br from-[#0D7E73] to-[#0A625A] text-white font-extrabold flex items-center justify-center text-xs shadow-inner">
-                  BF
+                  {initials}
                 </div>
               )}
             </div>
             <div className="flex flex-col">
               <span className="text-[15px] sm:text-base font-extrabold text-[#0F172A] leading-tight tracking-tight">
-                {branding.foundationName || "Brotherhood Foundation"}
+                {branding.foundationName || "Foundation"}
               </span>
               <span className="text-[11px] sm:text-xs font-semibold text-[#0D7E73] leading-tight">
                 Welfare Organization
@@ -202,11 +217,11 @@ export function PublicHeader() {
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-[#E8F5F1] text-[#0D7E73] flex items-center justify-center font-bold text-xs">
-              BF
+              {initials}
             </div>
             <div className="flex flex-col">
               <span className="font-extrabold text-sm text-[#0F172A] leading-tight">
-                Brotherhood Foundation
+                {branding.foundationName || "Foundation"}
               </span>
               <span className="text-[10px] font-semibold text-[#0D7E73] uppercase tracking-wider">
                 Public Navigation

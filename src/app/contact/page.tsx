@@ -2,8 +2,12 @@ import Link from "next/link"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
 import { Mail, MapPin, Phone, ArrowLeft, ArrowRight, Clock, MessageSquare } from "lucide-react"
+import { getBrandingSettings } from "@/lib/branding"
 
-export default function ContactPage() {
+export default async function ContactPage() {
+  const branding = await getBrandingSettings()
+  const foundationName = branding.foundationName || "Our Foundation"
+
   return (
     <div className="min-h-dvh w-full bg-[#F4FAF8] text-[#0F172A] font-sans flex flex-col justify-between">
       <PublicHeader />
@@ -26,7 +30,7 @@ export default function ContactPage() {
             Reach Out
           </span>
           <h1 className="text-3xl sm:text-4xl font-extrabold text-[#0F172A] tracking-tight">
-            Contact Brotherhood Foundation
+            Contact {foundationName}
           </h1>
           <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
             Have questions about membership, foundation groups, or welfare programs? We are here to assist you.

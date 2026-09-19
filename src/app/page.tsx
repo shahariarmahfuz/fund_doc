@@ -2,8 +2,11 @@ import Link from "next/link"
 import Image from "next/image"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
+import { HeroTitle } from "@/components/home/hero-title"
+import { HeroQuoteAuthor } from "@/components/home/hero-quote-author"
 import { getAuthSession } from "@/lib/auth"
 import { apiClient } from "@/lib/api/client"
+import { getBrandingSettings } from "@/lib/branding"
 import { redirect } from "next/navigation"
 import {
   Users,
@@ -16,7 +19,11 @@ import {
 } from "lucide-react"
 
 export default async function PublicHomepage() {
-  const session = await getAuthSession()
+  const [session, branding] = await Promise.all([
+    getAuthSession(),
+    getBrandingSettings(),
+  ])
+
   const user = session?.user as any
   if (user?.id) {
     try {
@@ -37,20 +44,22 @@ export default async function PublicHomepage() {
       {/* =================================================================== */}
       {/* FULL-BLEED ATMOSPHERIC HERO BACKGROUND LAYER (NO HARD BOUNDARIES)   */}
       {/* =================================================================== */}
-      <div className="absolute top-0 right-0 w-full md:w-[70%] lg:w-[64%] xl:w-[60%] h-[580px] sm:h-[640px] md:h-[680px] pointer-events-none select-none z-0 overflow-hidden">
+      <div className="absolute top-0 right-0 w-full md:w-[70%] lg:w-[64%] xl:w-[60%] h-[600px] sm:h-[640px] md:h-[680px] pointer-events-none select-none z-0 overflow-hidden">
         <div className="relative w-full h-full">
-          <Image
-            src="/images/hero-mosque.jpg"
-            alt="Humanitarian Atmosphere"
-            fill
-            priority
-            className="object-cover object-[78%_28%] sm:object-[76%_30%] md:object-[center_38%] opacity-85 sm:opacity-90"
-            sizes="100vw"
-          />
+          <div className="absolute inset-0 w-[128%] sm:w-[115%] md:w-full h-full -right-[12%] sm:-right-[6%] md:right-0">
+            <Image
+              src="/images/hero-mosque.jpg"
+              alt={branding.foundationName || "Humanitarian Atmosphere"}
+              fill
+              priority
+              className="object-cover object-[center_0%] sm:object-[center_16%] md:object-[center_38%] opacity-85 sm:opacity-90"
+              sizes="(max-width: 768px) 128vw, 70vw"
+            />
+          </div>
           {/* Seamless Multi-Directional Atmospheric Gradients for High Text Legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#EFF8F6] via-[#EFF8F6]/85 md:via-[#EFF8F6]/60 via-40% md:via-25% to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#EFF8F6] via-[#EFF8F6]/85 md:via-[#EFF8F6]/60 via-42% md:via-25% to-transparent" />
           <div className="absolute inset-0 bg-gradient-to-t from-[#EFF8F6] via-[#EFF8F6]/40 via-15% to-transparent" />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#EFF8F6]/60 via-transparent to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#EFF8F6]/50 via-transparent to-transparent" />
         </div>
       </div>
 
@@ -85,15 +94,8 @@ export default async function PublicHomepage() {
               <span>Together for a Better Tomorrow</span>
             </div>
 
-            {/* Main Brotherhood Foundation Title */}
-            <div className="space-y-0.5">
-              <h1 className="text-[36px] sm:text-5xl font-black text-[#0F172A] tracking-tight leading-[1.08]">
-                Brotherhood
-              </h1>
-              <h1 className="text-[36px] sm:text-5xl font-black text-[#0D7E73] tracking-tight leading-[1.08]">
-                Foundation
-              </h1>
-            </div>
+            {/* Dynamic Foundation Title */}
+            <HeroTitle initialName={branding.foundationName} />
 
             {/* Humanitarian Mission Statement */}
             <p className="text-slate-600 font-medium text-xs sm:text-[14px] leading-relaxed">
@@ -576,9 +578,7 @@ export default async function PublicHomepage() {
             “In the service of humanity, for the pleasure of the Almighty”
           </blockquote>
 
-          <cite className="text-[11px] sm:text-xs font-semibold text-[#B45309]/85 mt-2 sm:mt-2.5 block tracking-normal not-italic relative z-10">
-            — Brotherhood Foundation
-          </cite>
+          <HeroQuoteAuthor initialName={branding.foundationName} />
         </section>
       </main>
 

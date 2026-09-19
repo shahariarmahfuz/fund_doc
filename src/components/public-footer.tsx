@@ -1,7 +1,11 @@
+"use client"
+
 import Link from "next/link"
+import { useBranding } from "@/components/providers/branding-provider"
 
 export function PublicFooter() {
   const currentYear = new Date().getFullYear()
+  const branding = useBranding()
 
   return (
     <footer className="w-full relative overflow-hidden pt-8 pb-12 mt-10 text-center">
@@ -36,7 +40,7 @@ export function PublicFooter() {
         {/* Copyright & Tagline */}
         <div className="space-y-1 pt-2">
           <p className="text-xs sm:text-sm text-slate-500 font-medium">
-            © {currentYear} Bhratritva Foundation.
+            © {currentYear} {branding.foundationName || "Foundation"}.
           </p>
           <p className="text-[11px] sm:text-xs text-slate-400">
             Together for a kinder, stronger community.

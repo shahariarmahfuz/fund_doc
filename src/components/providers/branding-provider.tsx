@@ -14,6 +14,8 @@ export type BrandingType = {
 
 const BrandingContext = createContext<BrandingType | null>(null)
 
+let lastKnownBranding: BrandingType | null = null
+
 export function BrandingProvider({
   branding,
   children
@@ -21,8 +23,16 @@ export function BrandingProvider({
   branding: BrandingType
   children: React.ReactNode
 }) {
+  if (branding && branding.foundationName && branding.foundationName !== "Foundation ERP") {
+    lastKnownBranding = branding
+  }
+
+  const effectiveBranding = (branding && branding.foundationName && branding.foundationName !== "Foundation ERP")
+    ? branding
+    : (lastKnownBranding || branding)
+
   return (
-    <BrandingContext.Provider value={branding}>
+    <BrandingContext.Provider value={effectiveBranding}>
       {children}
     </BrandingContext.Provider>
   )
