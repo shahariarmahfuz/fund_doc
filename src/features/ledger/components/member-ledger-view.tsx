@@ -142,23 +142,23 @@ export function MemberLedgerView({ members }: MemberLedgerViewProps) {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">{"Member Name"}</p>
-                  <p className="font-semibold text-lg">{ledgerData.member.fullName}</p>
+                  <p className="font-semibold text-lg">{ledgerData.member?.fullName || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{"Member ID"}</p>
-                  <p className="font-mono font-medium">{ledgerData.member.memberId}</p>
+                  <p className="font-mono font-medium">{ledgerData.member?.memberId || "N/A"}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{"Groups"}</p>
-                  <p className="font-medium">{ledgerData.member.groupName} ({ledgerData.member.groupCode})</p>
+                  <p className="font-medium">{ledgerData.member?.groupName || "N/A"} ({ledgerData.member?.groupCode || ""})</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{"Date of Joining"}</p>
-                  <p className="font-medium">{formatDate(ledgerData.member.joinDate)}</p>
+                  <p className="font-medium">{formatDate(ledgerData.member?.joinDate)}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">{"current status"}</p>
-                  <p className="font-medium">{ledgerData.member.status === "ACTIVE" ? "Active" : "Inactive"}</p>
+                  <p className="font-medium">{ledgerData.member?.status === "ACTIVE" ? "Active" : "Inactive"}</p>
                 </div>
               </div>
             </CardContent>

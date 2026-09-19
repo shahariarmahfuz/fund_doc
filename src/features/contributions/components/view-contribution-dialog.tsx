@@ -34,13 +34,13 @@ export function ViewContributionDialog({ isOpen, onClose, contribution }: ViewCo
         <div className="grid grid-cols-2 gap-y-4 gap-x-8 py-4">
           <div>
             <p className="text-sm font-medium text-muted-foreground">{"Member"}</p>
-            <p className="font-medium">{contribution.member.fullName}</p>
-            <p className="text-xs text-muted-foreground">{contribution.member.memberId}</p>
+            <p className="font-medium">{contribution.member?.fullName || "Unknown"}</p>
+            <p className="text-xs text-muted-foreground">{contribution.member?.memberId || contribution.memberId || "-"}</p>
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">{"Group"}</p>
-            <p className="font-medium">{contribution.member.group?.name}</p>
-            <p className="text-xs text-muted-foreground">{contribution.member.group?.code}</p>
+            <p className="font-medium">{contribution.member?.group?.name || "N/A"}</p>
+            <p className="text-xs text-muted-foreground">{contribution.member?.group?.code || ""}</p>
           </div>
 
           <Separator className="col-span-2 my-2" />

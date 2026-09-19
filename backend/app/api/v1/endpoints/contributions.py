@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 from datetime import datetime
 from app.core.database import get_db
@@ -27,7 +27,13 @@ def get_contributions(
     db: Session = Depends(get_db),
     _user = Depends(require_permission("Fund Collection", "View"))
 ):
-    query = db.query(MonthlyContribution)
+    query = (
+        db.query(MonthlyContribution)
+        .options(
+            joinedload(MonthlyContribution.member).joinedload(Member.group),
+            joinedload(MonthlyContribution.payments)
+        )
+    )
     if memberId:
         query = query.filter(MonthlyContribution.memberId == memberId)
     if month:

@@ -413,6 +413,9 @@ export const apiClient = {
     getById: (id: string) =>
       apiClient.get<any>(`/api/v1/groups/${id}`),
 
+    getSignupEligible: () =>
+      apiClient.get<any[]>("/api/v1/groups/signup-eligible"),
+
     create: (data: any) =>
       apiClient.post<any>("/api/v1/groups", data),
 

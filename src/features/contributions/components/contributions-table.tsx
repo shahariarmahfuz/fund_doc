@@ -43,11 +43,11 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
 type ContributionWithDetails = MonthlyContribution & {
-  member: {
-    memberId: string
-    fullName: string | null
-    group: { name: string; code: string } | null
-  }
+  member?: {
+    memberId?: string
+    fullName?: string | null
+    group?: { name: string; code: string } | null
+  } | null
   payments: ContributionPayment[]
 }
 
@@ -128,12 +128,12 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
       enableHiding: false,
     },
     {
-      accessorFn: (row) => `${row.member.fullName || 'Unknown'} (${row.member.memberId})`,
+      accessorFn: (row) => `${row.member?.fullName || 'Unknown'} (${row.member?.memberId || row.memberId || '-'})`,
       id: "member",
       header: "Member",
     },
     {
-      accessorFn: (row) => row.member.group?.name || "N/A",
+      accessorFn: (row) => row.member?.group?.name || "N/A",
       id: "group",
       header: "Group",
     },

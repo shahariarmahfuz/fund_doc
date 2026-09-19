@@ -140,7 +140,7 @@ export async function deleteMemberRequest(id: string) {
 
 export async function getGroups() {
   try {
-    return await apiClient.get<any[]>("/api/v1/groups/signup-eligible");
+    return await apiClient.groups.getSignupEligible();
   } catch {
     return [];
   }

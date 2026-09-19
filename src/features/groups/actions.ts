@@ -9,18 +9,18 @@ export async function getGroups(): Promise<GroupWithCount[]> {
   try {
     const groups = await apiClient.groups.getAll()
     return groups || []
-  } catch (err) {
-    console.error("Failed to fetch groups from FastAPI:", err)
+  } catch (err: any) {
+    console.warn("Failed to fetch groups from FastAPI:", err?.message || err)
     return []
   }
 }
 
 export async function getMemberSignupGroups() {
   try {
-    const groups = await apiClient.get<any[]>("/api/v1/groups/signup-eligible")
+    const groups = await apiClient.groups.getSignupEligible()
     return groups || []
-  } catch (err) {
-    console.error("Failed to fetch signup eligible groups:", err)
+  } catch (err: any) {
+    console.warn("Failed to fetch signup eligible groups:", err?.message || err)
     return []
   }
 }

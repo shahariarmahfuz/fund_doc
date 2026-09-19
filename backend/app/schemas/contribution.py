@@ -25,6 +25,18 @@ class ContributionPaymentResponse(BaseSchema):
     referenceNumber: Optional[str] = None
     notes: Optional[str] = None
 
+class GroupSimpleResponse(BaseSchema):
+    id: str
+    name: str
+    code: str
+
+class MemberSimpleResponse(BaseSchema):
+    id: str
+    memberId: str
+    fullName: Optional[str] = None
+    mobile: Optional[str] = None
+    group: Optional[GroupSimpleResponse] = None
+
 class MonthlyContributionResponse(BaseSchema):
     id: str
     memberId: str
@@ -36,3 +48,4 @@ class MonthlyContributionResponse(BaseSchema):
     createdAt: datetime
     updatedAt: datetime
     payments: Optional[List[ContributionPaymentResponse]] = []
+    member: Optional[MemberSimpleResponse] = None
