@@ -8,7 +8,7 @@ from app.core.exceptions import DatabaseUnavailableException
 
 logger = logging.getLogger("app.database")
 
-# Supabase PostgreSQL Session Pooler connection
+# Neon PostgreSQL Connection (Pooled)
 # Automatically ensure postgresql+psycopg:// driver prefix for psycopg3 compatibility
 db_url = settings.DATABASE_URL
 if db_url.startswith("postgres://"):
@@ -17,14 +17,15 @@ elif db_url.startswith("postgresql://") and not db_url.startswith("postgresql+")
     db_url = db_url.replace("postgresql://", "postgresql+psycopg://", 1)
 
 # Configure single persistent application-level connection pool
-# Tuned for Supabase Session Pooler (port 5432)
+# Tuned for Neon PostgreSQL Connection Pooler
 engine = create_engine(
     db_url,
     pool_pre_ping=True,       # Detect dead/stale connections and automatically replace them
     pool_size=5,              # Bounded pool size suitable for Render service
     max_overflow=5,           # Allow up to 5 additional connections during peak traffic
     pool_timeout=30,          # Bounded wait time for connection acquisition
-    pool_recycle=300,         # Recycle connections every 5 minutes to prevent stale sockets
+    pool_recycle=300,         # Recycle connections every 5 minutes to prevent stale idle sockets
+    connect_args={"connect_timeout": 10},
     echo=False
 )
 

@@ -1,6 +1,6 @@
 # Foundation ERP - FastAPI Backend
 
-Modern, high-performance REST API backend for the Foundation ERP platform built with FastAPI, SQLAlchemy 2.0, Alembic, and Supabase PostgreSQL.
+Modern, high-performance REST API backend for the Foundation ERP platform built with FastAPI, SQLAlchemy 2.0, Alembic, and Neon PostgreSQL.
 
 ---
 
@@ -22,11 +22,11 @@ Modern, high-performance REST API backend for the Foundation ERP platform built 
 │   │ SQLAlchemy 2.0 ORM      │   │
 │   └───────────┬─────────────┘   │
 └───────────────┼─────────────────┘
-                │ Connection Pooling (psycopg)
+                │ Connection Pooling (psycopg3)
                 ▼
 ┌─────────────────────────────────┐
-│  Supabase PostgreSQL (Pooler)   │
-│     Session Pooler (Port 5432)  │
+│      Neon PostgreSQL Pooler     │
+│   (-pooler endpoint, port 5432) │
 └─────────────────────────────────┘
 ```
 
@@ -34,7 +34,7 @@ The backend is completely decoupled from the frontend:
 - **Authentication**: JWT Bearer token authentication with bcrypt password hashing.
 - **Authorization**: Granular RBAC (Role-Based Access Control) with module-level permissions.
 - **Double-Entry Financial Engine**: Centralized transaction ledger ensuring debit/credit parity.
-- **Single Source of Truth**: Supabase PostgreSQL session pooler managing all persistent data.
+- **Single Source of Truth**: Neon PostgreSQL Connection Pooler managing all persistent data.
 
 ---
 
@@ -76,7 +76,7 @@ backend/
 
 ### Prerequisites
 - Python 3.10+ (tested with Python 3.14)
-- Supabase PostgreSQL instance (Session Pooler recommended)
+- Neon PostgreSQL instance (Connection Pooling recommended)
 
 ### Step 1: Create Virtual Environment
 ```bash
@@ -91,7 +91,7 @@ pip install -r requirements.txt
 ```
 
 ### Step 3: Configure Environment
-Copy `.env.example` to `.env` and fill in your Supabase connection string:
+Copy `.env.example` to `.env` and fill in your Neon connection string:
 ```bash
 cp .env.example .env
 ```
@@ -103,8 +103,8 @@ APP_ENV=development
 DEBUG=true
 PORT=8000
 
-# Supabase PostgreSQL Session Pooler (port 5432, sslmode=require)
-DATABASE_URL=postgresql+psycopg://postgres.YOUR_PROJECT_REF:YOUR_PASSWORD@aws-0-ap-southeast-1.pooler.supabase.com:5432/postgres?sslmode=require
+# Neon PostgreSQL Connection Pooler (port 5432, sslmode=require)
+DATABASE_URL=postgresql://user:password@ep-example-pooler.region.aws.neon.tech/neondb?sslmode=require
 
 # JWT Secret (minimum 32 characters)
 SECRET_KEY=your-secure-random-secret-key-at-least-32-chars-long
@@ -116,7 +116,7 @@ CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 ```
 
 ### Step 4: Run Database Migrations
-Apply all schema tables to Supabase:
+Apply all schema tables to Neon PostgreSQL:
 ```bash
 alembic upgrade head
 ```

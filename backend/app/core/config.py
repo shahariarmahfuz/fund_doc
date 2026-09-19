@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     PORT: int = 8000
 
-    # Database: Supabase PostgreSQL Session Pooler connection
+    # Database: Neon PostgreSQL connection
     DATABASE_URL: str
 
     # Security

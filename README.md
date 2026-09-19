@@ -2,7 +2,7 @@
 
 Modern, enterprise-grade Enterprise Resource Planning (ERP) platform tailored for non-profit foundations, charities, and community welfare organizations.
 
-The system features a completely decoupled architecture: a **Next.js TypeScript Frontend** communicating over a REST API with a high-performance **Python FastAPI Backend**, backed by **Supabase PostgreSQL**. Both services are packaged into a **single Docker container** with NGINX reverse proxy for unified deployment.
+The system features a completely decoupled architecture: a **Next.js TypeScript Frontend** communicating over a REST API with a high-performance **Python FastAPI Backend**, backed by **Neon PostgreSQL**. Both services are packaged into a **single Docker container** with NGINX reverse proxy for unified deployment.
 
 ---
 
@@ -30,11 +30,11 @@ The system features a completely decoupled architecture: a **Next.js TypeScript 
 │  - In-memory caching with TTL-based invalidation        │
 └────────────────────────────┬────────────────────────────┘
                              │
-                             │ Connection Pooling (psycopg)
+                             │ Connection Pooling (psycopg3)
                              │
 ┌────────────────────────────▼────────────────────────────┐
-│               Supabase PostgreSQL Database              │
-│  - Transactional Session Pooler (Port 5432)             │
+│                Neon PostgreSQL Database                 │
+│  - Connection Pooler (-pooler endpoint, Port 5432)      │
 │  - 31+ Normalized Relational Tables                     │
 │  - Single Source of Persistent Truth                    │
 └─────────────────────────────────────────────────────────┘
@@ -62,7 +62,7 @@ The system features a completely decoupled architecture: a **Next.js TypeScript 
     └────────────┬────────────┘
                  │
     ┌────────────▼────────────┐
-    │  Supabase PostgreSQL    │
+    │    Neon PostgreSQL      │
     │  (External Managed DB)  │
     └─────────────────────────┘
 ```
@@ -129,7 +129,7 @@ The system features a completely decoupled architecture: a **Next.js TypeScript 
 ### Infrastructure
 - **Container**: Docker multi-stage build (3 stages)
 - **Reverse Proxy**: NGINX with dynamic port templating
-- **Database**: Supabase PostgreSQL (Session Pooler, port 5432)
+- **Database**: Neon PostgreSQL (Connection Pooler, port 5432)
 
 ---
 
@@ -139,7 +139,7 @@ Ensure you have the following installed locally:
 - **Node.js**: v18.x or v20.x+
 - **Python**: v3.10+ (tested with Python 3.14)
 - **Docker**: v20+ (for containerized deployment)
-- **Supabase Account**: An active PostgreSQL database instance
+- **Neon Account**: An active PostgreSQL database instance
 
 ---
 
@@ -168,9 +168,9 @@ Ensure you have the following installed locally:
    ```bash
    cp .env.example .env
    ```
-   Open `backend/.env` and update the `DATABASE_URL` with your Supabase session pooler connection string, and specify a secure `SECRET_KEY`:
+   Open `backend/.env` and update the `DATABASE_URL` with your Neon PostgreSQL connection string, and specify a secure `SECRET_KEY`:
    ```env
-   DATABASE_URL=postgresql+psycopg://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require
+   DATABASE_URL=postgresql://[USER]:[PASSWORD]@[HOST]/[DATABASE]?sslmode=require
    SECRET_KEY=change_this_to_a_secure_random_string_at_least_32_characters_long
    CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
    ```
@@ -283,7 +283,7 @@ Verify:
 
    | Variable | Value |
    |---|---|
-   | `DATABASE_URL` | Your Supabase PostgreSQL connection string |
+   | `DATABASE_URL` | Your Neon PostgreSQL connection string |
    | `SECRET_KEY` | Secure JWT signing key (32+ chars) |
    | `NEXTAUTH_SECRET` | Secure NextAuth encryption key (32+ chars) |
    | `NEXTAUTH_URL` | `https://your-app.onrender.com` |
@@ -327,7 +327,7 @@ Verify:
 ### Backend (`backend/.env`)
 | Variable | Required | Description | Example |
 |---|---|---|---|
-| `DATABASE_URL` | Yes | PostgreSQL connection string for Supabase Session Pooler | `postgresql+psycopg://...:5432/postgres?sslmode=require` |
+| `DATABASE_URL` | Yes | PostgreSQL connection string for Neon Connection Pooler | `postgresql://...-pooler.region.aws.neon.tech/neondb?sslmode=require` |
 | `SECRET_KEY` | Yes | JWT signing secret key (minimum 32 characters) | `your-random-secret-key` |
 | `ALGORITHM` | No | JWT signing algorithm (default `HS256`) | `HS256` |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | No | JWT token validity window in minutes | `43200` (30 days) |
