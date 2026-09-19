@@ -40,10 +40,14 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def init_db_engine() -> None:
-    """Verify database connectivity at application startup."""
+    """Verify database connectivity at application startup and ensure schema alignment."""
     try:
-        with engine.connect() as conn:
+        with engine.begin() as conn:
             conn.execute(text("SELECT 1"))
+            # Ensure Donor mobile and nationalId allow NULLs and clean empty strings
+            conn.execute(text('ALTER TABLE "Donor" ALTER COLUMN "mobile" DROP NOT NULL;'))
+            conn.execute(text("UPDATE \"Donor\" SET \"mobile\" = NULL WHERE \"mobile\" = '' OR \"mobile\" = 'None';"))
+            conn.execute(text("UPDATE \"Donor\" SET \"nationalId\" = NULL WHERE \"nationalId\" = '' OR \"nationalId\" = 'None';"))
         logger.info("Database engine initialized successfully. Connection pool ready.")
     except Exception as exc:
         logger.warning(f"Initial database connectivity probe failed during startup: {exc}. Pool will attempt reconnect on request.")

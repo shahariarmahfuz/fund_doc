@@ -159,14 +159,24 @@ def create_donor(
     db: Session = Depends(get_db),
     current_user = Depends(require_permission("Donors", "Add"))
 ):
-    if db.query(Donor).filter(Donor.mobile == payload.mobile).first():
+    mobile = payload.mobile.strip() if payload.mobile and payload.mobile.strip() else None
+    national_id = payload.nationalId.strip() if payload.nationalId and payload.nationalId.strip() else None
+
+    if mobile and db.query(Donor).filter(Donor.mobile == mobile).first():
         raise APIException("Donor with this mobile number already exists.", code="DUPLICATE_MOBILE")
 
+    if national_id and db.query(Donor).filter(Donor.nationalId == national_id).first():
+        raise APIException("Donor with this National ID already exists.", code="DUPLICATE_NID")
+
     donor_id = generate_donor_id(db)
+    donor_data = payload.model_dump()
+    donor_data["mobile"] = mobile
+    donor_data["nationalId"] = national_id
+
     d = Donor(
         donorId=donor_id,
         createdBy=current_user.id,
-        **payload.model_dump()
+        **donor_data
     )
     db.add(d)
     db.commit()
@@ -185,9 +195,17 @@ def update_donor(
         raise NotFoundException("Donor not found.")
 
     update_dict = payload.model_dump(exclude_unset=True)
-    if "mobile" in update_dict and update_dict["mobile"] and update_dict["mobile"] != d.mobile:
-        if db.query(Donor).filter(Donor.mobile == update_dict["mobile"], Donor.id != id).first():
-            raise APIException("Donor with this mobile number already exists.", code="DUPLICATE_MOBILE")
+    if "mobile" in update_dict:
+        update_dict["mobile"] = update_dict["mobile"].strip() if update_dict["mobile"] and update_dict["mobile"].strip() else None
+        if update_dict["mobile"] and update_dict["mobile"] != d.mobile:
+            if db.query(Donor).filter(Donor.mobile == update_dict["mobile"], Donor.id != id).first():
+                raise APIException("Donor with this mobile number already exists.", code="DUPLICATE_MOBILE")
+
+    if "nationalId" in update_dict:
+        update_dict["nationalId"] = update_dict["nationalId"].strip() if update_dict["nationalId"] and update_dict["nationalId"].strip() else None
+        if update_dict["nationalId"] and update_dict["nationalId"] != d.nationalId:
+            if db.query(Donor).filter(Donor.nationalId == update_dict["nationalId"], Donor.id != id).first():
+                raise APIException("Donor with this National ID already exists.", code="DUPLICATE_NID")
 
     for key, value in update_dict.items():
         setattr(d, key, value)

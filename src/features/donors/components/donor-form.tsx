@@ -18,6 +18,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { toast } from "sonner"
 import { createDonor, updateDonor } from "../actions"
+import { apiClient } from "@/lib/api/client"
 
 // Removed import
 
@@ -50,8 +51,17 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsSubmitting(true)
+    const sanitizedMobile = values.mobile?.trim() || undefined
+    const sanitizedNationalId = values.nationalId?.trim() || undefined
+    const sanitizedAddress = values.address?.trim() || undefined
+    const sanitizedNotes = values.notes?.trim() || undefined
+
     const payload = {
-      ...values,
+      fullName: values.fullName.trim(),
+      mobile: sanitizedMobile,
+      address: sanitizedAddress,
+      nationalId: sanitizedNationalId,
+      notes: sanitizedNotes,
       documents: values.documentUrl ? [{
         title: "Donor Document",
         secureUrl: values.documentUrl,
@@ -59,11 +69,41 @@ export function DonorForm({ mode = "create", donor = null }: { mode?: "create" |
       }] : []
     }
 
-    let res
-    if (mode === "create") {
-      res = await createDonor(payload)
-    } else {
-      res = await updateDonor(donor.id, payload)
+    let res: { success: boolean; error?: string; donor?: any }
+    try {
+      if (mode === "create") {
+        res = await createDonor(payload)
+      } else {
+        res = await updateDonor(donor.id, payload)
+      }
+    } catch (actionErr: any) {
+      const errorMsg = String(actionErr?.message || actionErr || "")
+      if (
+        errorMsg.includes("was not found on the server") ||
+        errorMsg.includes("failed-to-find-server-action") ||
+        errorMsg.includes("Server Action")
+      ) {
+        try {
+          const clientData = {
+            fullName: payload.fullName,
+            mobile: sanitizedMobile || null,
+            address: sanitizedAddress || null,
+            nationalId: sanitizedNationalId || null,
+            notes: sanitizedNotes || null,
+          }
+          if (mode === "create") {
+            const created = await apiClient.donors.create(clientData)
+            res = { success: true, donor: created }
+          } else {
+            const updated = await apiClient.donors.update(donor.id, clientData)
+            res = { success: true, donor: updated }
+          }
+        } catch (apiErr: any) {
+          res = { success: false, error: apiErr?.message || "Failed to save donor" }
+        }
+      } else {
+        res = { success: false, error: errorMsg }
+      }
     }
 
     setIsSubmitting(false)

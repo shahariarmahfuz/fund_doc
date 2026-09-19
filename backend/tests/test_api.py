@@ -284,4 +284,32 @@ def test_contribution_delete_flow(client, auth_headers):
     assert res_del2.status_code == 200
     assert res_del2.json()["success"] is True
 
+def test_donor_create_optional_mobile(client, auth_headers):
+    # 1. Create first donor with empty mobile string
+    d1 = client.post("/api/v1/donors", json={
+        "fullName": "Donor Without Mobile 1",
+        "mobile": "",
+        "address": "Dhaka"
+    }, headers=auth_headers)
+    assert d1.status_code == 200
+    d1_data = d1.json()["data"]
+    assert d1_data["mobile"] is None
+    d1_id = d1_data["id"]
+
+    # 2. Create second donor with None mobile (should NOT collide with first donor)
+    d2 = client.post("/api/v1/donors", json={
+        "fullName": "আরফান মিয়া",
+        "mobile": None,
+        "address": "Chittagong"
+    }, headers=auth_headers)
+    assert d2.status_code == 200
+    d2_data = d2.json()["data"]
+    assert d2_data["mobile"] is None
+    d2_id = d2_data["id"]
+
+    # 3. Clean up
+    client.delete(f"/api/v1/donors/{d1_id}", headers=auth_headers)
+    client.delete(f"/api/v1/donors/{d2_id}", headers=auth_headers)
+
+
 

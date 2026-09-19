@@ -9,7 +9,7 @@ class Donor(Base):
     id = Column(String, primary_key=True, default=generate_uuid)
     donorId = Column(String, unique=True, nullable=False, index=True)
     fullName = Column(String, nullable=False)
-    mobile = Column(String, unique=True, nullable=False, index=True)
+    mobile = Column(String, unique=True, nullable=True, index=True)
     address = Column(String, nullable=True)
     nationalId = Column(String, unique=True, nullable=True, index=True)
     notes = Column(String, nullable=True)

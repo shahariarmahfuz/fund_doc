@@ -6,7 +6,7 @@ from app.schemas.member import DocumentSimple
 
 class DonorBase(BaseModel):
     fullName: str
-    mobile: str
+    mobile: Optional[str] = None
     address: Optional[str] = None
     nationalId: Optional[str] = None
     notes: Optional[str] = None

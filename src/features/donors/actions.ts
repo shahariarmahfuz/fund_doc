@@ -25,10 +25,10 @@ export async function createDonor(data: any) {
   try {
     const donor = await apiClient.donors.create({
       fullName: data.fullName,
-      mobile: data.mobile,
-      address: data.address || null,
-      nationalId: data.nationalId || null,
-      notes: data.notes || null,
+      mobile: data.mobile?.trim() || null,
+      address: data.address?.trim() || null,
+      nationalId: data.nationalId?.trim() || null,
+      notes: data.notes?.trim() || null,
     })
 
     revalidatePath("/donors")
@@ -44,10 +44,10 @@ export async function updateDonor(id: string, data: any) {
   try {
     const donor = await apiClient.donors.update(id, {
       fullName: data.fullName,
-      mobile: data.mobile,
-      address: data.address || null,
-      nationalId: data.nationalId || null,
-      notes: data.notes || null,
+      mobile: data.mobile?.trim() || null,
+      address: data.address?.trim() || null,
+      nationalId: data.nationalId?.trim() || null,
+      notes: data.notes?.trim() || null,
     })
 
     revalidatePath("/donors")
