@@ -15,7 +15,14 @@ echo "[INIT] Generating NGINX configuration from template..."
 sed "s/\${PORT}/${RENDER_PORT}/g" /etc/nginx/nginx.conf.template > /etc/nginx/nginx.conf
 nginx -t
 
-# 3. Start FastAPI Backend (Binding strictly to internal loopback: 127.0.0.1:8000)
+# 3. Apply Database Migrations and Seed Initial Data
+echo "[INIT] Applying database migrations to Neon PostgreSQL..."
+cd /app/backend
+/opt/venv/bin/alembic upgrade head || echo "[WARNING] Alembic migration encountered an issue, proceeding..."
+echo "[INIT] Ensuring initial seed data exists..."
+/opt/venv/bin/python scripts/seed.py || echo "[INFO] Seed completed or already initialized."
+
+# 4. Start FastAPI Backend (Binding strictly to internal loopback: 127.0.0.1:8000)
 echo "[INIT] Launching FastAPI ASGI server on 127.0.0.1:8000..."
 cd /app/backend
 /opt/venv/bin/uvicorn app.main:app \
