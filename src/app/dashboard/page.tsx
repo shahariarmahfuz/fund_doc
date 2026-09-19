@@ -86,8 +86,21 @@ function DashboardSkeleton() {
   )
 }
 
-function getFinancialCardDisplay(metric?: MetricComparison, isError?: boolean) {
+function getFinancialCardDisplay(metric?: MetricComparison, isError?: boolean, isAuthError?: boolean) {
   if (!metric || (!metric.has_data && metric.current === 0)) {
+    if (isAuthError) {
+      return {
+        value: (
+          <span className="text-[20px] text-amber-600 font-medium">
+            Auth Required
+          </span>
+        ),
+        subValue: "Session expired or revoked",
+        badgeLabel: "Sign In",
+        badgeIcon: AlertCircle,
+        badgeVariant: "neutral" as const,
+      }
+    }
     if (isError) {
       return {
         value: (
@@ -145,10 +158,10 @@ function getFinancialCardDisplay(metric?: MetricComparison, isError?: boolean) {
 
 async function DashboardStats() {
   const stats = await getDashboardStats()
-  const cashDisplay = getFinancialCardDisplay(stats.currentCashBalance, stats.isError)
-  const foundationDisplay = getFinancialCardDisplay(stats.foundationTotalFund, stats.isError)
-  const groupDisplay = getFinancialCardDisplay(stats.totalGroupFunds, stats.isError)
-  const contribDisplay = getFinancialCardDisplay(stats.totalContributions, stats.isError)
+  const cashDisplay = getFinancialCardDisplay(stats.currentCashBalance, stats.isError, stats.isAuthError)
+  const foundationDisplay = getFinancialCardDisplay(stats.foundationTotalFund, stats.isError, stats.isAuthError)
+  const groupDisplay = getFinancialCardDisplay(stats.totalGroupFunds, stats.isError, stats.isAuthError)
+  const contribDisplay = getFinancialCardDisplay(stats.totalContributions, stats.isError, stats.isAuthError)
 
   const membersHasData = stats.totalMembers > 0
   const institutionsHasData = stats.totalGroups > 0 || stats.totalBeneficiaries > 0
@@ -157,7 +170,25 @@ async function DashboardStats() {
 
   return (
     <>
-      {stats.isError && (
+      {stats.isAuthError ? (
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-5 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-900 animate-fade-up">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-6 h-6 text-amber-600 shrink-0" />
+            <div>
+              <p className="font-semibold text-base">Session Expired or Revoked</p>
+              <p className="text-xs text-amber-700/80 mt-0.5">
+                Your authentication session has expired or is no longer active on the server. Please sign in again to access live dashboard data.
+              </p>
+            </div>
+          </div>
+          <a
+            href="/login"
+            className="inline-flex items-center justify-center px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs transition-colors shadow-sm shrink-0"
+          >
+            Sign In Again
+          </a>
+        </div>
+      ) : stats.isError ? (
         <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-700 text-sm animate-fade-up">
           <AlertCircle className="w-5 h-5 shrink-0" />
           <div>
@@ -167,7 +198,7 @@ async function DashboardStats() {
             </p>
           </div>
         </div>
-      )}
+      ) : null}
 
       {/* KPI Cards Row 1 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">

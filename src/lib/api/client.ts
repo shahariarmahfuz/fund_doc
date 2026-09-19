@@ -82,8 +82,14 @@ export function isPublicEndpoint(endpoint: string): boolean {
 }
 
 let activeRefreshPromise: Promise<string | null> | null = null
+let lastFailedRefreshTime = 0
+const REFRESH_COOLDOWN_MS = 15000
 
 async function refreshAuthToken(): Promise<string | null> {
+  if (Date.now() - lastFailedRefreshTime < REFRESH_COOLDOWN_MS) {
+    return null
+  }
+
   if (activeRefreshPromise) {
     return activeRefreshPromise
   }
@@ -95,7 +101,10 @@ async function refreshAuthToken(): Promise<string | null> {
         const session = await getAuthSession()
         const currentToken = (session as any)?.accessToken
         const refreshToken = (session as any)?.refreshToken || currentToken
-        if (!refreshToken) return null
+        if (!refreshToken) {
+          lastFailedRefreshTime = Date.now()
+          return null
+        }
 
         const baseUrl = getBaseUrl()
         const res = await fetch(`${baseUrl.replace(/\/$/, "")}/api/v1/auth/refresh`, {
@@ -107,7 +116,10 @@ async function refreshAuthToken(): Promise<string | null> {
           body: JSON.stringify({ refreshToken }),
         })
 
-        if (!res.ok) return null
+        if (!res.ok) {
+          lastFailedRefreshTime = Date.now()
+          return null
+        }
         const json = await res.json()
         const data = json?.data || json
         const newToken = data?.access_token
@@ -123,12 +135,16 @@ async function refreshAuthToken(): Promise<string | null> {
           method: "POST",
           headers: { "Content-Type": "application/json" },
         })
-        if (!res.ok) return null
+        if (!res.ok) {
+          lastFailedRefreshTime = Date.now()
+          return null
+        }
         const json = await res.json()
         const data = json?.data || json
         return data?.access_token || null
       }
     } catch (err) {
+      lastFailedRefreshTime = Date.now()
       console.warn("Automatic token refresh failed:", err)
       return null
     } finally {

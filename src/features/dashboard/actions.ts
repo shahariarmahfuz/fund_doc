@@ -1,7 +1,6 @@
 "use server"
 
-import { apiClient, isAuthError } from "@/lib/api/client"
-import { redirect } from "next/navigation"
+import { apiClient, isAuthError, isDatabaseError } from "@/lib/api/client"
 
 export interface MetricComparison {
   current: number
@@ -39,6 +38,8 @@ export interface DashboardStatsData {
   groupFundDistribution: GroupDistributionItem[]
   monthlyChartData: MonthlyChartItem[]
   isError?: boolean
+  isAuthError?: boolean
+  isDatabaseError?: boolean
 }
 
 const EMPTY_METRIC: MetricComparison = {
@@ -99,8 +100,28 @@ export async function getDashboardStats(): Promise<DashboardStatsData> {
     }
     return stats
   } catch (err: any) {
-    if (isAuthError(err) || err?.status === 401 || err?.status === 403) {
-      redirect("/login")
+    const authFailed = isAuthError(err) || err?.status === 401 || err?.status === 403
+
+    if (authFailed) {
+      console.warn("[Dashboard] Session authentication failed or revoked on backend:", err?.message || err)
+      return {
+        totalMembers: 0,
+        activeMembers: 0,
+        inactiveMembers: 0,
+        totalGroups: 0,
+        foundationTotalFund: { ...EMPTY_METRIC },
+        totalGroupFunds: { ...EMPTY_METRIC },
+        currentCashBalance: { ...EMPTY_METRIC },
+        totalContributions: { ...EMPTY_METRIC },
+        totalActiveLoans: 0,
+        outstandingLoanAmount: 0,
+        totalGrants: 0,
+        totalBeneficiaries: 0,
+        groupFundDistribution: [],
+        monthlyChartData: [],
+        isError: true,
+        isAuthError: true,
+      }
     }
 
     console.error("[Dashboard] Temporary API synchronization failure:", err)
@@ -110,6 +131,7 @@ export async function getDashboardStats(): Promise<DashboardStatsData> {
       return {
         ...cached,
         isError: true,
+        isDatabaseError: true,
       }
     }
 
@@ -129,6 +151,7 @@ export async function getDashboardStats(): Promise<DashboardStatsData> {
       groupFundDistribution: [],
       monthlyChartData: [],
       isError: true,
+      isDatabaseError: true,
     }
   }
 }

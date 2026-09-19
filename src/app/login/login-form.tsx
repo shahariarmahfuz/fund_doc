@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { signIn } from "next-auth/react"
+import { useState, useEffect } from "react"
+import { signIn, signOut, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -30,9 +30,17 @@ const formSchema = z.object({
 import { useBranding } from "@/components/providers/branding-provider"
 
 export function LoginForm() {
-      const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const branding = useBranding()
+  const { data: session } = useSession()
+
+  useEffect(() => {
+    // If user arrived on the login screen with a stale/orphaned session, clean up the client cookie
+    if (session?.user) {
+      signOut({ redirect: false })
+    }
+  }, [session])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

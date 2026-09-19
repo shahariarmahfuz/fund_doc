@@ -3,6 +3,7 @@ import Image from "next/image"
 import { PublicHeader } from "@/components/public-header"
 import { PublicFooter } from "@/components/public-footer"
 import { getAuthSession } from "@/lib/auth"
+import { apiClient } from "@/lib/api/client"
 import { redirect } from "next/navigation"
 import {
   Users,
@@ -18,7 +19,14 @@ export default async function PublicHomepage() {
   const session = await getAuthSession()
   const user = session?.user as any
   if (user?.id) {
-    redirect("/dashboard")
+    try {
+      const me = await apiClient.auth.getMe()
+      if (me && (me.id || me.data?.id)) {
+        redirect("/dashboard")
+      }
+    } catch {
+      // Session invalid on backend, stay on public homepage
+    }
   }
 
   return (
