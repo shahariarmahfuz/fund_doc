@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Script from "next/script"
-import { Inter } from "next/font/google"
+import { inter, googleSansFlex } from "@/lib/fonts"
 import "./globals.css"
 import { Sidebar } from "@/components/layout/sidebar"
 import { Header } from "@/components/layout/header"
@@ -12,10 +12,6 @@ import { AuthProvider } from "@/components/auth-provider"
 import { RbacProvider } from "@/components/providers/rbac-provider"
 import { getUserPermissions, getUserPreferences } from "@/lib/rbac"
 import { Toaster } from "sonner"
-
-const inter = Inter({
-  subsets: ["latin"],
-})
 
 import { getBrandingSettings } from "@/lib/branding"
 
@@ -89,7 +85,7 @@ export default async function RootLayout({
       <head>
         <link href="https://cdn.jsdelivr.net/npm/@fontsource/jetbrains-mono@5.0.6/index.min.css" rel="stylesheet" />
       </head>
-      <body className={`${inter.className} h-dvh w-full overflow-hidden flex`} suppressHydrationWarning>
+      <body className={`${inter.className} ${googleSansFlex.variable} h-dvh w-full overflow-hidden flex`} suppressHydrationWarning>
         <Script
           id="app-settings"
           dangerouslySetInnerHTML={{

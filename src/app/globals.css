@@ -3,6 +3,9 @@
 @plugin "tailwindcss-animate";
 
 @theme {
+  --font-sans: var(--font-google-sans-flex), "Google Sans Flex", "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-google-sans: var(--font-google-sans-flex), "Google Sans Flex", "Google Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
   --color-border: hsl(var(--border));
   --color-input: hsl(var(--input));
   --color-ring: hsl(var(--ring));

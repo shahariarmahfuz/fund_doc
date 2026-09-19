@@ -21,11 +21,11 @@ export function HeroTitle({ initialName }: { initialName?: string }) {
 
   return (
     <div className="space-y-0.5">
-      <h1 className="text-[36px] sm:text-5xl font-black text-[#0F172A] tracking-tight leading-[1.08]">
+      <h1 className="text-[36px] sm:text-5xl font-medium text-[#0F172A] tracking-tight leading-[1.08]">
         {firstPart}
       </h1>
       {secondPart && (
-        <h1 className="text-[36px] sm:text-5xl font-black text-[#0D7E73] tracking-tight leading-[1.08]">
+        <h1 className="text-[36px] sm:text-5xl font-medium text-[#0D7E73] tracking-tight leading-[1.08]">
           {secondPart}
         </h1>
       )}

@@ -7,6 +7,7 @@ import { HeroQuoteAuthor } from "@/components/home/hero-quote-author"
 import { getAuthSession } from "@/lib/auth"
 import { apiClient } from "@/lib/api/client"
 import { getBrandingSettings } from "@/lib/branding"
+import { googleSansFlex } from "@/lib/fonts"
 import { redirect } from "next/navigation"
 import {
   Users,
@@ -37,7 +38,7 @@ export default async function PublicHomepage() {
   }
 
   return (
-    <div className="min-h-dvh w-full bg-gradient-to-b from-[#EFF8F6] via-[#F4F9F7] to-[#F8FCFA] text-[#0F172A] font-sans relative overflow-x-hidden flex flex-col justify-between">
+    <div className={`${googleSansFlex.className} font-sans min-h-dvh w-full bg-gradient-to-b from-[#EFF8F6] via-[#F4F9F7] to-[#F8FCFA] text-[#0F172A] relative overflow-x-hidden flex flex-col justify-between`}>
       {/* Fixed Public Header */}
       <PublicHeader />
 
@@ -70,15 +71,15 @@ export default async function PublicHomepage() {
         {/* HERO SECTION (FOREGROUND CONTENT & HORIZONTAL CTA CARDS)            */}
         {/* =================================================================== */}
         <section className="pt-2 sm:pt-4 pb-1 space-y-4 sm:space-y-6 relative">
-          {/* Desktop Floating Script Accent (Matching PC Reference) */}
+          {/* Desktop Floating Script Accent */}
           <div className="hidden md:block absolute right-8 lg:right-24 top-2 lg:top-6 select-none pointer-events-none text-right -rotate-6 tracking-wide leading-tight">
-            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+            <span className="italic font-light text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
               A kinder
             </span>
-            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+            <span className="italic font-light text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
               Stronger
             </span>
-            <span className="font-serif italic text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
+            <span className="italic font-light text-2xl lg:text-[34px] text-[#2F6558]/80 block drop-shadow-2xs">
               Tomorrow
             </span>
             <svg className="w-24 h-4 text-[#2F6558]/70 ml-auto mt-0.5" viewBox="0 0 100 20" fill="none">
@@ -89,7 +90,7 @@ export default async function PublicHomepage() {
           {/* Hero Foreground Text */}
           <div className="space-y-3 sm:space-y-3.5 max-w-[310px] sm:max-w-md">
             {/* Pill Category Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F4EE]/95 backdrop-blur-xs border border-[#BDE5DC] text-[#0D7E73] text-[11px] sm:text-xs font-semibold shadow-2xs">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#E0F4EE]/95 backdrop-blur-xs border border-[#BDE5DC] text-[#0D7E73] text-[11px] sm:text-xs font-medium shadow-2xs">
               <Leaf className="w-3.5 h-3.5 text-[#0D7E73] shrink-0" />
               <span>Together for a Better Tomorrow</span>
             </div>
@@ -98,7 +99,7 @@ export default async function PublicHomepage() {
             <HeroTitle initialName={branding.foundationName} />
 
             {/* Humanitarian Mission Statement */}
-            <p className="text-slate-600 font-medium text-xs sm:text-[14px] leading-relaxed">
+            <p className="text-slate-600 font-normal text-xs sm:text-[14px] leading-relaxed">
               In the service of humanity,
               <br />
               for the pleasure of the Almighty.
@@ -107,7 +108,7 @@ export default async function PublicHomepage() {
             {/* Tag Line: Mobile has "— People • Community • Change", Desktop has icons with dividers */}
             <div className="pt-0.5">
               {/* Mobile version */}
-              <div className="flex sm:hidden items-center gap-2 text-xs font-semibold text-[#0D7E73]">
+              <div className="flex sm:hidden items-center gap-2 text-xs font-medium text-[#0D7E73]">
                 <span className="w-4 h-[2px] bg-[#0D7E73] rounded-full" />
                 <span>People</span>
                 <span className="text-[#0D7E73]">•</span>
@@ -116,7 +117,7 @@ export default async function PublicHomepage() {
                 <span>Change</span>
               </div>
               {/* Desktop / Tablet version */}
-              <div className="hidden sm:flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-[#0D7E73]">
+              <div className="hidden sm:flex items-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-medium text-[#0D7E73]">
                 <span className="flex items-center gap-1.5">
                   <Leaf className="w-3.5 h-3.5 text-[#0D7E73]" /> People
                 </span>
@@ -154,7 +155,7 @@ export default async function PublicHomepage() {
                   <UserPlus className="w-5 h-5 sm:w-5.5 sm:h-5.5 text-white" strokeWidth={2.2} />
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-white text-sm sm:text-base tracking-tight leading-tight">
+                  <h3 className="font-medium text-white text-sm sm:text-base tracking-tight leading-tight">
                     Become a Member
                   </h3>
                   <p className="text-white/80 text-[11px] sm:text-xs font-normal mt-0.5">
@@ -204,7 +205,7 @@ export default async function PublicHomepage() {
                   </svg>
                 </div>
                 <div className="min-w-0">
-                  <h3 className="font-bold text-[#0F172A] text-sm sm:text-base tracking-tight leading-tight">
+                  <h3 className="font-medium text-[#0F172A] text-sm sm:text-base tracking-tight leading-tight">
                     Check Application Status
                   </h3>
                   <p className="text-slate-500 text-[11px] sm:text-xs font-normal mt-0.5">
@@ -245,10 +246,10 @@ export default async function PublicHomepage() {
                 <Users className="w-5.5 h-5.5" />
               </div>
               <div className="text-left min-w-0">
-                <div className="text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                <div className="text-2xl font-semibold text-[#0F172A] tracking-tight leading-none">
                   1,250+
                 </div>
-                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
+                <div className="text-sm font-medium text-slate-800 leading-tight mt-1">
                   Lives Supported
                 </div>
                 <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
@@ -263,10 +264,10 @@ export default async function PublicHomepage() {
                 <Heart className="w-5.5 h-5.5 fill-[#0D7E73]" />
               </div>
               <div className="text-left min-w-0">
-                <div className="text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                <div className="text-2xl font-semibold text-[#0F172A] tracking-tight leading-none">
                   50+
                 </div>
-                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
+                <div className="text-sm font-medium text-slate-800 leading-tight mt-1">
                   Community Projects
                 </div>
                 <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
@@ -281,10 +282,10 @@ export default async function PublicHomepage() {
                 <Leaf className="w-5.5 h-5.5 text-[#0D7E73]" />
               </div>
               <div className="text-left min-w-0">
-                <div className="text-2xl font-black text-[#0D7E73] tracking-tight leading-none">
+                <div className="text-2xl font-semibold text-[#0D7E73] tracking-tight leading-none">
                   100%
                 </div>
-                <div className="text-sm font-bold text-slate-800 leading-tight mt-1">
+                <div className="text-sm font-medium text-slate-800 leading-tight mt-1">
                   For a Better Tomorrow
                 </div>
                 <div className="text-xs text-slate-400 font-normal leading-tight mt-0.5">
@@ -304,10 +305,10 @@ export default async function PublicHomepage() {
                   <Users className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5" />
                 </div>
                 <div className="text-left min-w-0">
-                  <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                  <div className="text-lg sm:text-2xl font-semibold text-[#0F172A] tracking-tight leading-none">
                     1,250+
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                  <div className="text-xs sm:text-sm font-medium text-slate-800 leading-tight mt-1">
                     Lives Supported
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
@@ -322,10 +323,10 @@ export default async function PublicHomepage() {
                   <Heart className="w-4.5 h-4.5 sm:w-5.5 sm:h-5.5 fill-[#0D7E73]" />
                 </div>
                 <div className="text-left min-w-0">
-                  <div className="text-lg sm:text-2xl font-black text-[#0F172A] tracking-tight leading-none">
+                  <div className="text-lg sm:text-2xl font-semibold text-[#0F172A] tracking-tight leading-none">
                     50+
                   </div>
-                  <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight mt-1">
+                  <div className="text-xs sm:text-sm font-medium text-slate-800 leading-tight mt-1">
                     Community Projects
                   </div>
                   <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
@@ -342,12 +343,12 @@ export default async function PublicHomepage() {
             <div className="flex items-center justify-center gap-2.5 sm:gap-3">
               <div className="flex items-center gap-1.5 shrink-0">
                 <Leaf className="w-4.5 h-4.5 text-[#0D7E73]" />
-                <span className="text-lg sm:text-2xl font-black text-[#0D7E73] tracking-tight">
+                <span className="text-lg sm:text-2xl font-semibold text-[#0D7E73] tracking-tight">
                   100%
                 </span>
               </div>
               <div className="text-left">
-                <div className="text-xs sm:text-sm font-bold text-slate-800 leading-tight">
+                <div className="text-xs sm:text-sm font-medium text-slate-800 leading-tight">
                   For a Better Tomorrow
                 </div>
                 <div className="text-[10px] sm:text-[11px] text-slate-400 font-normal leading-tight mt-0.5">
@@ -366,7 +367,7 @@ export default async function PublicHomepage() {
         <section className="hidden md:flex items-center justify-between rounded-3xl bg-[#EEF7F4] border border-[#CCEAE0] px-6 py-4.5 shadow-[0_4px_24px_rgba(13,126,115,0.03)] relative overflow-hidden">
           {/* Left Label with Underline */}
           <div className="pr-6 shrink-0 border-r border-[#CCEAE0]">
-            <span className="text-xs font-black tracking-[0.2em] text-[#0D7E73] uppercase block">
+            <span className="text-xs font-medium tracking-[0.2em] text-[#0D7E73] uppercase block">
               OUR VALUES
             </span>
             <span className="h-[2px] w-8 bg-[#0D7E73] block mt-1 rounded-full" />
@@ -380,7 +381,7 @@ export default async function PublicHomepage() {
                 <Heart className="w-4.5 h-4.5 text-[#0D7E73] fill-[#0D7E73]" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Compassion</h4>
+                <h4 className="font-semibold text-[#0F172A] text-sm leading-tight">Compassion</h4>
                 <p className="text-[11px] text-slate-500 font-normal mt-0.5">We care</p>
               </div>
             </div>
@@ -391,7 +392,7 @@ export default async function PublicHomepage() {
                 <Users className="w-4.5 h-4.5 text-[#D97706] fill-[#D97706]" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Unity</h4>
+                <h4 className="font-semibold text-[#0F172A] text-sm leading-tight">Unity</h4>
                 <p className="text-[11px] text-slate-500 font-normal mt-0.5">We stand together</p>
               </div>
             </div>
@@ -402,7 +403,7 @@ export default async function PublicHomepage() {
                 <Leaf className="w-4.5 h-4.5 text-[#16A34A]" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Service</h4>
+                <h4 className="font-semibold text-[#0F172A] text-sm leading-tight">Service</h4>
                 <p className="text-[11px] text-slate-500 font-normal mt-0.5">We take action</p>
               </div>
             </div>
@@ -413,7 +414,7 @@ export default async function PublicHomepage() {
                 <Star className="w-4.5 h-4.5 text-[#0284C7] fill-[#0284C7]" />
               </div>
               <div>
-                <h4 className="font-serif font-bold text-[#0F172A] text-sm leading-tight">Impact</h4>
+                <h4 className="font-semibold text-[#0F172A] text-sm leading-tight">Impact</h4>
                 <p className="text-[11px] text-slate-500 font-normal mt-0.5">We create change</p>
               </div>
             </div>
@@ -489,7 +490,7 @@ export default async function PublicHomepage() {
           {/* Center Heading with Decorative Thin Lines */}
           <div className="flex items-center justify-center gap-2.5 relative z-10">
             <span className="h-[1px] w-6 bg-[#7BBBAA]" aria-hidden="true" />
-            <span className="text-[10px] font-bold tracking-[0.22em] text-[#2F7E6F] uppercase">
+            <span className="text-[10px] font-medium tracking-[0.22em] text-[#2F7E6F] uppercase">
               OUR VALUES
             </span>
             <span className="h-[1px] w-6 bg-[#7BBBAA]" aria-hidden="true" />
@@ -502,10 +503,10 @@ export default async function PublicHomepage() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCF3EB] flex items-center justify-center mb-1.5 shadow-2xs">
                 <Heart className="w-4 h-4 text-[#0D7E73] fill-[#0D7E73]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
+              <h3 className="font-semibold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Compassion
               </h3>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-normal leading-tight mt-0.5">
                 We care
               </p>
             </div>
@@ -515,10 +516,10 @@ export default async function PublicHomepage() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#FEF3C7] flex items-center justify-center mb-1.5 shadow-2xs">
                 <Users className="w-4 h-4 text-[#D97706] fill-[#D97706]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
+              <h3 className="font-semibold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Unity
               </h3>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-normal leading-tight mt-0.5">
                 We stand together
               </p>
             </div>
@@ -528,10 +529,10 @@ export default async function PublicHomepage() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#DCFCE7] flex items-center justify-center mb-1.5 shadow-2xs">
                 <Leaf className="w-4 h-4 text-[#16A34A]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
+              <h3 className="font-semibold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Service
               </h3>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-normal leading-tight mt-0.5">
                 We take action
               </p>
             </div>
@@ -541,10 +542,10 @@ export default async function PublicHomepage() {
               <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#E0F2FE] flex items-center justify-center mb-1.5 shadow-2xs">
                 <Star className="w-4 h-4 text-[#0284C7] fill-[#0284C7]" />
               </div>
-              <h3 className="font-serif font-bold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
+              <h3 className="font-semibold text-[#0F172A] text-[11px] sm:text-xs tracking-tight">
                 Impact
               </h3>
-              <p className="text-[9px] sm:text-[10px] text-slate-500 font-medium leading-tight mt-0.5">
+              <p className="text-[9px] sm:text-[10px] text-slate-500 font-normal leading-tight mt-0.5">
                 We create change
               </p>
             </div>
@@ -574,7 +575,7 @@ export default async function PublicHomepage() {
             </svg>
           </div>
           
-          <blockquote className="text-sm sm:text-base font-bold text-[#92400E] leading-snug tracking-tight max-w-xl mx-auto relative z-10 font-serif">
+          <blockquote className="text-sm sm:text-base font-medium text-[#92400E] leading-relaxed tracking-tight max-w-xl mx-auto relative z-10">
             “In the service of humanity, for the pleasure of the Almighty”
           </blockquote>
 

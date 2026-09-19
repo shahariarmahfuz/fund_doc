@@ -88,21 +88,21 @@ export function PublicHeader() {
               )}
             </div>
             <div className="flex flex-col">
-              <span className="text-[15px] sm:text-base font-extrabold text-[#0F172A] leading-tight tracking-tight">
+              <span className="text-[15px] sm:text-base font-semibold text-[#0F172A] leading-tight tracking-tight">
                 {branding.foundationName || "Foundation"}
               </span>
-              <span className="text-[11px] sm:text-xs font-semibold text-[#0D7E73] leading-tight">
+              <span className="text-[11px] sm:text-xs font-normal text-[#0D7E73] leading-tight">
                 Welfare Organization
               </span>
             </div>
           </Link>
 
           {/* Desktop Center Navigation Links (Visible on md+) */}
-          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-semibold text-slate-600">
+          <nav className="hidden md:flex items-center gap-6 lg:gap-8 text-sm font-medium text-slate-600">
             <Link
               href="/"
               className={`transition-colors relative py-1 ${
-                pathname === "/" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+                pathname === "/" ? "text-[#0D7E73] font-semibold" : "hover:text-[#0D7E73]"
               }`}
             >
               Home
@@ -113,7 +113,7 @@ export function PublicHeader() {
             <Link
               href="/about"
               className={`transition-colors relative py-1 ${
-                pathname === "/about" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+                pathname === "/about" ? "text-[#0D7E73] font-semibold" : "hover:text-[#0D7E73]"
               }`}
             >
               About
@@ -124,7 +124,7 @@ export function PublicHeader() {
             <Link
               href="/goals"
               className={`transition-colors relative py-1 ${
-                pathname === "/goals" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+                pathname === "/goals" ? "text-[#0D7E73] font-semibold" : "hover:text-[#0D7E73]"
               }`}
             >
               Programs
@@ -135,7 +135,7 @@ export function PublicHeader() {
             <Link
               href="/mission"
               className={`transition-colors relative py-1 ${
-                pathname === "/mission" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+                pathname === "/mission" ? "text-[#0D7E73] font-semibold" : "hover:text-[#0D7E73]"
               }`}
             >
               News
@@ -145,14 +145,14 @@ export function PublicHeader() {
             </Link>
             <Link
               href="/about"
-              className="hover:text-[#0D7E73] transition-colors py-1"
+              className="hover:text-[#0D7E73] transition-colors py-1 font-medium"
             >
               Gallery
             </Link>
             <Link
               href="/contact"
               className={`transition-colors relative py-1 ${
-                pathname === "/contact" ? "text-[#0D7E73] font-bold" : "hover:text-[#0D7E73]"
+                pathname === "/contact" ? "text-[#0D7E73] font-semibold" : "hover:text-[#0D7E73]"
               }`}
             >
               Contact
@@ -220,10 +220,10 @@ export function PublicHeader() {
               {initials}
             </div>
             <div className="flex flex-col">
-              <span className="font-extrabold text-sm text-[#0F172A] leading-tight">
+              <span className="font-semibold text-sm text-[#0F172A] leading-tight">
                 {branding.foundationName || "Foundation"}
               </span>
-              <span className="text-[10px] font-semibold text-[#0D7E73] uppercase tracking-wider">
+              <span className="text-[10px] font-medium text-[#0D7E73] uppercase tracking-wider">
                 Public Navigation
               </span>
             </div>
@@ -247,7 +247,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -273,7 +273,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/member-request"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-[#E8F5F1]/50 font-medium"
             }`}
           >
@@ -303,7 +303,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/member-request/status"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -338,7 +338,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/about"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -364,7 +364,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/goals"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -390,7 +390,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/mission"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -416,7 +416,7 @@ export function PublicHeader() {
             onClick={() => setIsOpen(false)}
             className={`flex items-center justify-between px-3.5 py-3 rounded-xl transition-all duration-150 group cursor-pointer ${
               pathname === "/contact"
-                ? "bg-[#E8F5F1] text-[#0D7E73] font-bold"
+                ? "bg-[#E8F5F1] text-[#0D7E73] font-semibold"
                 : "text-slate-800 hover:bg-slate-50 font-medium"
             }`}
           >
@@ -442,7 +442,7 @@ export function PublicHeader() {
           <Link
             href="/login"
             onClick={() => setIsOpen(false)}
-            className="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+            className="flex items-center justify-center gap-2.5 w-full py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium text-xs transition-colors cursor-pointer"
           >
             <LogIn className="w-4 h-4 text-slate-600" strokeWidth={2} />
             <span>Foundation Portal Login</span>

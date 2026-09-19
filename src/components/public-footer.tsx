@@ -15,7 +15,7 @@ export function PublicFooter() {
 
       <div className="max-w-4xl mx-auto px-4 flex flex-col items-center space-y-4">
         {/* Public Navigation Links */}
-        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-semibold text-slate-500">
+        <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs font-medium text-slate-500">
           <Link href="/about" className="hover:text-[#0D7E73] transition-colors">
             About Us
           </Link>
