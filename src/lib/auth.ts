@@ -173,16 +173,20 @@ export const authOptions: NextAuthOptions = {
           token.error = undefined
           return token
         }
-      } catch (err) {
+      } catch (err: any) {
         console.warn("Token refresh attempt failed in NextAuth:", err)
+        // If session was revoked or expired in the backend, invalidate immediately
+        if (err?.status === 401 || err?.code === "UNAUTHORIZED" || err?.message?.includes("revoked") || err?.message?.includes("expired")) {
+          return {} as any
+        }
       }
 
-      // If refresh failed but expired less than 24 hours ago, preserve session temporarily during transient downtime
+      // If refresh failed due to network / DB outage, preserve session temporarily during transient downtime
       if (expiresAt && now < expiresAt + 24 * 60 * 60 * 1000) {
         return token
       }
 
-      // Only invalidate if expired for over 24 hours without successful refresh
+      // Invalidate if expired
       return {} as any
     },
     async session({ session, token }) {

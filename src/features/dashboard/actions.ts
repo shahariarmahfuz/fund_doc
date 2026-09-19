@@ -1,6 +1,7 @@
 "use server"
 
-import { apiClient } from "@/lib/api/client"
+import { apiClient, isAuthError } from "@/lib/api/client"
+import { redirect } from "next/navigation"
 
 export interface MetricComparison {
   current: number
@@ -97,7 +98,11 @@ export async function getDashboardStats(): Promise<DashboardStatsData> {
       return { ...stats, isError: false }
     }
     return stats
-  } catch (err) {
+  } catch (err: any) {
+    if (isAuthError(err) || err?.status === 401 || err?.status === 403) {
+      redirect("/login")
+    }
+
     console.error("[Dashboard] Temporary API synchronization failure:", err)
 
     // VALID DATA + TEMPORARY API FAILURE = KEEP VALID DATA!
