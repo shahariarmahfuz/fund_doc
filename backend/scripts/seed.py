@@ -109,6 +109,11 @@ ROLES = [
 ]
 
 def seed():
+    import app.models
+    from app.core.database import Base, engine
+    print("0. Ensuring all database tables exist in PostgreSQL...")
+    Base.metadata.create_all(bind=engine)
+
     db = SessionLocal()
     try:
         print("1. Seeding permissions...")

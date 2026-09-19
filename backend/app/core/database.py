@@ -34,13 +34,15 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def init_db_engine() -> None:
-    """Verify database connectivity at application startup."""
+    """Verify database connectivity and ensure schema tables exist at application startup."""
     try:
+        import app.models
+        Base.metadata.create_all(bind=engine)
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        logger.info("Database engine initialized successfully. Connection pool is healthy.")
+        logger.info("Database engine initialized successfully. Connection pool and tables ready.")
     except Exception as exc:
-        logger.warning(f"Initial database ping failed during startup: {exc}. Pool will attempt reconnect on request.")
+        logger.warning(f"Initial database initialization failed during startup: {exc}. Pool will attempt reconnect on request.")
 
 def dispose_db_engine() -> None:
     """Cleanly dispose database connection pool at application shutdown."""
