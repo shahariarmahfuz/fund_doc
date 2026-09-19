@@ -239,3 +239,49 @@ def test_qard_hasan_loan_crud_flow(client, auth_headers):
     res_del_prefix = client.delete(f"/api/v1/loans/{prefix_loan_id}", headers=auth_headers)
     assert res_del_prefix.status_code == 200
 
+def test_contribution_delete_flow(client, auth_headers):
+    # Get a member
+    res_m = client.get("/api/v1/members", headers=auth_headers)
+    assert res_m.status_code == 200
+    member_id = res_m.json()["data"][0]["id"]
+
+    # 1. Create a paid contribution
+    res_create = client.post("/api/v1/contributions", json={
+        "memberId": member_id,
+        "month": 10,
+        "year": 2030,
+        "amount": 300,
+        "paymentDate": "2030-10-01T00:00:00.000Z",
+        "paymentMethod": "CASH",
+        "status": "PAID",
+        "isAdditional": False
+    }, headers=auth_headers)
+    assert res_create.status_code == 200
+    created = res_create.json()["data"]
+    mc_id = created["monthlyContributionId"]
+
+    # 2. Delete contribution via DELETE /api/v1/contributions/{mc_id}
+    res_del = client.delete(f"/api/v1/contributions/{mc_id}", headers=auth_headers)
+    assert res_del.status_code == 200
+    assert res_del.json()["success"] is True
+
+    # 3. Create another paid contribution to test deletion by paymentId
+    res_create2 = client.post("/api/v1/contributions", json={
+        "memberId": member_id,
+        "month": 10,
+        "year": 2030,
+        "amount": 300,
+        "paymentDate": "2030-10-01T00:00:00.000Z",
+        "paymentMethod": "CASH",
+        "status": "PAID",
+        "isAdditional": False
+    }, headers=auth_headers)
+    assert res_create2.status_code == 200
+    payment_id = res_create2.json()["data"]["paymentId"]
+
+    # 4. Delete via payment ID route
+    res_del2 = client.delete(f"/api/v1/contributions/payment/{payment_id}", headers=auth_headers)
+    assert res_del2.status_code == 200
+    assert res_del2.json()["success"] is True
+
+

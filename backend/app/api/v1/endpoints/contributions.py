@@ -10,7 +10,7 @@ from app.schemas.contribution import (
     ContributionPaymentResponse
 )
 from app.schemas.ledger import LedgerEntryInput
-from app.models import Member, MonthlyContribution, ContributionPayment
+from app.models import Member, MonthlyContribution, ContributionPayment, LedgerTransaction, LedgerEntry
 from app.services.ledger_engine import LedgerEngine
 from app.services.member_service import MemberService
 from app.dependencies.permissions import require_permission
@@ -173,23 +173,41 @@ def get_member_contributions(
     return APIResponse(success=True, data=result)
 
 @router.delete("/{id}", response_model=APIResponse[dict])
+@router.delete("/payment/{id}", response_model=APIResponse[dict], include_in_schema=False)
 def delete_contribution(
     id: str,
     db: Session = Depends(get_db),
     _user = Depends(require_permission("Fund Collection", "Delete"))
 ):
+    # Support deletion by monthlyContribution.id or contributionPayment.id
     mc = db.query(MonthlyContribution).filter(MonthlyContribution.id == id).first()
+    if not mc:
+        payment_match = db.query(ContributionPayment).filter(ContributionPayment.id == id).first()
+        if payment_match:
+            mc = db.query(MonthlyContribution).filter(MonthlyContribution.id == payment_match.monthlyContributionId).first()
+
     if not mc:
         raise NotFoundException("Monthly contribution not found.")
 
     member_id = mc.memberId
-    for payment in mc.payments:
+    payments = db.query(ContributionPayment).filter(ContributionPayment.monthlyContributionId == mc.id).all()
+
+    tx_ids_to_delete = []
+    for payment in payments:
         if payment.ledgerTransactionId:
-            db.query(LedgerEntry).filter(LedgerEntry.ledgerTransactionId == payment.ledgerTransactionId).delete()
-            db.query(LedgerTransaction).filter(LedgerTransaction.id == payment.ledgerTransactionId).delete()
+            tx_ids_to_delete.append(payment.ledgerTransactionId)
         db.delete(payment)
 
+    # Flush payment deletes first so RESTRICT foreign key on LedgerTransaction is cleared
+    db.flush()
+
+    for tx_id in tx_ids_to_delete:
+        db.query(LedgerEntry).filter(LedgerEntry.transactionId == tx_id).delete(synchronize_session=False)
+        db.query(LedgerTransaction).filter(LedgerTransaction.id == tx_id).delete(synchronize_session=False)
+
     db.delete(mc)
+    db.flush()
+
     MemberService.update_member_paid_until(db, member_id)
     db.commit()
     return APIResponse(success=True, data={"message": "Contribution deleted successfully."})

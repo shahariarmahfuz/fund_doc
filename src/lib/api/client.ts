@@ -503,6 +503,9 @@ export const apiClient = {
       return apiClient.get<any>(`/api/v1/contributions/summary${qs ? `?${qs}` : ""}`)
     },
 
+    delete: (id: string) =>
+      apiClient.delete<any>(`/api/v1/contributions/${id}`),
+
     deletePayment: (id: string) =>
       apiClient.delete<any>(`/api/v1/contributions/payment/${id}`),
   },

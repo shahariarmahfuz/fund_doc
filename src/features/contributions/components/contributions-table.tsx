@@ -39,6 +39,7 @@ import { MoreHorizontal, FileText, Download, Printer, Eye, Edit, Trash, CheckCir
 import { EditContributionSheet } from "./edit-contribution-sheet"
 import { ViewContributionDialog } from "./view-contribution-dialog"
 import { deleteContribution, updateContribution } from "../actions"
+import { apiClient } from "@/lib/api/client"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -72,11 +73,32 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
   const handleDelete = async (id: string) => {
     if (!confirm("Are you sure you want to delete this contribution? This will permanently remove the record and reverse all associated ledger entries. This action cannot be undone.")) return;
     
-    const res = await deleteContribution(id)
+    let res: { success: boolean; error?: string }
+    try {
+      res = await deleteContribution(id)
+    } catch (actionErr: any) {
+      const errorMsg = String(actionErr?.message || actionErr || "")
+      if (
+        errorMsg.includes("was not found on the server") ||
+        errorMsg.includes("failed-to-find-server-action") ||
+        errorMsg.includes("Server Action")
+      ) {
+        try {
+          await apiClient.contributions.delete(id)
+          res = { success: true }
+        } catch (apiErr: any) {
+          res = { success: false, error: apiErr?.message || "Failed to delete contribution" }
+        }
+      } else {
+        res = { success: false, error: errorMsg }
+      }
+    }
+
     if (res.success) {
       toast.success("Contribution successfully deleted", { description: "Contribution and ledger entries reversed." })
+      router.refresh()
     } else {
-      toast.error("Failed to save contribution", { description: res.error })
+      toast.error("Failed to delete contribution", { description: res.error })
     }
   }
 
@@ -102,8 +124,9 @@ export function ContributionsTable({ data }: { data: ContributionWithDetails[] }
     const res = await updateContribution(contribution.id, payload)
     if (res.success) {
       toast.success("Status successfully updated", { description: `Contribution marked as ${newStatus}.` })
+      router.refresh()
     } else {
-      toast.error("Failed to save contribution", { description: res.error })
+      toast.error("Failed to update contribution", { description: res.error })
     }
   }
 
