@@ -14,16 +14,7 @@ export default async function LoginPage() {
   const user = session?.user as any
 
   if (user?.id) {
-    try {
-      const me = await apiClient.auth.getMe()
-      if (me && (me.id || me.data?.id)) {
-        redirect("/dashboard")
-      }
-    } catch {
-      // Backend rejected existing session token (expired, revoked, or DB migration).
-      // Do NOT redirect to /dashboard to prevent redirect loops.
-      // Instead, proceed to show LoginForm so the user can re-authenticate cleanly.
-    }
+    redirect("/dashboard")
   }
 
   return <LoginForm />

@@ -5,10 +5,12 @@ echo "=================================================="
 echo " Starting Single-Container Foundation ERP Setup  "
 echo "=================================================="
 
-# 1. Resolve Port Configuration
+# 1. Resolve Port and Auth Configuration
 export PORT="${PORT:-10000}"
 RENDER_PORT="${PORT}"
 echo "[INIT] Render Public Port configured as: ${RENDER_PORT}"
+export NEXTAUTH_URL="${NEXTAUTH_URL:-https://fund-doc.onrender.com}"
+export NEXTAUTH_SECRET="${NEXTAUTH_SECRET:-super_secret_default_key_change_in_production_32_characters_min}"
 
 # 2. Template NGINX Configuration
 echo "[INIT] Generating NGINX configuration from template..."

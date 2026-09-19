@@ -2,13 +2,13 @@ from typing import Optional
 from fastapi import APIRouter, Depends, Request, Response
 from sqlalchemy.orm import Session
 from datetime import timedelta
-from app.core.database import get_db
+from app.core.database import get_db, get_optional_db
 from app.core.security import create_access_token
 from app.core.config import settings
 from app.models import User
 from app.schemas.common import APIResponse
 from app.schemas.auth import LoginRequest, TokenResponse, UserAuthProfile, ChangePasswordRequest, RefreshTokenRequest
-from app.services.auth_service import AuthService
+from app.services.auth_service import AuthService, is_super_admin_role
 from app.dependencies.auth import get_current_active_user
 from app.core.exceptions import APIException, UnauthorizedException
 
@@ -19,7 +19,7 @@ def login(
     payload: LoginRequest,
     request: Request,
     response: Response,
-    db: Session = Depends(get_db)
+    db: Optional[Session] = Depends(get_optional_db)
 ):
     ip = request.client.host if request.client else "Unknown"
     user_agent = request.headers.get("user-agent", "Unknown")
@@ -44,7 +44,11 @@ def login(
         ip_address=ip
     )
 
-    permissions = AuthService.get_user_permissions(db, user.id)
+    permissions = getattr(user, "_permissions", None) or (
+        ["*"] if is_super_admin_role(user.role.name if user.role else None) else (
+            AuthService.get_user_permissions(db, user.id) if db else []
+        )
+    )
 
     expires_delta = timedelta(days=30) if payload.rememberMe else timedelta(days=1)
     access_token = create_access_token(
@@ -55,7 +59,8 @@ def login(
             "role": user.role.name if user.role else "USER",
             "jti": jti,
             "name": user.name,
-            "email": user.email
+            "email": user.email,
+            "permissions": permissions,
         }
     )
 
@@ -65,7 +70,9 @@ def login(
         custom_claims={
             "type": "refresh",
             "jti": jti,
-            "username": user.username
+            "username": user.username,
+            "role": user.role.name if user.role else "USER",
+            "permissions": permissions,
         }
     )
 
@@ -115,7 +122,7 @@ def refresh_token(
     request: Request,
     response: Response,
     payload: Optional[RefreshTokenRequest] = None,
-    db: Session = Depends(get_db)
+    db: Optional[Session] = Depends(get_optional_db)
 ):
     token_to_refresh = None
     if payload:
@@ -151,7 +158,11 @@ def refresh_token(
             max_age=30 * 86400
         )
 
-    permissions = AuthService.get_user_permissions(db, user.id)
+    permissions = getattr(user, "_permissions", None) or (
+        ["*"] if is_super_admin_role(user.role.name if user.role else None) else (
+            AuthService.get_user_permissions(db, user.id) if db else []
+        )
+    )
     user_profile = UserAuthProfile(
         id=user.id,
         name=user.name,
@@ -177,10 +188,10 @@ def refresh_token(
 
 @router.get("/me", response_model=APIResponse[UserAuthProfile])
 def get_me(
-    current_user: User = Depends(get_current_active_user),
-    db: Session = Depends(get_db)
+    current_user: User = Depends(get_current_active_user)
 ):
-    permissions = AuthService.get_user_permissions(db, current_user.id)
+    role_name = current_user.role.name if current_user.role else "USER"
+    permissions = getattr(current_user, "_permissions", None) or (["*"] if is_super_admin_role(role_name) else [])
     return APIResponse(
         success=True,
         data=UserAuthProfile(
@@ -189,7 +200,7 @@ def get_me(
             username=current_user.username,
             email=current_user.email,
             mobile=current_user.mobile,
-            role=current_user.role.name if current_user.role else "USER",
+            role=role_name,
             photo=current_user.photo,
             permissions=permissions,
             preferences=current_user.preferences

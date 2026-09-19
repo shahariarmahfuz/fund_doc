@@ -26,6 +26,9 @@ class Settings(BaseSettings):
     SECRET_KEY: str = "super_secret_default_key_change_in_production_32_characters_min"
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30  # 30 days default
+    ADMIN_USERNAME: str = "admin"
+    ADMIN_PASSWORD: str = "admin123"
+    ADMIN_EMAIL: str = "admin@foundation.org"
 
     # CORS
     CORS_ORIGINS: Union[str, List[str]] = ["http://localhost:3000", "http://127.0.0.1:3000"]

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { signIn, signOut, useSession } from "next-auth/react"
+import { signIn, useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -36,11 +36,11 @@ export function LoginForm() {
   const { data: session } = useSession()
 
   useEffect(() => {
-    // If user arrived on the login screen with a stale/orphaned session, clean up the client cookie
-    if (session?.user) {
-      signOut({ redirect: false })
+    // If user is already authenticated, navigate them to dashboard
+    if (session?.user && !isLoading) {
+      router.replace("/dashboard")
     }
-  }, [session])
+  }, [session, isLoading, router])
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -66,8 +66,7 @@ export function LoginForm() {
         toast.error(res.error)
       } else if (res?.ok) {
         toast.success("Login successfully")
-        router.push("/dashboard")
-        router.refresh()
+        window.location.href = "/dashboard"
       }
     } catch (err) {
       toast.error("An error occurred while logging in")

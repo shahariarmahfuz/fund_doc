@@ -96,6 +96,7 @@ async function refreshAuthToken(): Promise<string | null> {
 
   activeRefreshPromise = (async () => {
     try {
+      console.log("[AUTH_REFRESH_STARTED] apiClient attempting token refresh...")
       if (typeof window === "undefined") {
         const { getAuthSession } = await import("@/lib/auth")
         const session = await getAuthSession()
@@ -103,6 +104,7 @@ async function refreshAuthToken(): Promise<string | null> {
         const refreshToken = (session as any)?.refreshToken || currentToken
         if (!refreshToken) {
           lastFailedRefreshTime = Date.now()
+          console.warn("[AUTH_REFRESH_FAILED] No refresh token available in session")
           return null
         }
 
@@ -118,6 +120,7 @@ async function refreshAuthToken(): Promise<string | null> {
 
         if (!res.ok) {
           lastFailedRefreshTime = Date.now()
+          console.warn(`[AUTH_REFRESH_FAILED] Server returned status ${res.status}`)
           return null
         }
         const json = await res.json()
@@ -129,6 +132,7 @@ async function refreshAuthToken(): Promise<string | null> {
             (session as any).refreshToken = data.refresh_token
           }
         }
+        console.log("[AUTH_REFRESH_SUCCESS] Server-side token refresh succeeded")
         return newToken || null
       } else {
         const res = await fetch("/api/v1/auth/refresh", {
@@ -137,15 +141,17 @@ async function refreshAuthToken(): Promise<string | null> {
         })
         if (!res.ok) {
           lastFailedRefreshTime = Date.now()
+          console.warn(`[AUTH_REFRESH_FAILED] Client-side refresh returned status ${res.status}`)
           return null
         }
         const json = await res.json()
         const data = json?.data || json
+        console.log("[AUTH_REFRESH_SUCCESS] Client-side token refresh succeeded")
         return data?.access_token || null
       }
     } catch (err) {
       lastFailedRefreshTime = Date.now()
-      console.warn("Automatic token refresh failed:", err)
+      console.warn("[AUTH_REFRESH_FAILED] Token refresh failed:", err)
       return null
     } finally {
       activeRefreshPromise = null
@@ -203,6 +209,17 @@ async function apiRequest<T>(
         headers,
         ...(Object.keys(nextOptions).length > 0 ? { next: nextOptions } : {}),
       })
+
+      // Log diagnostic API events
+      if (res.status === 401) {
+        console.warn(`[API_401] endpoint=${cleanEndpoint} status=401`)
+      } else if (res.status === 403) {
+        console.warn(`[API_403] endpoint=${cleanEndpoint} status=403`)
+      } else if (res.status === 500) {
+        console.error(`[API_500] endpoint=${cleanEndpoint} status=500`)
+      } else if (res.status === 503) {
+        console.warn(`[API_503] endpoint=${cleanEndpoint} status=503 [DATABASE_ERROR]`)
+      }
 
       // Intercept 401 Unauthorized for automatic token refresh (only for protected endpoints, not public or already retried)
       if (res.status === 401 && !isPublic && !cleanEndpoint.startsWith("/api/v1/auth/") && !_isRetryAfterRefresh) {

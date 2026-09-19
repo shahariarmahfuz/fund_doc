@@ -11,8 +11,13 @@ export const getUserPermissions = cache(async (userId: string): Promise<string[]
   if (!userId) return []
 
   const session = await getAuthSession()
-  if (session?.user?.id === userId && (session as any).permissions) {
-    return (session as any).permissions
+  if (session?.user?.id === userId) {
+    if (isSuperAdminRole((session.user as any)?.role)) {
+      return ["*"]
+    }
+    if ((session as any).permissions && (session as any).permissions.length > 0) {
+      return (session as any).permissions
+    }
   }
 
   try {

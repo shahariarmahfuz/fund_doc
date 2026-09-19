@@ -39,7 +39,10 @@ function parseUserAgent(ua: string) {
   return { browser, os, device }
 }
 
-const useSecure = process.env.NEXTAUTH_URL?.startsWith("https://") ?? false
+const useSecure =
+  process.env.NEXTAUTH_URL?.startsWith("https://") ||
+  process.env.NODE_ENV === "production" ||
+  Boolean(process.env.VERCEL)
 
 export const authOptions: NextAuthOptions = {
   // @ts-ignore
@@ -100,6 +103,8 @@ export const authOptions: NextAuthOptions = {
 
         const { browser, os, device } = parseUserAgent(userAgent)
 
+        console.log(`[AUTH_LOGIN_STARTED] Login attempt for username=${credentials.username}`)
+
         try {
           const authData = await apiClient.auth.login({
             username: credentials.username,
@@ -111,10 +116,15 @@ export const authOptions: NextAuthOptions = {
           })
 
           if (!authData || !authData.access_token) {
+            console.warn("[AUTH_LOGIN_FAILED] No access token in response")
             throw new Error("Login failed.")
           }
 
           const user = authData.user
+          const expiresAtMs = authData.expires_at ? authData.expires_at * 1000 : Date.now() + 30 * 24 * 60 * 60 * 1000
+
+          console.log(`[AUTH_LOGIN_SUCCESS] User ${user.username} authenticated successfully`)
+          console.log(`[AUTH_SESSION_CREATED] Session created for user_id=${user.id} role=${user.role}`)
 
           return {
             id: user.id,
@@ -125,10 +135,11 @@ export const authOptions: NextAuthOptions = {
             accessToken: authData.access_token,
             refreshToken: authData.refresh_token,
             permissions: user.permissions || [],
-            expiresAt: authData.expires_at ? authData.expires_at * 1000 : Date.now() + 24 * 60 * 60 * 1000,
+            expiresAt: expiresAtMs,
           } as any
         } catch (err: any) {
           const msg = err?.message || "Invalid username or password."
+          console.warn(`[AUTH_LOGIN_FAILED] Login error: ${msg}`)
           throw new Error(msg)
         }
       },
@@ -148,54 +159,61 @@ export const authOptions: NextAuthOptions = {
         token.accessToken = (user as any).accessToken
         token.refreshToken = (user as any).refreshToken
         token.permissions = (user as any).permissions
-        token.expiresAt = (user as any).expiresAt
+        token.expiresAt = (user as any).expiresAt || (Date.now() + 30 * 24 * 60 * 60 * 1000)
         return token
       }
 
-      // Check dynamic expiration - proactively refresh within 5 minutes of expiration or if expired
-      const expiresAt = (token.expiresAt as number) || 0
+      if (!token?.id) {
+        console.log("[AUTH_SESSION_MISSING] No token id in jwt callback")
+        return {} as any
+      }
+
+      console.log(`[AUTH_SESSION_CHECK] Session valid for user=${token.id} role=${token.role}`)
+
+      // Check dynamic expiration - proactively refresh within 5 minutes of expiration
+      const expiresAt = (token.expiresAt as number) || (Date.now() + 30 * 24 * 60 * 60 * 1000)
       const now = Date.now()
 
       // If token still valid for more than 5 minutes, keep using it
-      if (expiresAt && now < expiresAt - 5 * 60 * 1000) {
+      if (now < expiresAt - 5 * 60 * 1000) {
         return token
       }
 
       // Proactively refresh the token via backend
+      console.log(`[AUTH_REFRESH_STARTED] Refreshing token for user=${token.id}`)
       try {
         const refreshRes = await apiClient.auth.refresh({
           refreshToken: (token.refreshToken as string) || (token.accessToken as string)
         })
         if (refreshRes && refreshRes.access_token) {
+          console.log(`[AUTH_REFRESH_SUCCESS] Refreshed token for user=${token.id}`)
           token.accessToken = refreshRes.access_token
           if (refreshRes.refresh_token) token.refreshToken = refreshRes.refresh_token
-          token.expiresAt = refreshRes.expires_at ? refreshRes.expires_at * 1000 : Date.now() + 24 * 60 * 60 * 1000
+          token.expiresAt = refreshRes.expires_at ? refreshRes.expires_at * 1000 : Date.now() + 30 * 24 * 60 * 60 * 1000
           token.error = undefined
           return token
         }
       } catch (err: any) {
-        console.warn("Token refresh attempt failed in NextAuth:", err)
-        // If session was revoked or expired in the backend, invalidate immediately
-        if (err?.status === 401 || err?.code === "UNAUTHORIZED" || err?.message?.includes("revoked") || err?.message?.includes("expired")) {
+        console.warn(`[AUTH_REFRESH_FAILED] Proactive token refresh failed for user=${token.id}:`, err?.message || err)
+        // Non-destructive: Preserve existing session during transient network/server downtime
+        if (now >= expiresAt + 24 * 60 * 60 * 1000) {
+          console.warn(`[AUTH_SESSION_CLEARED] reason=hard_expiration_reached user=${token.id}`)
           return {} as any
         }
-      }
-
-      // If refresh failed due to network / DB outage, preserve session temporarily during transient downtime
-      if (expiresAt && now < expiresAt + 24 * 60 * 60 * 1000) {
         return token
       }
 
-      // Invalidate if expired
-      return {} as any
+      return token
     },
     async session({ session, token }) {
       if (!token || !token.id) {
+        console.log("[AUTH_SESSION_MISSING] No user token in session callback")
         return {
           ...session,
           user: undefined,
         } as any
       }
+      console.log(`[AUTH_SESSION_PRESENT] Session verified for user=${token.id} role=${token.role}`)
       session.user = {
         ...(session.user || {}),
         id: token.id as string,

@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from sqlalchemy.exc import SQLAlchemyError, OperationalError, InterfaceError
-from typing import Generator
+from typing import Generator, Optional
 import logging
 from app.core.config import settings
 from app.core.exceptions import DatabaseUnavailableException
@@ -93,6 +93,42 @@ def get_db() -> Generator[Session, None, None]:
     finally:
         db.close()
 
+def get_optional_db() -> Generator[Optional[Session], None, None]:
+    """
+    Optional database session dependency for stateless endpoints.
+    Yields a Session if available, or None if the database is unreachable.
+    Never raises DatabaseUnavailableException on connection acquisition.
+    """
+    db = None
+    try:
+        db = SessionLocal()
+        db.execute(text("SELECT 1"))
+    except Exception as exc:
+        logger.warning(f"Optional database session unavailable: {exc}")
+        if db:
+            try:
+                db.rollback()
+                db.close()
+            except Exception:
+                pass
+        db = None
+
+    try:
+        yield db
+    except Exception:
+        if db:
+            try:
+                db.rollback()
+            except Exception:
+                pass
+        raise
+    finally:
+        if db:
+            try:
+                db.close()
+            except Exception:
+                pass
+
 def check_database_health() -> bool:
     """Lightweight connection probe to verify database reachability."""
     try:
@@ -102,3 +138,4 @@ def check_database_health() -> bool:
     except Exception as exc:
         logger.warning(f"Database health check failed: {exc}")
         return False
+
