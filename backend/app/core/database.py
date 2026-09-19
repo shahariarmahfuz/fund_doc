@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
-from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.exc import SQLAlchemyError, OperationalError, InterfaceError
 from typing import Generator
 import logging
 from app.core.config import settings
@@ -25,7 +25,13 @@ engine = create_engine(
     max_overflow=5,           # Allow up to 5 additional connections during peak traffic
     pool_timeout=30,          # Bounded wait time for connection acquisition
     pool_recycle=300,         # Recycle connections every 5 minutes to prevent stale idle sockets
-    connect_args={"connect_timeout": 10},
+    connect_args={
+        "connect_timeout": 10,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5
+    },
     echo=False
 )
 
@@ -34,15 +40,13 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 def init_db_engine() -> None:
-    """Verify database connectivity and ensure schema tables exist at application startup."""
+    """Verify database connectivity at application startup."""
     try:
-        import app.models
-        Base.metadata.create_all(bind=engine)
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
-        logger.info("Database engine initialized successfully. Connection pool and tables ready.")
+        logger.info("Database engine initialized successfully. Connection pool ready.")
     except Exception as exc:
-        logger.warning(f"Initial database initialization failed during startup: {exc}. Pool will attempt reconnect on request.")
+        logger.warning(f"Initial database connectivity probe failed during startup: {exc}. Pool will attempt reconnect on request.")
 
 def dispose_db_engine() -> None:
     """Cleanly dispose database connection pool at application shutdown."""
@@ -57,16 +61,34 @@ def get_db() -> Generator[Session, None, None]:
     Request-scoped database session dependency.
     Reuses a connection from the persistent application pool.
     Guarantees rollback on exception and cleanup in finally block.
+    If a stale/dead connection is detected, invalidates it so the pool replaces it.
     """
     db = SessionLocal()
     try:
         yield db
+    except (OperationalError, InterfaceError) as exc:
+        try:
+            db.rollback()
+        except Exception:
+            pass
+        try:
+            db.invalidate()
+        except Exception:
+            pass
+        logger.error(f"Database connection error during request execution: {exc}")
+        raise DatabaseUnavailableException("Database temporarily unavailable. Please try again shortly.") from exc
     except SQLAlchemyError as exc:
-        db.rollback()
+        try:
+            db.rollback()
+        except Exception:
+            pass
         logger.error(f"Database error during request execution: {exc}")
-        raise DatabaseUnavailableException("Database temporarily unavailable.") from exc
+        raise DatabaseUnavailableException("Database temporarily unavailable. Please try again shortly.") from exc
     except Exception:
-        db.rollback()
+        try:
+            db.rollback()
+        except Exception:
+            pass
         raise
     finally:
         db.close()
@@ -77,6 +99,6 @@ def check_database_health() -> bool:
         with engine.connect() as conn:
             conn.execute(text("SELECT 1"))
         return True
-    except Exception:
+    except Exception as exc:
+        logger.warning(f"Database health check failed: {exc}")
         return False
-

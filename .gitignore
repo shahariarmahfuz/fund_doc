@@ -55,3 +55,6 @@ __pycache__/
 backend/.env*
 !backend/.env.example
 
+# agent configs
+.agent/mcp_config.json
+
